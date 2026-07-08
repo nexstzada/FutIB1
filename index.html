@@ -519,13 +519,14 @@
                     <div class="page-hero"><div><h2>Jogadores</h2><p>Visão centralizada com cards, foto e estatísticas rápidas.</p></div><div class="hero-badge">👤 Cadastro</div></div>
                     <div class="jogadores-toolbar">
                         <input id="searchJogadoresMobile" type="text" placeholder="Pesquisar jogador..." oninput="renderizarGrid()">
-                        <button id="btnToggleJogadores" class="btn-blue" onclick="alternarVisibilidadeJogadores()">📋 Mostrar Jogadores</button>
+                        <button id="btnToggleJogadores" class="btn-blue" onclick="alternarVisibilidadeJogadores()">� Mostrar Jogadores</button>
                         <button id="btnAddJogadorMobile" class="btn-green admin-only" onclick="abrirModalCadastroJogador()" style="display:none;">➕</button>
                     </div>
                     <div id="selecaoCadastro" class="admin-only" style="display:none; margin-bottom:12px;">
-                        <div style="display:flex; gap:8px;">
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
                             <button class="btn-blue" onclick="mostrarGerenciarJogadores()">👤 Gerenciar Jogadores</button>
                             <button class="btn-green" onclick="abrirModalCadastroJogador()">➕ Cadastrar Jogador</button>
+                            <button id="btnMostrarJogadores" class="btn-orange" onclick="alternarVisibilidadeJogadores()">👥 Mostrar Jogadores</button>
                         </div>
                     </div>
                     <div id="mensagemJogadoresVazia" style="padding:18px; text-align:center; color:#666;">Use o botão “Mostrar Jogadores” para listar os cadastros quando quiser.</div>
@@ -549,6 +550,9 @@
                         <div class="config-opcao"><label class="config-label">⚽ Gols para vitória</label><input type="number" id="golsVitoria" class="config-input" value="2" min="1" max="10" data-admin-control></div>
                         <div class="config-opcao"><input type="checkbox" id="primeiraPartida" class="config-checkbox" data-admin-control><label class="config-label">📌 Primeira partida (3 gols)</label></div>
                         <div class="config-opcao"><input type="checkbox" id="encerramentoAutomatico" class="config-checkbox" checked data-admin-control><label class="config-label">🏁 Encerramento automático</label></div>
+                        <div class="section-header"><h3>Selecionar equipes da partida</h3><div class="chip">👥</div></div>
+                        <div class="config-opcao"><label class="config-label">🏠 Equipe mandante</label><select id="selectEquipeMandante" class="config-input" style="width:220px;"></select></div>
+                        <div class="config-opcao"><label class="config-label">✈️ Equipe visitante</label><select id="selectEquipeVisitante" class="config-input" style="width:220px;"></select></div>
                         <div class="section-header"><h3>Ações</h3><div class="chip">▶</div></div>
                         <button class="btn-green" onclick="iniciarPartida()">▶ Começar partida</button>
                         <button class="btn-blue" onclick="mostrarTela('dashboard')">← Voltar</button>
@@ -557,9 +561,9 @@
                         <div class="estado-partida" id="estadoPartida"></div>
                         <div class="cronometro-display" id="cronometro">07:00</div>
                         <div class="cronometro-info">
-                            <div><strong id="placarTime1">Equipe 1</strong><span id="golsTime1">0</span></div>
+                            <div><strong id="placarTime1">Equipe</strong><span id="golsTime1">0</span></div>
                             <div style="font-size:24px;font-weight:bold;">×</div>
-                            <div><strong id="placarTime2">Equipe 2</strong><span id="golsTime2">0</span></div>
+                            <div><strong id="placarTime2">Equipe</strong><span id="golsTime2">0</span></div>
                         </div>
                         <div class="cronometro-botoes admin-only">
                             <button class="btn-cronometro" onclick="iniciarCronometro()" id="btnIniciar" data-admin-control>▶ Iniciar</button>
@@ -664,6 +668,21 @@
             <div style="display:flex; gap:8px; margin-top:15px; flex-wrap:wrap;">
                 <button class="btn-blue" onclick="salvarEdicaoJogador()">Salvar</button>
                 <button class="btn-red" onclick="fecharModalEdicaoJogador()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalGerenciarJogadores" class="modal-edicao">
+        <div class="modal-conteudo modal-sel-conteudo">
+            <div class="modal-header">
+                <h3 style="margin: 0;">Gerenciar Jogadores</h3>
+                <button class="btn-red btn-xs" onclick="fecharModalGerenciarJogadores()">✕</button>
+            </div>
+            <input id="searchGerenciarJogadores" type="text" class="modal-sel-search" placeholder="🔍 Pesquisar jogador..." oninput="renderizarPainelGerenciarJogadores()">
+            <div id="listaGerenciarJogadores" style="display:grid; gap:10px; margin-top:8px;"></div>
+            <div class="modal-sel-footer">
+                <button class="btn-blue btn-xs" onclick="fecharModalGerenciarJogadores()">⬅ Voltar</button>
+                <span class="modal-sel-status">Use a engrenagem para editar um jogador.</span>
             </div>
         </div>
     </div>
@@ -902,6 +921,8 @@
         };
         let modoAdministrador = false;
         let jogadorEmEdicao = null;
+        let equipesAtivasPartida = []; // Array com os 2 nomes de equipes da partida atual
+        let nomesEquipesPartida = {}; // Mapeamento {equipeNome: 'Equipe NomePrimeiro'}
         let fotoTemporariaEdicao = null;
 
         function escapeHtml(text) {
@@ -1070,13 +1091,21 @@
             const placar = document.getElementById('placarEquipes');
             if (!placar) return;
             placar.innerHTML = '';
+            
+            if (equipesAtivasPartida.length < 2) return;
+            
             const equipes = obterJogadoresPorEquipe();
-            Object.keys(equipes).forEach(equipe => {
-                const jogadoresEquipe = equipes[equipe].filter(nome => selecionados.includes(nome));
+            const participantesPartida = new Set(
+                (Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0 ? selecionadosPartidaAtual : selecionados)
+            );
+            
+            equipesAtivasPartida.forEach(equipe => {
+                const jogadoresEquipe = equipes[equipe].filter(nome => participantesPartida.has(nome));
                 if (jogadoresEquipe.length > 0) {
+                    const nomeEquipeDisplay = obterNomeEquipePartida(equipe);
                     let tableHTML = `
                     <div class="secao-equipe">
-                        <h3>${escapeHtml(equipe)}</h3>
+                        <h3>${escapeHtml(nomeEquipeDisplay)}</h3>
                         <table>
                             <thead><tr><th>Foto</th><th>Nome</th><th>Gols ⚽</th><th>Assis. 👟</th><th>Amarelo 🟨</th><th>Vermelho 🟥</th></tr></thead>
                             <tbody>
@@ -1121,6 +1150,15 @@
                 alert('Acesso negado. Esta ação é restrita ao Painel do Administrador.');
                 return;
             }
+
+            const participantesPartida = new Set(
+                (Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0 ? selecionadosPartidaAtual : selecionados)
+            );
+            if (!participantesPartida.has(nome)) {
+                alert('Esse jogador não está participando da partida atual.');
+                return;
+            }
+
             const jogador = jogadoresStats[nome] ? normalizarJogador(nome, jogadoresStats[nome]) : null;
             if (!jogador) return;
 
@@ -1399,16 +1437,61 @@
         }
 
         function mostrarGerenciarJogadores() {
-            jogadoresPanelAtivo = true;
-            jogadoresListaVisivel = false;
+            if (!verificarPermissao('gerenciamento de jogadores')) return;
+            abrirModalGerenciarJogadores();
+        }
+
+        function abrirModalGerenciarJogadores() {
+            if (!verificarPermissao('gerenciamento de jogadores')) return;
             subscribeToStats();
-            const tela = document.getElementById('telaJogadores');
-            if (tela) tela.style.display = '';
-            const msg = document.getElementById('mensagemJogadoresVazia');
-            if (msg) msg.style.display = 'block';
-            const btn = document.getElementById('btnToggleJogadores');
-            if (btn) btn.textContent = '📋 Mostrar Jogadores';
-            try { renderizarGrid(); } catch(e){}
+            const modal = document.getElementById('modalGerenciarJogadores');
+            const search = document.getElementById('searchGerenciarJogadores');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.classList.add('no-scroll');
+            }
+            if (search) search.value = '';
+            renderizarPainelGerenciarJogadores();
+        }
+
+        function fecharModalGerenciarJogadores() {
+            const modal = document.getElementById('modalGerenciarJogadores');
+            if (modal) modal.style.display = 'none';
+            document.body.classList.remove('no-scroll');
+        }
+
+        function renderizarPainelGerenciarJogadores() {
+            const container = document.getElementById('listaGerenciarJogadores');
+            const filtro = document.getElementById('searchGerenciarJogadores')?.value.trim().toLowerCase() || '';
+            if (!container) return;
+
+            container.innerHTML = '';
+            const nomes = Object.keys(jogadoresStats || {}).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+            if (nomes.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum jogador cadastrado.</div>';
+                return;
+            }
+
+            const filtrados = nomes.filter(nome => !filtro || nome.toLowerCase().includes(filtro));
+            if (filtrados.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum jogador corresponde à pesquisa.</div>';
+                return;
+            }
+
+            filtrados.forEach(nome => {
+                const jogador = normalizarJogador(nome, jogadoresStats[nome]);
+                const nomeEscapado = escaparParaAtributoJs(nome);
+                container.innerHTML += `
+                    <div class="card" style="padding:12px 14px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <img src="${jogador.foto || 'https://via.placeholder.com/56'}" alt="${escapeHtml(nome)}" style="width:56px; height:56px; border-radius:16px; object-fit:cover;">
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-weight:700; font-size:15px;">${escapeHtml(nome)}</div>
+                            </div>
+                            <button class="btn-blue btn-xs" onclick="abrirModalEdicaoJogador('${nomeEscapado}')">⚙️</button>
+                        </div>
+                    </div>`;
+            });
         }
 
         function alternarVisibilidadeJogadores() {
@@ -1416,11 +1499,14 @@
             subscribeToStats();
             const grid = document.getElementById('gridJogadores');
             const btn = document.getElementById('btnToggleJogadores');
+            const btnAdmin = document.getElementById('btnMostrarJogadores');
             const msg = document.getElementById('mensagemJogadoresVazia');
             if (!grid) return;
 
             jogadoresListaVisivel = !jogadoresListaVisivel;
-            if (btn) btn.textContent = jogadoresListaVisivel ? '📋 Ocultar Jogadores' : '📋 Mostrar Jogadores';
+            const textoVisivel = jogadoresListaVisivel ? '👥 Ocultar Jogadores' : '👥 Mostrar Jogadores';
+            if (btn) btn.textContent = textoVisivel;
+            if (btnAdmin) btnAdmin.textContent = textoVisivel;
             if (msg) msg.style.display = jogadoresListaVisivel ? 'none' : 'block';
 
             if (jogadoresListaVisivel) {
@@ -1439,7 +1525,9 @@
             const msg = document.getElementById('mensagemJogadoresVazia');
             if (msg) msg.style.display = 'block';
             const btn = document.getElementById('btnToggleJogadores');
-            if (btn) btn.textContent = '📋 Mostrar Jogadores';
+            if (btn) btn.textContent = '� Mostrar Jogadores';
+            const btnAdmin = document.getElementById('btnMostrarJogadores');
+            if (btnAdmin) btnAdmin.textContent = '👥 Mostrar Jogadores';
         }
 
         function solicitarPin() {
@@ -1449,6 +1537,102 @@
 
         function obterNomesEquipes() {
             return Array.from({ length: 11 }, (_, i) => `Equipe ${i + 1}`);
+        }
+
+        function obterEquipesDisponiveisParaPartida() {
+            const equipes = obterJogadoresPorEquipe();
+            return Object.keys(equipes)
+                .filter(equipe => equipe !== 'Sem equipe' && Array.isArray(equipes[equipe]) && equipes[equipe].length > 0)
+                .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+        }
+
+        function renderizarSelecaoEquipesPartida() {
+            const selectMandante = document.getElementById('selectEquipeMandante');
+            const selectVisitante = document.getElementById('selectEquipeVisitante');
+            if (!selectMandante || !selectVisitante) return;
+
+            const equipes = obterEquipesDisponiveisParaPartida();
+            const valorMandanteAtual = selectMandante.value || '';
+            const valorVisitanteAtual = selectVisitante.value || '';
+
+            const montarOptions = () => {
+                const options = ['<option value="">Selecione uma equipe</option>'];
+                equipes.forEach(equipe => {
+                    const label = obterNomeEquipePartida(equipe);
+                    options.push(`<option value="${escaparParaAtributoJs(equipe)}">${escapeHtml(label)}</option>`);
+                });
+                return options.join('');
+            };
+
+            selectMandante.innerHTML = montarOptions();
+            selectVisitante.innerHTML = montarOptions();
+
+            if (equipes.includes(valorMandanteAtual)) {
+                selectMandante.value = valorMandanteAtual;
+            } else if (equipes[0]) {
+                selectMandante.value = equipes[0];
+            }
+
+            if (equipes.includes(valorVisitanteAtual) && valorVisitanteAtual !== selectMandante.value) {
+                selectVisitante.value = valorVisitanteAtual;
+            } else {
+                const outraEquipe = equipes.find(equipe => equipe !== selectMandante.value);
+                selectVisitante.value = outraEquipe || '';
+            }
+        }
+
+        function obterEquipesAtivasPartida() {
+            const equipes = obterJogadoresPorEquipe();
+            return Object.keys(equipes)
+                .filter(equipe => equipe !== 'Sem equipe' && Array.isArray(equipes[equipe]) && equipes[equipe].length > 0)
+                .slice(0, 2);
+        }
+
+        function construirParticipantesPartida(equipesSelecionadas = equipesAtivasPartida) {
+            const equipes = obterJogadoresPorEquipe();
+            const participantes = [];
+            const equipesParaUsar = Array.isArray(equipesSelecionadas) ? equipesSelecionadas : [];
+
+            equipesParaUsar.forEach(equipe => {
+                if (Array.isArray(equipes[equipe])) {
+                    equipes[equipe].forEach(nome => {
+                        if (nome && !participantes.includes(nome)) {
+                            participantes.push(nome);
+                        }
+                    });
+                }
+            });
+
+            return participantes;
+        }
+
+        function obterPrimeiroJogadorEquipe(nomeEquipe) {
+            const equipes = obterJogadoresPorEquipe();
+            if (equipes[nomeEquipe] && equipes[nomeEquipe].length > 0) {
+                return equipes[nomeEquipe][0];
+            }
+            return null;
+        }
+
+        function obterNomeEquipePartida(nomeEquipe) {
+            if (!nomeEquipe) {
+                return 'Equipe sem jogadores';
+            }
+
+            if (nomesEquipesPartida[nomeEquipe]) {
+                return nomesEquipesPartida[nomeEquipe];
+            }
+
+            const primeiroJogador = obterPrimeiroJogadorEquipe(nomeEquipe);
+            if (primeiroJogador) {
+                return `Equipe ${primeiroJogador}`;
+            }
+
+            return 'Equipe';
+        }
+
+        function gerarNomeEquipePartida(nomeEquipe) {
+            return obterNomeEquipePartida(nomeEquipe);
         }
 
         let equipeModalAtual = null;
@@ -1630,13 +1814,13 @@
                 grid.innerHTML = '';
                 grid.style.display = 'none';
                 if (msg) msg.style.display = 'block';
-                if (btn) btn.textContent = '📋 Mostrar Jogadores';
+                if (btn) btn.textContent = '� Mostrar Jogadores';
                 return;
             }
 
             grid.innerHTML = '';
             if (msg) msg.style.display = 'none';
-            if (btn) btn.textContent = '📋 Ocultar Jogadores';
+            if (btn) btn.textContent = '� Ocultar Jogadores';
 
             const filtro = document.getElementById('searchJogadoresMobile')?.value.trim().toLowerCase() || '';
             const equipes = obterJogadoresPorEquipe();
@@ -1761,13 +1945,34 @@
 
         function iniciarJogo() {
             subscribeToStats();
-            const equipes = obterJogadoresPorEquipe();
-            const jogadoresEmEquipes = Object.values(equipes).flat().filter(nome => nome && nome !== 'Sem equipe');
-            if (jogadoresEmEquipes.length === 0) {
-                alert("Nenhum jogador alocado em equipe. Adicione jogadores às equipes antes de iniciar a partida.");
+
+            const equipeMandante = document.getElementById('selectEquipeMandante')?.value || '';
+            const equipeVisitante = document.getElementById('selectEquipeVisitante')?.value || '';
+            const equipesSelecionadas = [equipeMandante, equipeVisitante].filter(Boolean);
+
+            if (equipesSelecionadas.length < 2) {
+                alert('Selecione duas equipes diferentes para iniciar a partida.');
                 return;
             }
-            selecionados = jogadoresEmEquipes;
+
+            if (equipeMandante === equipeVisitante) {
+                alert('As equipes selecionadas devem ser diferentes.');
+                return;
+            }
+
+            equipesAtivasPartida = equipesSelecionadas;
+            nomesEquipesPartida = {};
+
+            equipesAtivasPartida.forEach(equipe => {
+                nomesEquipesPartida[equipe] = gerarNomeEquipePartida(equipe);
+            });
+
+            selecionados = construirParticipantesPartida(equipesAtivasPartida);
+            if (selecionados.length === 0) {
+                alert('As equipes selecionadas precisam ter jogadores para iniciar a partida.');
+                return;
+            }
+
             renderizarPlacarPartida();
             atualizarCronometroDisplay();
             mostrarTela('partidas');
@@ -1775,12 +1980,37 @@
 
         function iniciarPartida() {
             subscribeToStats();
-            if (selecionados.length === 0) {
-                const equipes = obterJogadoresPorEquipe();
-                selecionados = Object.values(equipes).flat().filter(nome => nome && nome !== 'Sem equipe');
+
+            const equipeMandante = document.getElementById('selectEquipeMandante')?.value || '';
+            const equipeVisitante = document.getElementById('selectEquipeVisitante')?.value || '';
+
+            if (!equipeMandante || !equipeVisitante) {
+                alert('Selecione duas equipes para iniciar a partida.');
+                return;
             }
+
+            if (equipeMandante === equipeVisitante) {
+                alert('As equipes selecionadas devem ser diferentes.');
+                return;
+            }
+
+            const equipes = obterJogadoresPorEquipe();
+            if (!equipes[equipeMandante] || equipes[equipeMandante].length === 0 || !equipes[equipeVisitante] || equipes[equipeVisitante].length === 0) {
+                alert('As equipes selecionadas precisam ter jogadores para iniciar a partida.');
+                return;
+            }
+            
+            equipesAtivasPartida = [equipeMandante, equipeVisitante];
+            nomesEquipesPartida = {};
+            
+            equipesAtivasPartida.forEach(equipe => {
+                nomesEquipesPartida[equipe] = gerarNomeEquipePartida(equipe);
+            });
+            
+            selecionados = construirParticipantesPartida(equipesAtivasPartida);
+            
             if (selecionados.length === 0) {
-                alert('Nenhum jogador alocado em equipe. Adicione jogadores às equipes antes de iniciar a partida.');
+                alert('Nenhum jogador alocado nas equipes selecionadas. Adicione jogadores antes de iniciar a partida.');
                 return;
             }
 
@@ -1839,18 +2069,22 @@
         function atualizarCronometroDisplay() {
             document.getElementById('cronometro').textContent = formatarTempo(tempoRestante);
             
-            // Atualizar placar
-            const equipes = obterJogadoresPorEquipe();
-            let golsEquipe1 = 0, golsEquipe2 = 0, golsEquipe3 = 0;
-            
-            golsRegistrados.forEach(gol => {
-                if (gol.equipe === 'Equipe 1') golsEquipe1++;
-                else if (gol.equipe === 'Equipe 2') golsEquipe2++;
-                else if (gol.equipe === 'Equipe 3') golsEquipe3++;
-            });
-            
-            document.getElementById('golsTime1').textContent = golsEquipe1;
-            document.getElementById('golsTime2').textContent = golsEquipe2;
+            if (equipesAtivasPartida.length >= 2) {
+                const nomeEquipe1 = obterNomeEquipePartida(equipesAtivasPartida[0]);
+                const nomeEquipe2 = obterNomeEquipePartida(equipesAtivasPartida[1]);
+                
+                document.getElementById('placarTime1').textContent = nomeEquipe1;
+                document.getElementById('placarTime2').textContent = nomeEquipe2;
+                
+                let golsEquipe1 = 0, golsEquipe2 = 0;
+                golsRegistrados.forEach(gol => {
+                    if (gol.equipe === equipesAtivasPartida[0]) golsEquipe1++;
+                    else if (gol.equipe === equipesAtivasPartida[1]) golsEquipe2++;
+                });
+                
+                document.getElementById('golsTime1').textContent = golsEquipe1;
+                document.getElementById('golsTime2').textContent = golsEquipe2;
+            }
             
             let estado = '';
             if (cronometroPausado) {
@@ -1962,6 +2196,14 @@
                 alert('A partida foi encerrada!');
                 return;
             }
+
+            const participantesPartida = new Set(
+                (Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0 ? selecionadosPartidaAtual : selecionados)
+            );
+            if (!participantesPartida.has(nome)) {
+                alert('Esse jogador não está participando da partida atual.');
+                return;
+            }
             
             const tempoGol = formatarTempo(tempoRestante);
             
@@ -2065,6 +2307,14 @@
 
             if (partidaEncerrada) {
                 alert('A partida foi encerrada!');
+                return;
+            }
+
+            const participantesPartida = new Set(
+                (Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0 ? selecionadosPartidaAtual : selecionados)
+            );
+            if (!participantesPartida.has(n)) {
+                alert('Esse jogador não está participando da partida atual.');
                 return;
             }
             
@@ -2286,6 +2536,9 @@
             } catch (e) {
                 console.error('Erro ao salvar no Firestore:', e);
             }
+            try { renderizarPainelGerenciarJogadores(); } catch (e) {}
+            try { renderizarListaJogadoresDisponiveis(); } catch (e) {}
+            try { renderizarSelecaoEquipesPartida(); } catch (e) {}
             renderizarDashboardEstatisticas();
             atualizarResumoDashboard();
             atualizarInterfacePorPermissao();
@@ -2552,6 +2805,7 @@
                 salvar();
                 renderizarGrid();
                 renderizarGerenciamento();
+                renderizarPainelGerenciarJogadores();
                 fecharModalCadastroJogador();
                 alert('Jogador cadastrado com sucesso!');
             };
@@ -2563,6 +2817,7 @@
                 salvar();
                 renderizarGrid();
                 renderizarGerenciamento();
+                renderizarPainelGerenciarJogadores();
                 fecharModalCadastroJogador();
                 alert('Jogador cadastrado com sucesso!');
             }
@@ -2690,6 +2945,7 @@
                 salvar();
                 renderizarGrid();
                 renderizarGerenciamento();
+                renderizarPainelGerenciarJogadores();
                 fecharModalEdicaoJogador();
                 alert('Jogador atualizado com sucesso!');
             };
@@ -2705,9 +2961,11 @@
 
 
         function criarResumoPartidaAtual(motivo) {
-            const equipesAtuais = [...new Set(selecionados.map(nome => jogadoresStats[nome]?.equipe || 'Sem equipe'))].filter(e => e && e !== 'Sem equipe');
-            const equipeA = equipesAtuais[0] || 'Equipe A';
-            const equipeB = equipesAtuais[1] || 'Equipe B';
+            const equipeA = equipesAtivasPartida.length >= 1 ? equipesAtivasPartida[0] : 'Equipe A';
+            const equipeB = equipesAtivasPartida.length >= 2 ? equipesAtivasPartida[1] : 'Equipe B';
+            const nomeEquipeA = obterNomeEquipePartida(equipeA);
+            const nomeEquipeB = obterNomeEquipePartida(equipeB);
+            
             const golsA = golsRegistrados.filter(gol => gol.equipe === equipeA).length;
             const golsB = golsRegistrados.filter(gol => gol.equipe === equipeB).length;
             const horario = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -2717,6 +2975,8 @@
                 horario,
                 equipeA,
                 equipeB,
+                nomeEquipeA,
+                nomeEquipeB,
                 golsA,
                 golsB,
                 motivo,
@@ -2860,6 +3120,9 @@
             jogadoresStats = e.detail || {};
             renderizarGerenciamento();
             if (jogadoresPanelAtivo && jogadoresListaVisivel) { renderizarGrid(); }
+            renderizarPainelGerenciarJogadores();
+            renderizarListaJogadoresDisponiveis();
+            renderizarSelecaoEquipesPartida();
             renderizarDashboardEstatisticas();
             atualizarResumoDashboard();
         });
@@ -2868,6 +3131,9 @@
         window.addEventListener('firestoreInitialDataLoaded', () => {
             renderizarGerenciamento();
             if (jogadoresPanelAtivo && jogadoresListaVisivel) renderizarGrid();
+            renderizarPainelGerenciarJogadores();
+            renderizarListaJogadoresDisponiveis();
+            renderizarSelecaoEquipesPartida();
             renderizarDashboardEstatisticas();
             atualizarResumoDashboard();
         });
@@ -2922,15 +3188,23 @@
             // Load persisted data from Firestore on startup so teams and player lists are ready immediately
             try {
                 const inicializarDados = async () => {
+                    // Carregar dados iniciais do Firestore
                     if (window.fs && typeof window.fs.loadInitialData === 'function') {
                         await window.fs.loadInitialData();
                     }
+                    
+                    // Inscrever para atualizações em tempo real
+                    subscribeToStats();
+                    
+                    // Renderizar UI com dados carregados
                     renderizarGerenciamento();
                     if (jogadoresPanelAtivo && jogadoresListaVisivel) {
                         renderizarGrid();
                     }
+                    renderizarSelecaoEquipesPartida();
                     renderizarDashboardEstatisticas();
                     atualizarResumoDashboard();
+                    atualizarModoAcesso();
                 };
                 inicializarDados().catch((erro) => console.warn('Falha ao carregar dados iniciais:', erro));
             } catch (e) {
