@@ -415,7 +415,11 @@
             measurementId: "G-04854Q5CRS"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch (erro) {
+            console.warn('Firebase já inicializado ou indisponível:', erro);
+        }
     </script>
 </head>
 <body>
@@ -515,6 +519,7 @@
                     <div class="page-hero"><div><h2>Jogadores</h2><p>Visão centralizada com cards, foto e estatísticas rápidas.</p></div><div class="hero-badge">👤 Cadastro</div></div>
                     <div class="jogadores-toolbar">
                         <input id="searchJogadoresMobile" type="text" placeholder="Pesquisar jogador..." oninput="renderizarGrid()">
+                        <button id="btnToggleJogadores" class="btn-blue" onclick="alternarVisibilidadeJogadores()">📋 Mostrar Jogadores</button>
                         <button id="btnAddJogadorMobile" class="btn-green admin-only" onclick="abrirModalCadastroJogador()" style="display:none;">➕</button>
                     </div>
                     <div id="selecaoCadastro" class="admin-only" style="display:none; margin-bottom:12px;">
@@ -523,7 +528,7 @@
                             <button class="btn-green" onclick="abrirModalCadastroJogador()">➕ Cadastrar Jogador</button>
                         </div>
                     </div>
-                    <div id="mensagemJogadoresVazia" style="padding:18px; text-align:center; color:#666;">Acesse "Gerenciar Jogadores" para abrir a lista ou pesquise um jogador acima.</div>
+                    <div id="mensagemJogadoresVazia" style="padding:18px; text-align:center; color:#666;">Use o botão “Mostrar Jogadores” para listar os cadastros quando quiser.</div>
                     <div id="gridJogadores" class="grid-jogadores" style="display:none;"></div>
                 </div>
 
@@ -684,28 +689,40 @@
         const db = firebase.firestore();
         let statsUnsubscribe = null;
         let jogadoresPanelAtivo = false;
+        let jogadoresListaVisivel = false;
 
         function subscribeToStats() {
+            if (!db || typeof db.collection !== 'function') {
+                console.warn('Firestore indisponível; usando estado local.');
+                return;
+            }
             if (statsUnsubscribe) return;
-            statsUnsubscribe = db.collection("competicao").doc("stats").onSnapshot((snapshot) => {
-                const dados = snapshot.exists ? (snapshot.data() || {}) : {};
-                jogadoresStats = normalizarMapaEstatisticas(dados.jogadoresStats || {});
-                relatoriosDiarios = dados.relatoriosDiarios || {};
-                historicoCompeticions = dados.historicoCompeticions || [];
-                competicaoAtiva = dados.competicaoAtiva || null;
-                selecionados = Array.isArray(dados.selecionados) ? [...dados.selecionados] : [];
-                estatisticasDia = JSON.parse(JSON.stringify(dados.estatisticasDia || {}));
-                partidasDia = Array.isArray(dados.partidasDia) ? JSON.parse(JSON.stringify(dados.partidasDia)) : [];
-                ultimaPartida = dados.ultimaPartida ? JSON.parse(JSON.stringify(dados.ultimaPartida)) : null;
-                dataAtual = dados.dataAtual || dataAtual;
+            try {
+                statsUnsubscribe = db.collection("competicao").doc("stats").onSnapshot((snapshot) => {
+                    const dados = snapshot.exists ? (snapshot.data() || {}) : {};
+                    jogadoresStats = normalizarMapaEstatisticas(dados.jogadoresStats || {});
+                    relatoriosDiarios = dados.relatoriosDiarios || {};
+                    historicoCompeticions = dados.historicoCompeticions || [];
+                    competicaoAtiva = dados.competicaoAtiva || null;
+                    selecionados = Array.isArray(dados.selecionados) ? [...dados.selecionados] : [];
+                    estatisticasDia = JSON.parse(JSON.stringify(dados.estatisticasDia || {}));
+                    partidasDia = Array.isArray(dados.partidasDia) ? JSON.parse(JSON.stringify(dados.partidasDia)) : [];
+                    ultimaPartida = dados.ultimaPartida ? JSON.parse(JSON.stringify(dados.ultimaPartida)) : null;
+                    dataAtual = dados.dataAtual || dataAtual;
 
-                window.dispatchEvent(new CustomEvent('firestorePlayersUpdated', { detail: jogadoresStats }));
-                window.dispatchEvent(new CustomEvent('firestoreRelatoriosUpdated', { detail: relatoriosDiarios }));
-                window.dispatchEvent(new CustomEvent('firestoreHistoricoUpdated', { detail: historicoCompeticions }));
-                window.dispatchEvent(new CustomEvent('firestoreEstadoUpdated', { detail: competicaoAtiva }));
-                renderizarDashboardEstatisticas();
-                atualizarResumoDashboard();
-            });
+                    window.dispatchEvent(new CustomEvent('firestorePlayersUpdated', { detail: jogadoresStats }));
+                    window.dispatchEvent(new CustomEvent('firestoreRelatoriosUpdated', { detail: relatoriosDiarios }));
+                    window.dispatchEvent(new CustomEvent('firestoreHistoricoUpdated', { detail: historicoCompeticions }));
+                    window.dispatchEvent(new CustomEvent('firestoreEstadoUpdated', { detail: competicaoAtiva }));
+                    renderizarDashboardEstatisticas();
+                    atualizarResumoDashboard();
+                }, (erro) => {
+                    console.warn('Falha ao sincronizar com Firestore:', erro);
+                    document.getElementById('statusFirebase') && (document.getElementById('statusFirebase').textContent = 'Offline');
+                });
+            } catch (erro) {
+                console.warn('Erro ao iniciar assinatura do Firestore:', erro);
+            }
         }
 
         function unsubscribeStats() {
@@ -722,35 +739,45 @@
         }
 
         async function salvarEstadoFirestore() {
-            const dadosStats = {
-                jogadoresStats: normalizarMapaEstatisticas(jogadoresStats),
-                relatoriosDiarios,
-                historicoCompeticions,
-                competicaoAtiva,
-                selecionados: Array.isArray(selecionados) ? [...selecionados] : [],
-                estatisticasDia: JSON.parse(JSON.stringify(estatisticasDia || {})),
-                partidasDia: JSON.parse(JSON.stringify(partidasDia || [])),
-                ultimaPartida: JSON.parse(JSON.stringify(ultimaPartida || null)),
-                dataAtual
-            };
-            await db.collection("competicao").doc("stats").set(dadosStats, { merge: true });
+            if (!db || typeof db.collection !== 'function') return;
+            try {
+                const dadosStats = {
+                    jogadoresStats: normalizarMapaEstatisticas(jogadoresStats),
+                    relatoriosDiarios,
+                    historicoCompeticions,
+                    competicaoAtiva,
+                    selecionados: Array.isArray(selecionados) ? [...selecionados] : [],
+                    estatisticasDia: JSON.parse(JSON.stringify(estatisticasDia || {})),
+                    partidasDia: JSON.parse(JSON.stringify(partidasDia || [])),
+                    ultimaPartida: JSON.parse(JSON.stringify(ultimaPartida || null)),
+                    dataAtual
+                };
+                await db.collection("competicao").doc("stats").set(dadosStats, { merge: true });
+            } catch (erro) {
+                console.warn('Não foi possível salvar no Firestore:', erro);
+            }
         }
 
         async function carregarEstadoFirestore() {
-            const statsSnapshot = await db.collection("competicao").doc("stats").get();
-            const dadosStats = statsSnapshot.exists ? (statsSnapshot.data() || {}) : {};
+            if (!db || typeof db.collection !== 'function') return;
+            try {
+                const statsSnapshot = await db.collection("competicao").doc("stats").get();
+                const dadosStats = statsSnapshot.exists ? (statsSnapshot.data() || {}) : {};
 
-            jogadoresStats = normalizarMapaEstatisticas(dadosStats.jogadoresStats || {});
-            relatoriosDiarios = dadosStats.relatoriosDiarios || {};
-            historicoCompeticions = dadosStats.historicoCompeticions || [];
-            competicaoAtiva = dadosStats.competicaoAtiva || null;
-            selecionados = Array.isArray(dadosStats.selecionados) ? [...dadosStats.selecionados] : [];
-            estatisticasDia = JSON.parse(JSON.stringify(dadosStats.estatisticasDia || {}));
-            partidasDia = Array.isArray(dadosStats.partidasDia) ? JSON.parse(JSON.stringify(dadosStats.partidasDia)) : [];
-            ultimaPartida = dadosStats.ultimaPartida ? JSON.parse(JSON.stringify(dadosStats.ultimaPartida)) : null;
-            dataAtual = dadosStats.dataAtual || dataAtual;
+                jogadoresStats = normalizarMapaEstatisticas(dadosStats.jogadoresStats || {});
+                relatoriosDiarios = dadosStats.relatoriosDiarios || {};
+                historicoCompeticions = dadosStats.historicoCompeticions || [];
+                competicaoAtiva = dadosStats.competicaoAtiva || null;
+                selecionados = Array.isArray(dadosStats.selecionados) ? [...dadosStats.selecionados] : [];
+                estatisticasDia = JSON.parse(JSON.stringify(dadosStats.estatisticasDia || {}));
+                partidasDia = Array.isArray(dadosStats.partidasDia) ? JSON.parse(JSON.stringify(dadosStats.partidasDia)) : [];
+                ultimaPartida = dadosStats.ultimaPartida ? JSON.parse(JSON.stringify(dadosStats.ultimaPartida)) : null;
+                dataAtual = dadosStats.dataAtual || dataAtual;
 
-            window.dispatchEvent(new CustomEvent('firestoreInitialDataLoaded'));
+                window.dispatchEvent(new CustomEvent('firestoreInitialDataLoaded'));
+            } catch (erro) {
+                console.warn('Não foi possível carregar o estado do Firestore:', erro);
+            }
         }
 
         async function salvarRelatorioFirestore(id, relatorio) {
@@ -1367,27 +1394,52 @@
         function sairPainelAdmin() {
             modoAdministrador = false;
             atualizarModoAcesso();
+            mostrarTela('dashboard');
+            alert('Sessão administrativa encerrada.');
         }
 
         function mostrarGerenciarJogadores() {
             jogadoresPanelAtivo = true;
+            jogadoresListaVisivel = false;
             subscribeToStats();
             const tela = document.getElementById('telaJogadores');
             if (tela) tela.style.display = '';
             const msg = document.getElementById('mensagemJogadoresVazia');
-            if (msg) msg.style.display = 'none';
+            if (msg) msg.style.display = 'block';
+            const btn = document.getElementById('btnToggleJogadores');
+            if (btn) btn.textContent = '📋 Mostrar Jogadores';
             try { renderizarGrid(); } catch(e){}
+        }
+
+        function alternarVisibilidadeJogadores() {
+            jogadoresPanelAtivo = true;
+            subscribeToStats();
+            const grid = document.getElementById('gridJogadores');
+            const btn = document.getElementById('btnToggleJogadores');
+            const msg = document.getElementById('mensagemJogadoresVazia');
+            if (!grid) return;
+
+            jogadoresListaVisivel = !jogadoresListaVisivel;
+            if (btn) btn.textContent = jogadoresListaVisivel ? '📋 Ocultar Jogadores' : '📋 Mostrar Jogadores';
+            if (msg) msg.style.display = jogadoresListaVisivel ? 'none' : 'block';
+
+            if (jogadoresListaVisivel) {
+                renderizarGrid();
+            } else {
+                grid.innerHTML = '';
+                grid.style.display = 'none';
+            }
         }
 
         function ocultarGerenciarJogadores() {
             jogadoresPanelAtivo = false;
+            jogadoresListaVisivel = false;
             const tela = document.getElementById('telaJogadores');
             if (tela) tela.style.display = 'none';
             const msg = document.getElementById('mensagemJogadoresVazia');
-            if (msg) msg.style.display = '';
-        }
-            mostrarTela('dashboard');
-            alert('Sessão administrativa encerrada.');
+            if (msg) msg.style.display = 'block';
+            const btn = document.getElementById('btnToggleJogadores');
+            if (btn) btn.textContent = '📋 Mostrar Jogadores';
         }
 
         function solicitarPin() {
@@ -1569,10 +1621,22 @@
         }
 
         function renderizarGrid() {
-            if (!jogadoresPanelAtivo) return; // management-only: do not render unless panel opened
             const grid = document.getElementById('gridJogadores');
+            const msg = document.getElementById('mensagemJogadoresVazia');
+            const btn = document.getElementById('btnToggleJogadores');
             if (!grid) return;
+
+            if (!jogadoresPanelAtivo || !jogadoresListaVisivel) {
+                grid.innerHTML = '';
+                grid.style.display = 'none';
+                if (msg) msg.style.display = 'block';
+                if (btn) btn.textContent = '📋 Mostrar Jogadores';
+                return;
+            }
+
             grid.innerHTML = '';
+            if (msg) msg.style.display = 'none';
+            if (btn) btn.textContent = '📋 Ocultar Jogadores';
 
             const filtro = document.getElementById('searchJogadoresMobile')?.value.trim().toLowerCase() || '';
             const equipes = obterJogadoresPorEquipe();
@@ -2792,10 +2856,21 @@
         }
 
         // Listeners para atualizações em tempo real vindas do Firestore (via módulo)
-        window.addEventListener('firestorePlayersUpdated', (e) => { jogadoresStats = e.detail || {}; if (jogadoresPanelAtivo) { renderizarGrid(); } renderizarDashboardEstatisticas(); atualizarResumoDashboard(); });
+        window.addEventListener('firestorePlayersUpdated', (e) => {
+            jogadoresStats = e.detail || {};
+            renderizarGerenciamento();
+            if (jogadoresPanelAtivo && jogadoresListaVisivel) { renderizarGrid(); }
+            renderizarDashboardEstatisticas();
+            atualizarResumoDashboard();
+        });
         window.addEventListener('firestoreRelatoriosUpdated', (e) => { relatoriosDiarios = e.detail || {}; });
         window.addEventListener('firestoreHistoricoUpdated', (e) => { historicoCompeticions = e.detail || []; });
-        window.addEventListener('firestoreInitialDataLoaded', () => { if (jogadoresPanelAtivo) renderizarGrid(); renderizarDashboardEstatisticas(); atualizarResumoDashboard(); });
+        window.addEventListener('firestoreInitialDataLoaded', () => {
+            renderizarGerenciamento();
+            if (jogadoresPanelAtivo && jogadoresListaVisivel) renderizarGrid();
+            renderizarDashboardEstatisticas();
+            atualizarResumoDashboard();
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             // Apply theme and access mode
@@ -2843,6 +2918,24 @@
                     if (cs && cs.pointerEvents === 'none') el.style.pointerEvents = 'auto';
                 } catch(e){}
             });
+
+            // Load persisted data from Firestore on startup so teams and player lists are ready immediately
+            try {
+                const inicializarDados = async () => {
+                    if (window.fs && typeof window.fs.loadInitialData === 'function') {
+                        await window.fs.loadInitialData();
+                    }
+                    renderizarGerenciamento();
+                    if (jogadoresPanelAtivo && jogadoresListaVisivel) {
+                        renderizarGrid();
+                    }
+                    renderizarDashboardEstatisticas();
+                    atualizarResumoDashboard();
+                };
+                inicializarDados().catch((erro) => console.warn('Falha ao carregar dados iniciais:', erro));
+            } catch (e) {
+                console.warn('Erro ao iniciar carregamento inicial:', e);
+            }
 
             // Ensure default view
             try { mostrarTela('dashboard'); } catch(e){}
