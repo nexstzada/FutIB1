@@ -463,6 +463,7 @@
                     <div class="mode-pill"><span class="status-dot"></span><span id="statusFirebase">Online</span></div>
                     <div class="mode-pill" id="relogioTopbar">--:--</div>
                     <button class="theme-toggle" onclick="alternarTema()">☀/☾</button>
+                    <button id="btnFinalizarDiaTopbar" class="btn-orange admin-only btn-xs" onclick="encerrarDia()" style="display:none;">🏁 Finalizar Dia</button>
                     <button id="btnNovoDia" class="btn-orange admin-only btn-xs" onclick="novoDia()" style="display:none;">📅 Novo Dia</button>
                     <button id="btnPainelAdmin" class="btn-blue btn-xs" onclick="abrirPainelAdmin()">Painel do Administrador</button>
                     <button id="btnSairAdmin" class="btn-red btn-xs" onclick="sairPainelAdmin()" style="display:none;">Sair do Painel</button>
@@ -605,7 +606,7 @@
                     </div>
                     <div class="dashboard-grid">
                         <div class="card" style="text-align:left;"><h3>⚙ Sistema</h3><div class="stat-list"><div class="stat-row"><span>Modo administrador</span><strong id="adminModoStatus">Desativado</strong></div><div class="stat-row"><span>Partidas</span><strong id="adminPartidas">0</strong></div><div class="stat-row"><span>Relatórios</span><strong id="adminRelatorios">0</strong></div></div></div>
-                        <div class="card" style="text-align:left;"><h3>🧰 Ações</h3><div class="stat-list"><div class="stat-row"><span>Reset</span><button class="btn-red btn-xs" onclick="resetarTudo()">Resetar</button></div><div class="stat-row"><span>Encerrar dia</span><button class="btn-orange btn-xs" onclick="encerrarDia()">Encerrar</button></div><div class="stat-row"><span>Finalizar</span><button class="btn-green btn-xs" onclick="finalizarCompeticao()">Finalizar</button></div></div></div>
+                        <div class="card" style="text-align:left;"><h3>🧰 Ações</h3><div class="stat-list"><div class="stat-row"><span>Reset</span><button class="btn-red btn-xs" onclick="resetarTudo()">Resetar</button></div><div class="stat-row"><span>Finalizar dia</span><button class="btn-orange btn-xs" onclick="encerrarDia()">🏁 Finalizar Dia</button></div><div class="stat-row"><span>Finalizar competição</span><button class="btn-green btn-xs" onclick="finalizarCompeticao()">🏆 Finalizar Competição</button></div></div></div>
                     </div>
                 </div>
             </section>
@@ -710,6 +711,23 @@
         let jogadoresPanelAtivo = false;
         let jogadoresListaVisivel = false;
 
+        function normalizarCompeticaoAtiva(valor) {
+            if (!valor) return null;
+            if (typeof valor === 'string') {
+                return { id: valor, nome: 'Competição Atual', dataInicio: valor, dataTermino: null, status: 'ativa' };
+            }
+            if (typeof valor === 'object') {
+                return {
+                    id: valor.id || new Date().toISOString(),
+                    nome: valor.nome || 'Competição Atual',
+                    dataInicio: valor.dataInicio || valor.inicio || null,
+                    dataTermino: valor.dataTermino || valor.termino || null,
+                    status: valor.status || 'ativa'
+                };
+            }
+            return null;
+        }
+
         function subscribeToStats() {
             if (!db || typeof db.collection !== 'function') {
                 console.warn('Firestore indisponível; usando estado local.');
@@ -717,12 +735,12 @@
             }
             if (statsUnsubscribe) return;
             try {
-                statsUnsubscribe = db.collection("competicao").doc("stats").onSnapshot((snapshot) => {
+                statsUnsubscribe = db.collection("competicaoAtual").doc("estado").onSnapshot((snapshot) => {
                     const dados = snapshot.exists ? (snapshot.data() || {}) : {};
                     jogadoresStats = normalizarMapaEstatisticas(dados.jogadoresStats || {});
                     relatoriosDiarios = dados.relatoriosDiarios || {};
-                    historicoCompeticions = dados.historicoCompeticions || [];
-                    competicaoAtiva = dados.competicaoAtiva || null;
+                    historicoCompeticions = Array.isArray(dados.historicoCompeticions) ? [...dados.historicoCompeticions] : [];
+                    competicaoAtiva = normalizarCompeticaoAtiva(dados.competicaoAtiva || null);
                     selecionados = Array.isArray(dados.selecionados) ? [...dados.selecionados] : [];
                     estatisticasDia = JSON.parse(JSON.stringify(dados.estatisticasDia || {}));
                     partidasDia = Array.isArray(dados.partidasDia) ? JSON.parse(JSON.stringify(dados.partidasDia)) : [];
@@ -762,16 +780,17 @@
             try {
                 const dadosStats = {
                     jogadoresStats: normalizarMapaEstatisticas(jogadoresStats),
-                    relatoriosDiarios,
-                    historicoCompeticions,
-                    competicaoAtiva,
+                    relatoriosDiarios: JSON.parse(JSON.stringify(relatoriosDiarios || {})),
+                    historicoCompeticions: Array.isArray(historicoCompeticions) ? [...historicoCompeticions] : [],
+                    competicaoAtiva: normalizarCompeticaoAtiva(competicaoAtiva),
                     selecionados: Array.isArray(selecionados) ? [...selecionados] : [],
                     estatisticasDia: JSON.parse(JSON.stringify(estatisticasDia || {})),
                     partidasDia: JSON.parse(JSON.stringify(partidasDia || [])),
                     ultimaPartida: JSON.parse(JSON.stringify(ultimaPartida || null)),
                     dataAtual
                 };
-                await db.collection("competicao").doc("stats").set(dadosStats, { merge: true });
+                await db.collection("competicaoAtual").doc("estado").set(dadosStats, { merge: true });
+                await Promise.all(Object.entries(relatoriosDiarios || {}).map(([id, relatorio]) => db.collection("relatoriosDiarios").doc(id).set(JSON.parse(JSON.stringify(relatorio)), { merge: true })));
             } catch (erro) {
                 console.warn('Não foi possível salvar no Firestore:', erro);
             }
@@ -780,13 +799,18 @@
         async function carregarEstadoFirestore() {
             if (!db || typeof db.collection !== 'function') return;
             try {
-                const statsSnapshot = await db.collection("competicao").doc("stats").get();
-                const dadosStats = statsSnapshot.exists ? (statsSnapshot.data() || {}) : {};
+                const estadoSnapshot = await db.collection("competicaoAtual").doc("estado").get();
+                const relatoriosSnapshot = await db.collection("relatoriosDiarios").get();
+                const dadosStats = estadoSnapshot.exists ? (estadoSnapshot.data() || {}) : {};
+                const relatoriosMap = {};
+                relatoriosSnapshot.forEach(doc => {
+                    relatoriosMap[doc.id] = doc.data();
+                });
 
                 jogadoresStats = normalizarMapaEstatisticas(dadosStats.jogadoresStats || {});
-                relatoriosDiarios = dadosStats.relatoriosDiarios || {};
-                historicoCompeticions = dadosStats.historicoCompeticions || [];
-                competicaoAtiva = dadosStats.competicaoAtiva || null;
+                relatoriosDiarios = Object.keys(relatoriosMap).length > 0 ? relatoriosMap : (dadosStats.relatoriosDiarios || {});
+                historicoCompeticions = Array.isArray(dadosStats.historicoCompeticions) ? [...dadosStats.historicoCompeticions] : [];
+                competicaoAtiva = normalizarCompeticaoAtiva(dadosStats.competicaoAtiva || null);
                 selecionados = Array.isArray(dadosStats.selecionados) ? [...dadosStats.selecionados] : [];
                 estatisticasDia = JSON.parse(JSON.stringify(dadosStats.estatisticasDia || {}));
                 partidasDia = Array.isArray(dadosStats.partidasDia) ? JSON.parse(JSON.stringify(dadosStats.partidasDia)) : [];
@@ -800,17 +824,20 @@
         }
 
         async function salvarRelatorioFirestore(id, relatorio) {
-            relatoriosDiarios[id] = relatorio;
+            relatoriosDiarios[id] = JSON.parse(JSON.stringify(relatorio));
+            await db.collection("relatoriosDiarios").doc(id).set(JSON.parse(JSON.stringify(relatorio)), { merge: true });
             await salvarEstadoFirestore();
         }
 
         async function salvarHistoricoFirestore(data) {
             historicoCompeticions = Array.isArray(historicoCompeticions) ? [...historicoCompeticions, data] : [data];
+            const id = data.id || new Date().toISOString();
+            await db.collection("historicoCompeticoes").doc(id).set(JSON.parse(JSON.stringify(data)), { merge: true });
             await salvarEstadoFirestore();
         }
 
         async function limparDadosFirestore() {
-            await db.collection("competicao").doc("stats").set({
+            await db.collection("competicaoAtual").doc("estado").set({
                 jogadoresStats: {},
                 relatoriosDiarios: {},
                 historicoCompeticions: [],
@@ -818,8 +845,8 @@
                 partidasDia: [],
                 ultimaPartida: null,
                 dataAtual: new Date().toISOString().split('T')[0]
-            });
-            await db.collection("competicao").doc("relatorios").set({ relatoriosDiarios: {} });
+            }, { merge: true });
+            await db.collection("relatoriosDiarios").get().then(snapshot => Promise.all(snapshot.docs.map(doc => doc.ref.delete())));
         }
 
         window.fs = {
@@ -831,15 +858,15 @@
                 await salvarEstadoFirestore();
             },
             async saveRelatorio(dateId, relatorio) {
-                relatoriosDiarios[dateId] = relatorio;
-                await salvarEstadoFirestore();
+                relatoriosDiarios[dateId] = JSON.parse(JSON.stringify(relatorio));
+                await salvarRelatorioFirestore(dateId, relatorio);
             },
             async saveHistorico(id, data) {
                 historicoCompeticions = Array.isArray(historicoCompeticions) ? [...historicoCompeticions, data] : [data];
-                await salvarEstadoFirestore();
+                await salvarHistoricoFirestore(data);
             },
             async saveCompeticaoAtiva(value) {
-                competicaoAtiva = value;
+                competicaoAtiva = normalizarCompeticaoAtiva(value);
                 await salvarEstadoFirestore();
             },
             async clearAllPlayers() {
@@ -983,6 +1010,38 @@
             return estatisticasDia[nome];
         }
 
+        function filtrarEstatisticasAtivas(estatisticas = {}) {
+            const ativa = {};
+            Object.entries(estatisticas || {}).forEach(([nome, dados]) => {
+                const stats = normalizarJogador(nome, dados || {});
+                const temAtividade = [stats.gols, stats.assis, stats.amarelo, stats.vermelho, stats.partidas, stats.fora]
+                    .some(valor => Number(valor || 0) > 0);
+                if (temAtividade) {
+                    ativa[nome] = stats;
+                }
+            });
+            return ativa;
+        }
+
+        function montarRelatorioDia(dataId, dataFormatada, estatisticasDoDia = {}) {
+            const estatisticasAtivas = filtrarEstatisticasAtivas(estatisticasDoDia || {});
+            const resumoEquipes = gerarResumoEquipes(estatisticasAtivas);
+            const estrategias = gerarEstrategias(estatisticasAtivas);
+            return {
+                id: dataId,
+                data: dataFormatada,
+                dataIso: dataId,
+                status: 'finalizado',
+                estrategias,
+                resumoEquipes,
+                estatisticas: JSON.parse(JSON.stringify(estatisticasAtivas || {})),
+                totalGols: Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.gols || 0), 0),
+                totalAssistencias: Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.assis || 0), 0),
+                totalAmarelos: Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.amarelo || 0), 0),
+                totalVermelhos: Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.vermelho || 0), 0)
+            };
+        }
+
         function gerarResumoEquipes(estatisticas) {
             const resumo = {};
             Object.keys(estatisticas || {}).forEach(nome => {
@@ -1002,11 +1061,20 @@
         }
 
         function atualizarRelatorioAtual() {
-            if (!relatoriosDiarios[dataAtual]) return null;
-            const relatorioAtual = relatoriosDiarios[dataAtual];
+            const dataId = dataAtual || new Date().toISOString().split('T')[0];
+            if (!relatoriosDiarios[dataId]) {
+                relatoriosDiarios[dataId] = montarRelatorioDia(dataId, new Date(dataId).toLocaleDateString('pt-BR'), estatisticasDia || {});
+            }
+            const relatorioAtual = relatoriosDiarios[dataId];
             relatorioAtual.estatisticas = JSON.parse(JSON.stringify(estatisticasDia || {}));
             relatorioAtual.resumoEquipes = gerarResumoEquipes(relatorioAtual.estatisticas);
             relatorioAtual.estrategias = gerarEstrategias(relatorioAtual.estatisticas);
+            relatorioAtual.totalGols = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.gols || 0), 0);
+            relatorioAtual.totalAssistencias = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.assis || 0), 0);
+            relatorioAtual.totalAmarelos = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.amarelo || 0), 0);
+            relatorioAtual.totalVermelhos = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.vermelho || 0), 0);
+            relatorioAtual.status = 'em_andamento';
+            try { salvarEstadoFirestore(); } catch(e){}
             return relatorioAtual;
         }
 
@@ -1381,8 +1449,12 @@
 
             const btnPainelAdmin = document.getElementById('btnPainelAdmin');
             const btnSairAdmin = document.getElementById('btnSairAdmin');
+            const btnFinalizarDiaTopbar = document.getElementById('btnFinalizarDiaTopbar');
+            const btnNovoDia = document.getElementById('btnNovoDia');
             if (btnPainelAdmin) btnPainelAdmin.style.display = modoAdministrador ? 'none' : '';
             if (btnSairAdmin) btnSairAdmin.style.display = modoAdministrador ? '' : 'none';
+            if (btnFinalizarDiaTopbar) btnFinalizarDiaTopbar.style.display = modoAdministrador ? 'inline-flex' : 'none';
+            if (btnNovoDia) btnNovoDia.style.display = modoAdministrador ? 'inline-flex' : 'none';
 
             document.querySelectorAll('.admin-only').forEach(el => {
                 if (el) {
@@ -2233,6 +2305,7 @@
             atualizarContadoresInterface(nome);
             atualizarCronometroDisplay();
             renderizarPlacarPartida();
+            atualizarRelatorioAtual();
             salvar();
             
             // Verificar vitória automática
@@ -2329,6 +2402,7 @@
             statsDia.equipe = jogadoresStats[n]?.equipe || statsDia.equipe || '';
             atualizarContadoresInterface(n);
             renderizarPlacarPartida();
+            atualizarRelatorioAtual();
             salvar(); 
         }
 
@@ -2439,26 +2513,28 @@
             return estrategias;
         }
 
-        function encerrarDia() {
+        async function encerrarDia() {
             if (!verificarPermissao('encerramento do dia')) return;
 
-            const confirmarEncerramento = confirm("Encerrar o dia?\n\nAs equipes formadas para este dia serão desfeitas e todos os jogadores voltarão para a lista de disponíveis.\n\nOs cadastros, fotos, estatísticas e relatórios permanecerão salvos.");
+            const confirmarEncerramento = confirm("Deseja realmente finalizar este dia? O relatório diário será salvo permanentemente e as estatísticas diárias serão reiniciadas.");
             if (!confirmarEncerramento) return;
 
-            const estrategias = gerarEstrategias();
-            const dataFormatada = new Date(dataAtual).toLocaleDateString('pt-BR');
+            const dataId = dataAtual || new Date().toISOString().split('T')[0];
+            const dataFormatada = new Date(dataId).toLocaleDateString('pt-BR');
             const estatisticasDoDia = JSON.parse(JSON.stringify(estatisticasDia || {}));
-            
-            const resumoEquipes = gerarResumoEquipes(estatisticasDoDia);
+            const relatorioFinal = montarRelatorioDia(dataId, dataFormatada, estatisticasDoDia);
+            relatorioFinal.status = 'finalizado';
 
-            relatoriosDiarios[dataAtual] = {
-                data: dataFormatada,
-                estrategias: estrategias,
-                resumoEquipes: resumoEquipes,
-                estatisticas: estatisticasDoDia
-            };
-
-            try { if (window.fs && window.fs.saveRelatorio) window.fs.saveRelatorio(dataAtual, relatoriosDiarios[dataAtual]).catch(()=>{}); } catch(e){}
+            relatoriosDiarios[dataId] = relatorioFinal;
+            try {
+                if (window.fs && window.fs.saveRelatorio) {
+                    await window.fs.saveRelatorio(dataId, relatorioFinal);
+                }
+            } catch (e) {
+                console.error('Erro ao salvar relatório diário:', e);
+                alert('Não foi possível salvar o relatório diário. Nenhum dado foi apagado.');
+                return;
+            }
 
             Object.keys(jogadoresStats).forEach(nome => {
                 if (jogadoresStats[nome]) {
@@ -2466,6 +2542,9 @@
                 }
             });
             selecionados = [];
+            selecionadosPartidaAtual = [];
+            partidasDia = [];
+            ultimaPartida = null;
             golsRegistrados = [];
             eventosPartida = [];
             cronometroRodando = false;
@@ -2474,13 +2553,14 @@
             clearInterval(cronometroInterval);
             tempoRestante = 420;
             tempoAcrescimos = 0;
-            salvar();
-            renderizarGrid();
-            renderizarGerenciamento();
-            alert(`Dia ${dataFormatada} encerrado com sucesso! As equipes foram desfeitas e os jogadores ficaram disponíveis para a próxima rodada.`);
-            
             estatisticasDia = {};
             dataAtual = new Date().toISOString().split('T')[0];
+            await salvar();
+            renderizarGrid();
+            renderizarGerenciamento();
+            renderizarRelatorios();
+            renderizarDashboardEstatisticas();
+            alert(`Dia ${dataFormatada} encerrado com sucesso! O relatório foi salvo e as estatísticas diárias foram reiniciadas.`);
         }
 
         function abrirEstatisticas() {
@@ -2497,11 +2577,18 @@
             renderizarRelatorios();
         }
 
+        function alternarDetalhesRelatorio(dataId) {
+            const id = String(dataId || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+            const container = document.getElementById(`detalhes-relatorio-${id}`);
+            if (!container) return;
+            container.style.display = container.style.display === 'block' ? 'none' : 'block';
+        }
+
         function renderizarRelatorios() {
             const container = document.getElementById('relatorioResumo');
             if (!container) return;
 
-            const datas = Object.keys(relatoriosDiarios || {}).sort();
+            const datas = Object.keys(relatoriosDiarios || {}).sort().reverse();
             if (datas.length === 0) {
                 container.innerHTML = '<p style="color:#555; margin:0;">Nenhum relatório registrado ainda.</p>';
                 return;
@@ -2510,18 +2597,34 @@
             let html = '';
             datas.forEach(data => {
                 const relatorio = relatoriosDiarios[data];
-                const gols = relatorio.estatisticas ? Object.values(relatorio.estatisticas).reduce((acc, stats) => acc + (stats.gols || 0), 0) : 0;
-                const assistencias = relatorio.estatisticas ? Object.values(relatorio.estatisticas).reduce((acc, stats) => acc + (stats.assis || 0), 0) : 0;
-                const amarelos = relatorio.estatisticas ? Object.values(relatorio.estatisticas).reduce((acc, stats) => acc + (stats.amarelo || 0), 0) : 0;
-                const vermelhos = relatorio.estatisticas ? Object.values(relatorio.estatisticas).reduce((acc, stats) => acc + (stats.vermelho || 0), 0) : 0;
+                const estatisticas = relatorio && relatorio.estatisticas ? relatorio.estatisticas : {};
+                const jogadoresAtivos = Object.entries(estatisticas || {})
+                    .filter(([, stats]) => stats && (Number(stats.gols || 0) > 0 || Number(stats.assis || 0) > 0 || Number(stats.amarelo || 0) > 0 || Number(stats.vermelho || 0) > 0))
+                    .sort((a, b) => (b[1].gols || 0) - (a[1].gols || 0) || a[0].localeCompare(b[0], 'pt-BR'));
+                const gols = Object.values(estatisticas).reduce((acc, stats) => acc + (stats.gols || 0), 0);
+                const assistencias = Object.values(estatisticas).reduce((acc, stats) => acc + (stats.assis || 0), 0);
+                const amarelos = Object.values(estatisticas).reduce((acc, stats) => acc + (stats.amarelo || 0), 0);
+                const vermelhos = Object.values(estatisticas).reduce((acc, stats) => acc + (stats.vermelho || 0), 0);
+                const idSegura = String(data || '').replace(/[^a-zA-Z0-9_-]/g, '_');
 
                 html += `
                     <div class="relatorio-dia">
-                        <h3>${escapeHtml(data)}</h3>
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <div>
+                                <h3>${escapeHtml(relatorio?.data || data)}</h3>
+                                <p style="margin:6px 0 0; color:#666;">${escapeHtml(data)} • ${relatorio?.status === 'finalizado' ? 'Finalizado' : 'Em andamento'}</p>
+                            </div>
+                            <button class="btn-blue btn-xs" onclick="alternarDetalhesRelatorio('${escapeParaAtributoJs(data)}')">Ver relatório</button>
+                        </div>
                         <p><strong>Gols:</strong> ${gols} | <strong>Assistências:</strong> ${assistencias} | <strong>Amarelos:</strong> ${amarelos} | <strong>Vermelhos:</strong> ${vermelhos}</p>
                         <div class="stats-resumo">
-                            <div class="stat-box"><strong>Jogadores</strong><br>${Object.keys(relatorio.estatisticas || {}).length}</div>
-                            <div class="stat-box"><strong>Tempo de evento</strong><br>${escapeHtml(relatorio.data)}</div>
+                            <div class="stat-box"><strong>Jogadores com ação</strong><br>${jogadoresAtivos.length}</div>
+                            <div class="stat-box"><strong>Resumo</strong><br>${escapeHtml(Object.keys(relatorio?.resumoEquipes || {}).join(', ') || 'Sem resumo')}</div>
+                        </div>
+                        <div id="detalhes-relatorio-${idSegura}" style="display:none; margin-top:10px; padding-top:10px; border-top:1px solid #eee;">
+                            ${jogadoresAtivos.length === 0
+                                ? '<p style="margin:0; color:#777;">Nenhum jogador com participação registrada neste dia.</p>'
+                                : `<ul style="margin:0; padding-left:18px; display:grid; gap:6px;">${jogadoresAtivos.map(([nome, stats]) => `<li><strong>${escapeHtml(nome)}</strong>: gols ${stats.gols || 0}, assistências ${stats.assis || 0}, amarelos ${stats.amarelo || 0}, vermelhos ${stats.vermelho || 0}</li>`).join('')}</ul>`}
                         </div>
                     </div>`;
             });
@@ -2681,48 +2784,34 @@
         function novoDia() {
             if (!verificarPermissao('iniciar novo dia')) return;
 
-            const confirmado = confirm("Deseja realmente iniciar um novo dia de competição? As estatísticas diárias serão reiniciadas, porém o ranking geral permanecerá preservado.");
-            if (!confirmado) return;
+            const temDiaEmAndamento = Object.keys(estatisticasDia || {}).length > 0
+                || (Array.isArray(partidasDia) && partidasDia.length > 0)
+                || (Array.isArray(selecionados) && selecionados.length > 0)
+                || (relatoriosDiarios[dataAtual] && relatoriosDiarios[dataAtual].status !== 'finalizado');
 
-            // Salvar o dia atual como relatório/dia
-            try {
-                const dataId = dataAtual || new Date().toISOString().split('T')[0];
-                const dataFormatada = new Date().toLocaleString('pt-BR');
-                const estatisticasDoDia = JSON.parse(JSON.stringify(estatisticasDia || {}));
-
-                const resumoEquipes = gerarResumoEquipes(estatisticasDoDia);
-                const estrategias = gerarEstrategias(estatisticasDoDia);
-
-                // Montar objeto do dia
-                const diaRegistro = {
-                    id: dataId,
-                    data: dataFormatada,
-                    estatisticas: estatisticasDoDia,
-                    resumoEquipes,
-                    estrategias,
-                    totalGols: Object.values(estatisticasDoDia || {}).reduce((s, p) => s + (p.gols || 0), 0),
-                    totalAssistencias: Object.values(estatisticasDoDia || {}).reduce((s, p) => s + (p.assis || 0), 0),
-                    totalAmarelos: Object.values(estatisticasDoDia || {}).reduce((s, p) => s + (p.amarelo || 0), 0),
-                    totalVermelhos: Object.values(estatisticasDoDia || {}).reduce((s, p) => s + (p.vermelho || 0), 0)
-                };
-
-                // salvar em relatoriosDiarios e tentar persistir via API externa
-                relatoriosDiarios[dataId] = { data: new Date(dataId).toLocaleDateString('pt-BR'), estrategias, resumoEquipes, estatisticas: estatisticasDoDia };
-                try { if (window.fs && window.fs.saveRelatorio) window.fs.saveRelatorio(dataId, relatoriosDiarios[dataId]).catch(()=>{}); } catch(e){}
-
-                // Também tentar salvar sob /dias/<dataId> se a API oferecer
-                try { if (window.fs && window.fs.saveDia) window.fs.saveDia(dataId, diaRegistro).catch(()=>{}); } catch(e){}
-
-            } catch (e) {
-                console.error('Erro ao salvar novo dia:', e);
+            if (temDiaEmAndamento) {
+                alert('Finalize o dia atual antes de iniciar um novo dia.');
+                return;
             }
 
-            // Resetar estatísticas do dia
+            const confirmado = confirm("Deseja realmente iniciar um novo dia de competição? As estatísticas diárias serão reiniciadas, porém o ranking geral e o histórico de relatórios permanecerão preservados.");
+            if (!confirmado) return;
+
             estatisticasDia = {};
-            // Atualizar identificador do dia atual
+            partidasDia = [];
+            ultimaPartida = null;
+            selecionados = [];
+            selecionadosPartidaAtual = [];
+            golsRegistrados = [];
+            eventosPartida = [];
+            cronometroRodando = false;
+            cronometroPausado = false;
+            partidaEncerrada = false;
+            clearInterval(cronometroInterval);
+            tempoRestante = 420;
+            tempoAcrescimos = 0;
             dataAtual = new Date().toISOString().split('T')[0];
 
-            // Atualizar interface
             salvar();
             renderizarRelatorios();
             renderizarHistorico();
@@ -2999,6 +3088,7 @@
 
         function renderizarHistorico() {
             const container = document.getElementById('listaCompeticiones');
+            if (!container) return;
             container.innerHTML = '';
             
             if (historicoCompeticions.length === 0) {
@@ -3008,14 +3098,14 @@
             
             historicoCompeticions.forEach((comp, index) => {
                 const div = document.createElement('div');
-                div.style.cssText = 'background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer;';
-                div.onclick = () => exibirCompeticaoHistorico(index);
-                
-                let html = `<h3 style="margin: 0 0 10px 0; color: #2196F3;">Competição #${historicoCompeticions.length - index}</h3>`;
-                html += `<p style="margin: 5px 0; color: #666;"><strong>Data Final:</strong> ${comp.dataFinal}</p>`;
-                html += `<p style="margin: 5px 0; color: #666;"><strong>Total de Dias:</strong> ${Object.keys(comp.relatorios).length}</p>`;
-                html += `<p style="margin: 5px 0; color: #666;"><strong>Clique para ver detalhes</strong> →</p>`;
-                
+                div.style.cssText = 'background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);';
+                const nomeCompeticao = comp.nome || `Competição #${historicoCompeticions.length - index}`;
+                const dataInicio = comp.dataInicio ? new Date(comp.dataInicio).toLocaleDateString('pt-BR') : '—';
+                const dataFinal = comp.dataFinal || '—';
+                let html = `<h3 style="margin: 0 0 10px 0; color: #2196F3;">${escapeHtml(nomeCompeticao)}</h3>`;
+                html += `<p style="margin: 5px 0; color: #666;"><strong>Período:</strong> ${escapeHtml(dataInicio)} até ${escapeHtml(dataFinal)}</p>`;
+                html += `<p style="margin: 5px 0; color: #666;"><strong>Dias:</strong> ${Object.keys(comp.relatorios || {}).length} • <strong>Partidas:</strong> ${comp.quantidadePartidas || 0} • <strong>Jogadores:</strong> ${comp.quantidadeJogadores || 0}</p>`;
+                html += `<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;"><button class="btn-blue btn-xs" onclick="exibirCompeticaoHistorico(${index})">🏆 Ver Estatísticas</button></div>`;
                 div.innerHTML = html;
                 container.appendChild(div);
             });
@@ -3024,6 +3114,7 @@
         function exibirCompeticaoHistorico(indice) {
             const competicao = historicoCompeticions[indice];
             const container = document.getElementById('listaCompeticiones');
+            if (!container || !competicao) return;
             container.innerHTML = '';
             
             const btnVoltar = document.createElement('button');
@@ -3032,40 +3123,58 @@
             btnVoltar.onclick = renderizarHistorico;
             
             const titulo = document.createElement('h2');
-            titulo.textContent = `Competição #${historicoCompeticions.length - indice}`;
+            titulo.textContent = competicao.nome || `Competição #${historicoCompeticions.length - indice}`;
             
             const info = document.createElement('div');
             info.style.cssText = 'background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;';
             info.innerHTML = `
-                <p><strong>Data Final:</strong> ${competicao.dataFinal}</p>
-                <p><strong>Total de Dias Disputados:</strong> ${Object.keys(competicao.relatorios).length}</p>
+                <p><strong>Data de início:</strong> ${competicao.dataInicio ? new Date(competicao.dataInicio).toLocaleDateString('pt-BR') : '—'}</p>
+                <p><strong>Data de término:</strong> ${competicao.dataFinal || '—'}</p>
+                <p><strong>Dias:</strong> ${Object.keys(competicao.relatorios || {}).length} • <strong>Partidas:</strong> ${competicao.quantidadePartidas || 0} • <strong>Jogadores:</strong> ${competicao.quantidadeJogadores || 0} • <strong>Equipes:</strong> ${competicao.quantidadeEquipes || 0}</p>
             `;
             
             container.appendChild(btnVoltar);
             container.appendChild(titulo);
             container.appendChild(info);
+
+            const rankings = competicao.rankings || {};
+            const cards = [];
+            if (Array.isArray(rankings.artilharia) && rankings.artilharia.length) {
+                cards.push(`<div class="relatorio-dia"><h3>⚽ Artilharia Final</h3><ul>${rankings.artilharia.map(item => `<li>${escapeHtml(item.nome)} — ${item.gols || 0} gols</li>`).join('')}</ul></div>`);
+            }
+            if (Array.isArray(rankings.assistencias) && rankings.assistencias.length) {
+                cards.push(`<div class="relatorio-dia"><h3>🅰 Assistências</h3><ul>${rankings.assistencias.map(item => `<li>${escapeHtml(item.nome)} — ${item.assis || 0} assistências</li>`).join('')}</ul></div>`);
+            }
+            if (Array.isArray(rankings.amarelos) && rankings.amarelos.length) {
+                cards.push(`<div class="relatorio-dia"><h3>🟨 Amarelos</h3><ul>${rankings.amarelos.map(item => `<li>${escapeHtml(item.nome)} — ${item.amarelo || 0} cartões</li>`).join('')}</ul></div>`);
+            }
+            if (Array.isArray(rankings.vermelhos) && rankings.vermelhos.length) {
+                cards.push(`<div class="relatorio-dia"><h3>🟥 Vermelhos</h3><ul>${rankings.vermelhos.map(item => `<li>${escapeHtml(item.nome)} — ${item.vermelho || 0} cartões</li>`).join('')}</ul></div>`);
+            }
+            container.insertAdjacentHTML('beforeend', cards.join(''));
             
-            // Exibir relatórios de cada dia
-            Object.keys(competicao.relatorios).sort().forEach(data => {
+            Object.keys(competicao.relatorios || {}).sort().forEach(data => {
                 const relatorio = competicao.relatorios[data];
                 const div = document.createElement('div');
                 div.className = 'relatorio-dia';
                 
-                let html = `<h3>Relatório de ${relatorio.data}</h3>`;
-                html += '<h4>🎯 Estratégias do Dia:</h4>';
-                relatorio.estrategias.forEach(estrategia => {
-                    html += `<div class="estrategia-item">${estrategia}</div>`;
-                });
+                let html = `<h3>Relatório de ${escapeHtml(relatorio?.data || data)}</h3>`;
+                if (Array.isArray(relatorio?.estrategias) && relatorio.estrategias.length) {
+                    html += '<h4>🎯 Estratégias do Dia:</h4>';
+                    relatorio.estrategias.forEach(estrategia => {
+                        html += `<div class="estrategia-item">${escapeHtml(estrategia)}</div>`;
+                    });
+                }
                 
                 html += '<h4>📈 Resumo por Equipe:</h4><div class="stats-resumo">';
-                Object.keys(relatorio.resumoEquipes).forEach(equipe => {
+                Object.keys(relatorio?.resumoEquipes || {}).forEach(equipe => {
                     const stats = relatorio.resumoEquipes[equipe];
                     html += `<div class="stat-box">
-                        <strong>${equipe}</strong><br>
-                        Gols: ${stats.gols}<br>
-                        Assis: ${stats.assis}<br>
-                        Amarelos: ${stats.amarelos}<br>
-                        Vermelhos: ${stats.vermelhos}
+                        <strong>${escapeHtml(equipe)}</strong><br>
+                        Gols: ${stats.gols || 0}<br>
+                        Assis: ${stats.assis || 0}<br>
+                        Amarelos: ${stats.amarelos || 0}<br>
+                        Vermelhos: ${stats.vermelhos || 0}
                     </div>`;
                 });
                 html += '</div>';
@@ -3075,34 +3184,80 @@
             });
         }
 
-        function finalizarCompeticao() {
+        async function finalizarCompeticao() {
             if (!verificarPermissao('finalização da competição')) return;
 
             if (Object.keys(relatoriosDiarios).length === 0) {
-                alert("Nenhum dia foi disputado ainda!");
+                alert('Nenhum dia foi disputado ainda.');
                 return;
             }
-            
-            if (confirm("Deseja finalizar esta competição? Os relatórios serão movidos para o histórico.")) {
-                const competicao = {
-                    dataFinal: new Date().toLocaleDateString('pt-BR'),
-                    relatorios: JSON.parse(JSON.stringify(relatoriosDiarios))
-                };
-                
-                try { if (window.fs && window.fs.saveHistorico) window.fs.saveHistorico(new Date().toISOString(), competicao).catch(()=>{}); } catch(e){}
-                try {
-                    if (window.fs && window.fs.saveCompeticaoAtiva) window.fs.saveCompeticaoAtiva(null).catch(()=>{});
-                    if (window.fs && window.fs.clearRelatorios) window.fs.clearRelatorios().catch(()=>{});
-                } catch(e) {}
-                
-                relatoriosDiarios = {};
-                jogadoresStats = {};
-                selecionados = [];
-                competicaoAtiva = null;
-                
-                alert("Competição finalizada! O histórico foi salvo.");
-                location.reload();
+
+            const confirmar = confirm('Deseja finalizar esta competição? Um registro permanente será criado no histórico e a competição atual será reiniciada.');
+            if (!confirmar) return;
+
+            const dataInicio = competicaoAtiva?.dataInicio || competicaoAtiva?.inicio || new Date().toISOString();
+            const dataTermino = new Date().toISOString();
+            const rankingGeral = Object.entries(jogadoresStats || {})
+                .map(([nome, dados]) => ({ nome, ...normalizarJogador(nome, dados) }))
+                .sort((a, b) => (Number(b.gols || 0) - Number(a.gols || 0)) || a.nome.localeCompare(b.nome, 'pt-BR'));
+
+            const competicao = {
+                id: dataTermino,
+                nome: competicaoAtiva?.nome || 'Competição Atual',
+                dataInicio,
+                dataFinal: new Date().toLocaleDateString('pt-BR'),
+                dataTermino,
+                quantidadeDias: Object.keys(relatoriosDiarios || {}).length,
+                quantidadePartidas: Array.isArray(partidasDia) ? partidasDia.length : 0,
+                quantidadeJogadores: Object.keys(jogadoresStats || {}).length,
+                quantidadeEquipes: Object.keys(obterJogadoresPorEquipe() || {}).filter(equipe => equipe !== 'Sem equipe' && (obterJogadoresPorEquipe()[equipe] || []).length > 0).length,
+                relatorios: JSON.parse(JSON.stringify(relatoriosDiarios || {})),
+                rankings: {
+                    artilharia: rankingGeral.slice(0, 10),
+                    assistencias: [...rankingGeral].sort((a, b) => (Number(b.assis || 0) - Number(a.assis || 0)) || a.nome.localeCompare(b.nome, 'pt-BR')).slice(0, 10),
+                    amarelos: [...rankingGeral].sort((a, b) => (Number(b.amarelo || 0) - Number(a.amarelo || 0)) || a.nome.localeCompare(b.nome, 'pt-BR')).slice(0, 10),
+                    vermelhos: [...rankingGeral].sort((a, b) => (Number(b.vermelho || 0) - Number(a.vermelho || 0)) || a.nome.localeCompare(b.nome, 'pt-BR')).slice(0, 10)
+                }
+            };
+
+            try {
+                if (window.fs && window.fs.saveHistorico) {
+                    await window.fs.saveHistorico(competicao.id, competicao);
+                }
+            } catch (e) {
+                console.error('Erro ao salvar histórico:', e);
+                alert('Falha ao salvar o histórico no Firebase. Nenhum dado foi apagado.');
+                return;
             }
+
+            try {
+                if (window.fs && window.fs.saveCompeticaoAtiva) {
+                    await window.fs.saveCompeticaoAtiva({
+                        id: new Date().toISOString(),
+                        nome: 'Competição Atual',
+                        dataInicio: new Date().toISOString(),
+                        dataTermino: null,
+                        status: 'ativa'
+                    });
+                }
+            } catch (e) {
+                console.error('Erro ao reiniciar competição:', e);
+                alert('O histórico foi salvo, mas não foi possível iniciar uma nova competição.');
+                return;
+            }
+
+            relatoriosDiarios = {};
+            jogadoresStats = {};
+            selecionados = [];
+            selecionadosPartidaAtual = [];
+            estatisticasDia = {};
+            partidasDia = [];
+            ultimaPartida = null;
+            dataAtual = new Date().toISOString().split('T')[0];
+            competicaoAtiva = { id: new Date().toISOString(), nome: 'Competição Atual', dataInicio: dataAtual, dataTermino: null, status: 'ativa' };
+            await salvar();
+            renderizarHistorico();
+            alert('Competição finalizada com sucesso! O histórico foi salvo e uma nova competição vazia foi iniciada.');
         }
 
         function voltarMenu() {
@@ -3126,8 +3281,18 @@
             renderizarDashboardEstatisticas();
             atualizarResumoDashboard();
         });
-        window.addEventListener('firestoreRelatoriosUpdated', (e) => { relatoriosDiarios = e.detail || {}; });
-        window.addEventListener('firestoreHistoricoUpdated', (e) => { historicoCompeticions = e.detail || []; });
+        window.addEventListener('firestoreRelatoriosUpdated', (e) => {
+            relatoriosDiarios = e.detail || {};
+            if (document.getElementById('telaRelatorios')?.classList.contains('ativa')) {
+                renderizarRelatorios();
+            }
+        });
+        window.addEventListener('firestoreHistoricoUpdated', (e) => {
+            historicoCompeticions = e.detail || [];
+            if (document.getElementById('telaHistorico')?.classList.contains('ativa')) {
+                renderizarHistorico();
+            }
+        });
         window.addEventListener('firestoreInitialDataLoaded', () => {
             renderizarGerenciamento();
             if (jogadoresPanelAtivo && jogadoresListaVisivel) renderizarGrid();
