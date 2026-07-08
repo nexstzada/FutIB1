@@ -517,8 +517,14 @@
                         <input id="searchJogadoresMobile" type="text" placeholder="Pesquisar jogador..." oninput="renderizarGrid()">
                         <button id="btnAddJogadorMobile" class="btn-green admin-only" onclick="abrirModalCadastroJogador()" style="display:none;">➕</button>
                     </div>
-                    <div id="selecaoCadastro" class="admin-only" style="display:none; margin-bottom:12px;"><button class="btn-green" onclick="abrirModalCadastroJogador()">➕ Adicionar Jogador</button></div>
-                    <div id="gridJogadores" class="grid-jogadores"></div>
+                    <div id="selecaoCadastro" class="admin-only" style="display:none; margin-bottom:12px;">
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn-blue" onclick="mostrarGerenciarJogadores()">👤 Gerenciar Jogadores</button>
+                            <button class="btn-green" onclick="abrirModalCadastroJogador()">➕ Cadastrar Jogador</button>
+                        </div>
+                    </div>
+                    <div id="mensagemJogadoresVazia" style="padding:18px; text-align:center; color:#666;">Acesse "Gerenciar Jogadores" para abrir a lista ou pesquise um jogador acima.</div>
+                    <div id="gridJogadores" class="grid-jogadores" style="display:none;"></div>
                 </div>
 
                 <div id="telaEquipes" class="tela page-shell">
@@ -676,6 +682,36 @@
 
     <script>
         const db = firebase.firestore();
+        let statsUnsubscribe = null;
+        let jogadoresPanelAtivo = false;
+
+        function subscribeToStats() {
+            if (statsUnsubscribe) return;
+            statsUnsubscribe = db.collection("competicao").doc("stats").onSnapshot((snapshot) => {
+                const dados = snapshot.exists ? (snapshot.data() || {}) : {};
+                jogadoresStats = normalizarMapaEstatisticas(dados.jogadoresStats || {});
+                relatoriosDiarios = dados.relatoriosDiarios || {};
+                historicoCompeticions = dados.historicoCompeticions || [];
+                competicaoAtiva = dados.competicaoAtiva || null;
+                selecionados = Array.isArray(dados.selecionados) ? [...dados.selecionados] : [];
+                estatisticasDia = JSON.parse(JSON.stringify(dados.estatisticasDia || {}));
+                partidasDia = Array.isArray(dados.partidasDia) ? JSON.parse(JSON.stringify(dados.partidasDia)) : [];
+                ultimaPartida = dados.ultimaPartida ? JSON.parse(JSON.stringify(dados.ultimaPartida)) : null;
+                dataAtual = dados.dataAtual || dataAtual;
+
+                window.dispatchEvent(new CustomEvent('firestorePlayersUpdated', { detail: jogadoresStats }));
+                window.dispatchEvent(new CustomEvent('firestoreRelatoriosUpdated', { detail: relatoriosDiarios }));
+                window.dispatchEvent(new CustomEvent('firestoreHistoricoUpdated', { detail: historicoCompeticions }));
+                window.dispatchEvent(new CustomEvent('firestoreEstadoUpdated', { detail: competicaoAtiva }));
+                renderizarDashboardEstatisticas();
+                atualizarResumoDashboard();
+            });
+        }
+
+        function unsubscribeStats() {
+            try { if (statsUnsubscribe) statsUnsubscribe(); } catch(e){}
+            statsUnsubscribe = null;
+        }
 
         function normalizarMapaEstatisticas(dados = {}) {
             const mapa = {};
@@ -802,25 +838,7 @@
             }
         };
 
-        db.collection("competicao").doc("stats").onSnapshot((snapshot) => {
-            const dados = snapshot.exists ? (snapshot.data() || {}) : {};
-            jogadoresStats = normalizarMapaEstatisticas(dados.jogadoresStats || {});
-            relatoriosDiarios = dados.relatoriosDiarios || {};
-            historicoCompeticions = dados.historicoCompeticions || [];
-            competicaoAtiva = dados.competicaoAtiva || null;
-            selecionados = Array.isArray(dados.selecionados) ? [...dados.selecionados] : [];
-            estatisticasDia = JSON.parse(JSON.stringify(dados.estatisticasDia || {}));
-            partidasDia = Array.isArray(dados.partidasDia) ? JSON.parse(JSON.stringify(dados.partidasDia)) : [];
-            ultimaPartida = dados.ultimaPartida ? JSON.parse(JSON.stringify(dados.ultimaPartida)) : null;
-            dataAtual = dados.dataAtual || dataAtual;
-
-            window.dispatchEvent(new CustomEvent('firestorePlayersUpdated', { detail: jogadoresStats }));
-            window.dispatchEvent(new CustomEvent('firestoreRelatoriosUpdated', { detail: relatoriosDiarios }));
-            window.dispatchEvent(new CustomEvent('firestoreHistoricoUpdated', { detail: historicoCompeticions }));
-            window.dispatchEvent(new CustomEvent('firestoreEstadoUpdated', { detail: competicaoAtiva }));
-            renderizarDashboardEstatisticas();
-            atualizarResumoDashboard();
-        });
+        // Stats subscription is created on-demand via subscribeToStats()
     </script>
 
     <script>
@@ -1349,6 +1367,25 @@
         function sairPainelAdmin() {
             modoAdministrador = false;
             atualizarModoAcesso();
+        }
+
+        function mostrarGerenciarJogadores() {
+            jogadoresPanelAtivo = true;
+            subscribeToStats();
+            const tela = document.getElementById('telaJogadores');
+            if (tela) tela.style.display = '';
+            const msg = document.getElementById('mensagemJogadoresVazia');
+            if (msg) msg.style.display = 'none';
+            try { renderizarGrid(); } catch(e){}
+        }
+
+        function ocultarGerenciarJogadores() {
+            jogadoresPanelAtivo = false;
+            const tela = document.getElementById('telaJogadores');
+            if (tela) tela.style.display = 'none';
+            const msg = document.getElementById('mensagemJogadoresVazia');
+            if (msg) msg.style.display = '';
+        }
             mostrarTela('dashboard');
             alert('Sessão administrativa encerrada.');
         }
@@ -1387,6 +1424,8 @@
             document.getElementById('searchJogadorEquipe').value = '';
             document.body.classList.add('no-scroll');
             document.getElementById('modalSelecionarJogador').style.display = 'flex';
+            // Ensure we have players loaded before rendering the selection list
+            subscribeToStats();
             renderizarListaJogadoresDisponiveis();
         }
 
@@ -1530,6 +1569,7 @@
         }
 
         function renderizarGrid() {
+            if (!jogadoresPanelAtivo) return; // management-only: do not render unless panel opened
             const grid = document.getElementById('gridJogadores');
             if (!grid) return;
             grid.innerHTML = '';
@@ -1539,6 +1579,7 @@
             const totalJogadores = Object.keys(jogadoresStats).length;
             if (totalJogadores === 0) {
                 grid.innerHTML = '<div class="empty-state">Nenhum jogador cadastrado ainda. Ative o modo administrador e adicione jogadores.</div>';
+                grid.style.display = '';
                 return;
             }
 
@@ -1589,6 +1630,7 @@
             if (!grid.innerHTML) {
                 grid.innerHTML = '<div class="empty-state">Nenhum jogador corresponde à pesquisa ou não há jogadores alocados.</div>';
             }
+            grid.style.display = '';
         }
 
         function toggleSelecao(nome, btn) {
@@ -1654,6 +1696,7 @@
         }
 
         function iniciarJogo() {
+            subscribeToStats();
             const equipes = obterJogadoresPorEquipe();
             const jogadoresEmEquipes = Object.values(equipes).flat().filter(nome => nome && nome !== 'Sem equipe');
             if (jogadoresEmEquipes.length === 0) {
@@ -1667,6 +1710,7 @@
         }
 
         function iniciarPartida() {
+            subscribeToStats();
             if (selecionados.length === 0) {
                 const equipes = obterJogadoresPorEquipe();
                 selecionados = Object.values(equipes).flat().filter(nome => nome && nome !== 'Sem equipe');
@@ -2238,6 +2282,8 @@
         function abrirGerenciamento() {
             if (!verificarPermissao('gerenciamento de equipes')) return;
 
+            // Ensure players data available before rendering management
+            subscribeToStats();
             renderizarGerenciamento();
             mostrarTela('equipes');
         }
@@ -2387,10 +2433,15 @@
             try {
                 const area = document.getElementById('selecaoCadastro');
                 if (area) {
-                    const btn = area.querySelector('button');
-                    if (btn && !btn.getAttribute('onclick')) {
-                        btn.addEventListener('click', abrirModalCadastroJogador);
-                    }
+                    const btns = area.querySelectorAll('button');
+                    btns.forEach(b => {
+                        if (b && b.classList.contains('btn-green')) {
+                            if (!b.getAttribute('onclick')) b.addEventListener('click', abrirModalCadastroJogador);
+                        }
+                        if (b && b.classList.contains('btn-blue')) {
+                            if (!b.getAttribute('onclick')) b.addEventListener('click', mostrarGerenciarJogadores);
+                        }
+                    });
                 }
             } catch (e) { /* ignore */ }
         })();
@@ -2741,18 +2792,13 @@
         }
 
         // Listeners para atualizações em tempo real vindas do Firestore (via módulo)
-        window.addEventListener('firestorePlayersUpdated', (e) => { jogadoresStats = e.detail || {}; renderizarGrid(); renderizarDashboardEstatisticas(); atualizarResumoDashboard(); });
+        window.addEventListener('firestorePlayersUpdated', (e) => { jogadoresStats = e.detail || {}; if (jogadoresPanelAtivo) { renderizarGrid(); } renderizarDashboardEstatisticas(); atualizarResumoDashboard(); });
         window.addEventListener('firestoreRelatoriosUpdated', (e) => { relatoriosDiarios = e.detail || {}; });
         window.addEventListener('firestoreHistoricoUpdated', (e) => { historicoCompeticions = e.detail || []; });
-        window.addEventListener('firestoreInitialDataLoaded', () => { renderizarGrid(); renderizarDashboardEstatisticas(); atualizarResumoDashboard(); });
-
-        if (window.fs && window.fs.loadInitialData) {
-            window.fs.loadInitialData().catch(()=>{});
-        }
+        window.addEventListener('firestoreInitialDataLoaded', () => { if (jogadoresPanelAtivo) renderizarGrid(); renderizarDashboardEstatisticas(); atualizarResumoDashboard(); });
 
         aplicarTemaSalvo();
         atualizarModoAcesso();
-        renderizarGrid();
     </script>
 </body>
 </html>
