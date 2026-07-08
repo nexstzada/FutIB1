@@ -2797,8 +2797,56 @@
         window.addEventListener('firestoreHistoricoUpdated', (e) => { historicoCompeticions = e.detail || []; });
         window.addEventListener('firestoreInitialDataLoaded', () => { if (jogadoresPanelAtivo) renderizarGrid(); renderizarDashboardEstatisticas(); atualizarResumoDashboard(); });
 
-        aplicarTemaSalvo();
-        atualizarModoAcesso();
+        document.addEventListener('DOMContentLoaded', () => {
+            // Apply theme and access mode
+            try { aplicarTemaSalvo(); } catch(e){}
+            try { atualizarModoAcesso(); } catch(e){}
+
+            // Bind nav/menu items (data-view) to mostrarTela
+            document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
+                try {
+                    if (!btn.onclick) btn.addEventListener('click', (ev) => {
+                        const view = btn.getAttribute('data-view');
+                        if (view) mostrarTela(view);
+                    });
+                } catch(e){}
+            });
+
+            // Bind any element with data-action to its global function if exists
+            document.querySelectorAll('[data-action]').forEach(el => {
+                const action = el.getAttribute('data-action');
+                if (!action) return;
+                try {
+                    const fn = window[action];
+                    if (typeof fn === 'function' && !el.onclick) el.addEventListener('click', fn);
+                } catch(e){}
+            });
+
+            // Safety: ensure inline onclick references point to existing functions; create placeholders if missing
+            document.querySelectorAll('[onclick]').forEach(el => {
+                try {
+                    const code = el.getAttribute('onclick') || '';
+                    const m = code.match(/^\s*([a-zA-Z0-9_\$]+)\s*\(/);
+                    if (m) {
+                        const name = m[1];
+                        if (typeof window[name] !== 'function') {
+                            window[name] = function() { console.error(`Função ausente: ${name}`); alert(`A ação '${name}' não está disponível no momento.`); };
+                        }
+                    }
+                } catch(e){}
+            });
+
+            // Re-enable pointer events for actionable controls if they were blocked by CSS
+            document.querySelectorAll('button, a, input, [role="button"]').forEach(el => {
+                try {
+                    const cs = window.getComputedStyle(el);
+                    if (cs && cs.pointerEvents === 'none') el.style.pointerEvents = 'auto';
+                } catch(e){}
+            });
+
+            // Ensure default view
+            try { mostrarTela('dashboard'); } catch(e){}
+        });
     </script>
 </body>
 </html>
