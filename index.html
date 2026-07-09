@@ -243,6 +243,10 @@
         .modal-conteudo { background: white; width: min(520px, 100%); border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         #listaJogadoresDisponiveis { max-height: 55vh; overflow-y: auto; }
         .modal-sel-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; position: sticky; bottom: 0; background: white; padding-top: 10px; }
+        .assistencia-opcoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+        .assist-btn { border: 1px solid #cbd5e1; background: #f8fafc; color: #0f172a; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; }
+        .assist-btn:hover { background: #e2e8f0; }
+        .assist-btn.assist-selecionado { background: #2563eb; color: #fff; border-color: #1d4ed8; }
         body.no-scroll { overflow: hidden; }
         .hero-badge.hero-badge-clickable { cursor: pointer; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -362,7 +366,11 @@
         .equipe-card-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .equipe-card-footer .btn { flex: 1; }
         .btn-desativado { background: #999 !important; cursor: not-allowed !important; opacity: 0.7; }
+        button[disabled] { cursor: not-allowed; opacity: 0.65; }
         .modal-sel-conteudo { max-width: 700px; width: 100%; }
+        .modal-radio-option { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 14px; margin-bottom: 10px; cursor: pointer; }
+        .modal-radio-option input { margin: 0; }
+        .modal-radio-option.selected { background: rgba(59, 130, 246, 0.08); border-color: #3b82f6; }
         .modal-sel-search { width: 100%; padding: 12px 14px; border: 1px solid #ddd; border-radius: 14px; margin-bottom: 18px; }
         .card-jogador-disponivel { border-radius: 18px; padding: 14px; background: var(--surface-alt); border: 1px solid var(--border); }
         .card-jogador-disponivel:hover { transform: translateY(-1px); }
@@ -403,6 +411,7 @@
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -588,8 +597,14 @@
                 </div>
 
                 <div id="telaRelatorios" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Relatórios</h2><p>Resumo executivo com gols, assistências, cartões e tempo dos eventos.</p></div><div class="hero-badge hero-badge-clickable" onclick="abrirRelatorios()" role="button">📜 Sofascore-style</div></div>
-                    <div id="relatorioResumo" class="card" style="padding:18px; text-align:left;"></div>
+                    <div class="page-hero"><div><h2>Relatórios</h2><p>Resumo executivo com gols, assistências, cartões e linha do tempo do dia.</p></div><div class="hero-badge">📜 Relatórios Diários</div></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <button id="btnAbrirSelecaoRelatorio" class="btn-blue btn-xs" onclick="toggleSelecaoRelatorio()">📅 Selecionar dia</button>
+                        <button id="btnExportPDF" class="btn-blue btn-xs" onclick="exportarRelatorioPDF()">📄 Exportar PDF</button>
+                    </div>
+                    <div id="relatorioSelecao" style="margin-top:20px;"></div>
+                    <div id="relatorioListaDias" class="dashboard-grid" style="margin-top:20px;"></div>
+                    <div id="relatorioDetalhes" class="card" style="display:none; padding:24px; margin-top:20px;"></div>
                 </div>
 
                 <div id="telaHistorico" class="tela page-shell">
@@ -703,6 +718,23 @@
         </div>
     </div>
 
+    <div id="modalRegistrarGol" class="modal-edicao">
+        <div class="modal-conteudo modal-sel-conteudo">
+            <div class="modal-header">
+                <h3 id="modalTituloRegistrarGol">Registrar gol</h3>
+                <button class="btn-red btn-xs" onclick="fecharModalRegistrarGol()">✕</button>
+            </div>
+            <div id="modalConteudoRegistrarGol" style="display:flex; flex-direction:column; gap:12px;">
+                <div style="color:#475569; font-size:14px;">Selecione quem deu a assistência.</div>
+                <div id="listaAssistenciasGol"></div>
+            </div>
+            <div class="modal-sel-footer">
+                <button class="btn-blue btn-xs" onclick="confirmarGolComAssistencia()">Confirmar gol</button>
+                <button class="btn-red btn-xs" onclick="fecharModalRegistrarGol()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <button id="btnResetarTudo" class="btn-red btn-reset-tudo admin-only" onclick="resetarTudo()" style="display:none;">Resetar Tudo</button>
 
     <script>
@@ -786,6 +818,8 @@
                     selecionados: Array.isArray(selecionados) ? [...selecionados] : [],
                     estatisticasDia: JSON.parse(JSON.stringify(estatisticasDia || {})),
                     partidasDia: JSON.parse(JSON.stringify(partidasDia || [])),
+                    eventosDia: JSON.parse(JSON.stringify(eventosDia || [])),
+                    numeroPartidaAtual,
                     ultimaPartida: JSON.parse(JSON.stringify(ultimaPartida || null)),
                     dataAtual
                 };
@@ -814,6 +848,8 @@
                 selecionados = Array.isArray(dadosStats.selecionados) ? [...dadosStats.selecionados] : [];
                 estatisticasDia = JSON.parse(JSON.stringify(dadosStats.estatisticasDia || {}));
                 partidasDia = Array.isArray(dadosStats.partidasDia) ? JSON.parse(JSON.stringify(dadosStats.partidasDia)) : [];
+                eventosDia = Array.isArray(dadosStats.eventosDia) ? JSON.parse(JSON.stringify(dadosStats.eventosDia)) : [];
+                numeroPartidaAtual = Number(dadosStats.numeroPartidaAtual || 0);
                 ultimaPartida = dadosStats.ultimaPartida ? JSON.parse(JSON.stringify(dadosStats.ultimaPartida)) : null;
                 dataAtual = dadosStats.dataAtual || dataAtual;
 
@@ -843,6 +879,8 @@
                 historicoCompeticions: [],
                 competicaoAtiva: null,
                 partidasDia: [],
+                eventosDia: [],
+                numeroPartidaAtual: 0,
                 ultimaPartida: null,
                 dataAtual: new Date().toISOString().split('T')[0]
             }, { merge: true });
@@ -891,6 +929,8 @@
                 selecionadosPartidaAtual = [];
                 estatisticasDia = {};
                 partidasDia = [];
+                eventosDia = [];
+                numeroPartidaAtual = 0;
                 ultimaPartida = null;
                 dataAtual = new Date().toISOString().split('T')[0];
                 cronometroRodando = false;
@@ -928,8 +968,11 @@
         let dataAtual = new Date().toISOString().split('T')[0];
         let estatisticasDia = {};
         let partidasDia = [];
+        let eventosDia = [];
+        let relatorioSelecionado = null;
         let ultimaPartida = null;
         let competicaoAtiva = null;
+        let numeroPartidaAtual = 0;
         
         // Variáveis do cronômetro e partida
         let cronometroInterval = null;
@@ -940,6 +983,8 @@
         let tempoAcrescimos = 0;
         let golsRegistrados = [];
         let eventosPartida = [];
+        let golMarcadorAtual = null;
+        let golEquipeAtual = null;
         let configPartida = {
             duracao: 7,
             golsVitoria: 2,
@@ -1023,23 +1068,63 @@
             return ativa;
         }
 
-        function montarRelatorioDia(dataId, dataFormatada, estatisticasDoDia = {}) {
+        function montarRelatorioDia(dataId, dataFormatada, estatisticasDoDia = {}, partidas = [], eventos = []) {
             const estatisticasAtivas = filtrarEstatisticasAtivas(estatisticasDoDia || {});
             const resumoEquipes = gerarResumoEquipes(estatisticasAtivas);
             const estrategias = gerarEstrategias(estatisticasAtivas);
+            const equipesAtivas = new Set();
+            Object.values(estatisticasAtivas || {}).forEach(stats => {
+                const equipe = stats.equipe || 'Sem equipe';
+                if (equipe) equipesAtivas.add(equipe);
+            });
+            partidas.forEach(pt => {
+                if (pt.equipeA) equipesAtivas.add(pt.equipeA);
+                if (pt.equipeB) equipesAtivas.add(pt.equipeB);
+            });
+            const totalGols = Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.gols || 0), 0);
+            const totalAssistencias = Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.assis || 0), 0);
+            const totalAmarelos = Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.amarelo || 0), 0);
+            const totalVermelhos = Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.vermelho || 0), 0);
             return {
                 id: dataId,
                 data: dataFormatada,
                 dataIso: dataId,
                 status: 'finalizado',
+                resumo: {
+                    partidas: partidas.length,
+                    jogadores: Object.keys(estatisticasAtivas || {}).length,
+                    equipes: equipesAtivas.size,
+                    totalGols,
+                    totalAssistencias,
+                    totalAmarelos,
+                    totalVermelhos
+                },
                 estrategias,
                 resumoEquipes,
                 estatisticas: JSON.parse(JSON.stringify(estatisticasAtivas || {})),
-                totalGols: Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.gols || 0), 0),
-                totalAssistencias: Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.assis || 0), 0),
-                totalAmarelos: Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.amarelo || 0), 0),
-                totalVermelhos: Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.vermelho || 0), 0)
+                estatisticasIndividuais: JSON.parse(JSON.stringify(estatisticasAtivas || {})),
+                partidas: JSON.parse(JSON.stringify(partidas || [])),
+                eventos: JSON.parse(JSON.stringify(eventos || [])),
+                totalGols,
+                totalAssistencias,
+                totalAmarelos,
+                totalVermelhos,
+                quantidadePartidas: partidas.length,
+                quantidadeEquipes: equipesAtivas.size,
+                quantidadeJogadores: Object.keys(estatisticasAtivas || {}).length,
+                linhaDoTempo: ordenarLinhaDoTempo(eventos || []),
+                destaques: gerarDestaquesRelatorio(estatisticasAtivas)
             };
+        }
+
+        function ordenarLinhaDoTempo(eventos = []) {
+            return [...(eventos || [])].sort((a, b) => {
+                const minutoA = Number(String(a.minuto || '').replace(/\D/g, '')) || 0;
+                const minutoB = Number(String(b.minuto || '').replace(/\D/g, '')) || 0;
+                if (minutoA !== minutoB) return minutoA - minutoB;
+                if ((a.partida || 0) !== (b.partida || 0)) return (a.partida || 0) - (b.partida || 0);
+                return (a.horario || '').localeCompare(b.horario || '');
+            });
         }
 
         function gerarResumoEquipes(estatisticas) {
@@ -1063,7 +1148,7 @@
         function atualizarRelatorioAtual() {
             const dataId = dataAtual || new Date().toISOString().split('T')[0];
             if (!relatoriosDiarios[dataId]) {
-                relatoriosDiarios[dataId] = montarRelatorioDia(dataId, new Date(dataId).toLocaleDateString('pt-BR'), estatisticasDia || {});
+                relatoriosDiarios[dataId] = montarRelatorioDia(dataId, new Date(dataId).toLocaleDateString('pt-BR'), estatisticasDia || {}, partidasDia || [], eventosDia || []);
             }
             const relatorioAtual = relatoriosDiarios[dataId];
             relatorioAtual.estatisticas = JSON.parse(JSON.stringify(estatisticasDia || {}));
@@ -1073,7 +1158,24 @@
             relatorioAtual.totalAssistencias = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.assis || 0), 0);
             relatorioAtual.totalAmarelos = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.amarelo || 0), 0);
             relatorioAtual.totalVermelhos = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.vermelho || 0), 0);
+            relatorioAtual.partidas = JSON.parse(JSON.stringify(partidasDia || []));
+            relatorioAtual.eventos = JSON.parse(JSON.stringify(eventosDia || []));
+            relatorioAtual.quantidadePartidas = (partidasDia || []).length;
+            relatorioAtual.quantidadeEquipes = Object.keys(relatorioAtual.resumoEquipes || {}).length;
+            relatorioAtual.quantidadeJogadores = Object.keys(relatorioAtual.estatisticas || {}).length;
             relatorioAtual.status = 'em_andamento';
+            relatorioAtual.linhaDoTempo = ordenarLinhaDoTempo(relatorioAtual.eventos || []);
+            relatorioAtual.resumo = {
+                partidas: relatorioAtual.quantidadePartidas,
+                jogadores: relatorioAtual.quantidadeJogadores,
+                equipes: relatorioAtual.quantidadeEquipes,
+                totalGols: relatorioAtual.totalGols,
+                totalAssistencias: relatorioAtual.totalAssistencias,
+                totalAmarelos: relatorioAtual.totalAmarelos,
+                totalVermelhos: relatorioAtual.totalVermelhos
+            };
+            relatorioAtual.estatisticasIndividuais = JSON.parse(JSON.stringify(relatorioAtual.estatisticas || {}));
+            relatorioAtual.destaques = gerarDestaquesRelatorio(relatorioAtual.estatisticas);
             try { salvarEstadoFirestore(); } catch(e){}
             return relatorioAtual;
         }
@@ -1181,28 +1283,37 @@
                     jogadoresEquipe.forEach(nome => {
                         const p = jogadoresStats[nome] ? normalizarJogador(nome, jogadoresStats[nome]) : normalizarJogador(nome);
                         const nomeEscapado = escaparParaAtributoJs(nome);
+                        const podeRegistrarAcoes = modoAdministrador && !partidaEncerrada;
+                        const botaoRemoverGol = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'gols')"` : 'disabled title="Partida encerrada"'}>-</button>` : '';
+                        const botaoAdicionarGol = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="abrirModalRegistrarGol('${nomeEscapado}', '${escaparParaAtributoJs(equipe)}')"` : 'disabled title="Partida encerrada"'}>+</button>` : '';
+                        const botaoRemoverAssis = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'assis')"` : 'disabled title="Partida encerrada"'}>-</button>` : '';
+                        const botaoAdicionarAssis = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'assis')"` : 'disabled title="Partida encerrada"'}>+</button>` : '';
+                        const botaoRemoverAmarelo = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'amarelo')"` : 'disabled title="Partida encerrada"'}>-</button>` : '';
+                        const botaoAdicionarAmarelo = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'amarelo')"` : 'disabled title="Partida encerrada"'}>+</button>` : '';
+                        const botaoRemoverVermelho = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'vermelho')"` : 'disabled title="Partida encerrada"'}>-</button>` : '';
+                        const botaoAdicionarVermelho = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'vermelho')"` : 'disabled title="Partida encerrada"'}>+</button>` : '';
                         tableHTML += `<tr>
                             <td><img src="${p.foto || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;"></td>
                             <td>${escapeHtml(nome)}</td>
                             <td>
-                                ${modoAdministrador ? `<button class="btn-red btn-xs" onclick="removerEstatisticaJogador('${nomeEscapado}', 'gols')">-</button>` : ''}
+                                ${botaoRemoverGol}
                                 <span id="${gerarIdJogador(nome, 'gols')}">${p.gols || 0}</span>
-                                ${modoAdministrador ? `<button class="btn-green btn-xs" onclick="adicionarGol('${nomeEscapado}', '${escapeHtml(equipe)}')">+</button>` : ''}
+                                ${botaoAdicionarGol}
                             </td>
                             <td>
-                                ${modoAdministrador ? `<button class="btn-red btn-xs" onclick="removerEstatisticaJogador('${nomeEscapado}', 'assis')">-</button>` : ''}
+                                ${botaoRemoverAssis}
                                 <span id="${gerarIdJogador(nome, 'assis')}">${p.assis || 0}</span>
-                                ${modoAdministrador ? `<button class="btn-green btn-xs" onclick="somar('${nomeEscapado}', 'assis')">+</button>` : ''}
+                                ${botaoAdicionarAssis}
                             </td>
                             <td>
-                                ${modoAdministrador ? `<button class="btn-red btn-xs" onclick="removerEstatisticaJogador('${nomeEscapado}', 'amarelo')">-</button>` : ''}
+                                ${botaoRemoverAmarelo}
                                 <span id="${gerarIdJogador(nome, 'amarelo')}">${p.amarelo || 0}</span>
-                                ${modoAdministrador ? `<button class="btn-green btn-xs" onclick="somar('${nomeEscapado}', 'amarelo')">+</button>` : ''}
+                                ${botaoAdicionarAmarelo}
                             </td>
                             <td>
-                                ${modoAdministrador ? `<button class="btn-red btn-xs" onclick="removerEstatisticaJogador('${nomeEscapado}', 'vermelho')">-</button>` : ''}
+                                ${botaoRemoverVermelho}
                                 <span id="${gerarIdJogador(nome, 'vermelho')}">${p.vermelho || 0}</span>
-                                ${modoAdministrador ? `<button class="btn-green btn-xs" onclick="somar('${nomeEscapado}', 'vermelho')">+</button>` : ''}
+                                ${botaoAdicionarVermelho}
                             </td>
                         </tr>`;
                     });
@@ -1229,6 +1340,10 @@
 
             const jogador = jogadoresStats[nome] ? normalizarJogador(nome, jogadoresStats[nome]) : null;
             if (!jogador) return;
+            if (partidaEncerrada) {
+                alert('A partida foi encerrada! Não é possível alterar eventos.');
+                return;
+            }
 
             const mapeamento = {
                 gols: { label: 'gol', chave: 'gols' },
@@ -2120,6 +2235,7 @@
             cronometroPausado = false;
             partidaEncerrada = false;
 
+            numeroPartidaAtual = (partidasDia?.length || 0) + 1;
             eventosPartida.push({
                 tipo: 'inicio',
                 tempo: '00:00',
@@ -2136,6 +2252,34 @@
             const mins = Math.floor(segundos / 60);
             const segs = segundos % 60;
             return `${String(mins).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+        }
+
+        function formatarMinutoPartida() {
+            const duracaoTotal = configPartida.duracao * 60;
+            const tempoPassado = Math.max(0, duracaoTotal - tempoRestante);
+            const minuto = Math.floor(tempoPassado / 60) + 1;
+            return `${minuto}'`;
+        }
+
+        function obterHorarioAtual() {
+            return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function registrarEventoDia(evento) {
+            if (!evento || typeof evento !== 'object') return;
+            const eventoPadrao = {
+                jogador: evento.jogador || '',
+                equipe: evento.equipe || '',
+                tipo: evento.tipo || '',
+                minuto: evento.minuto || '',
+                partida: evento.partida || numeroPartidaAtual || 0,
+                data: evento.data || new Date(dataAtual).toLocaleDateString('pt-BR'),
+                horario: evento.horario || obterHorarioAtual(),
+                descricao: evento.descricao || ''
+            };
+            eventosDia = Array.isArray(eventosDia) ? [...eventosDia, eventoPadrao] : [eventoPadrao];
+            atualizarRelatorioAtual();
+            salvarEstadoFirestore();
         }
 
         function atualizarCronometroDisplay() {
@@ -2276,9 +2420,70 @@
                 alert('Esse jogador não está participando da partida atual.');
                 return;
             }
-            
+
+            abrirModalRegistrarGol(nome, equipe);
+        }
+
+        function abrirModalRegistrarGol(nome, equipe) {
+            golMarcadorAtual = nome;
+            golEquipeAtual = equipe || '';
+            selecionadoAssistenteGol = '';
+
+            const titulo = document.getElementById('modalTituloRegistrarGol');
+            const lista = document.getElementById('listaAssistenciasGol');
+            if (!lista || !titulo) return;
+
+            titulo.textContent = `Registrar gol de ${escapeHtml(nome)}`;
+            const participantesPartida = Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0 ? selecionadosPartidaAtual : selecionados;
+            const assistentesPossiveis = (obterJogadoresPorEquipe()[equipe] || [])
+                .filter(j => j !== nome && participantesPartida.includes(j));
+
+            let html = '<div class="assistencia-opcoes">';
+            if (assistentesPossiveis.length === 0) {
+                html += `<button class="assist-btn assist-selecionado" type="button" onclick="selecionarAssistenteGol('')">Sem assistência</button>`;
+            } else {
+                assistentesPossiveis.forEach(jogador => {
+                    const jogadorEscapado = escaparParaAtributoJs(jogador);
+                    html += `<button class="assist-btn" type="button" onclick="selecionarAssistenteGol('${jogadorEscapado}')" data-jogador="${jogadorEscapado}">${escapeHtml(jogador)}</button>`;
+                });
+                html += `<button class="assist-btn assist-selecionado" type="button" onclick="selecionarAssistenteGol('')" data-jogador="">Sem assistência</button>`;
+            }
+            html += '</div>';
+            lista.innerHTML = html;
+
+            document.getElementById('modalRegistrarGol').style.display = 'flex';
+            document.body.classList.add('no-scroll');
+        }
+
+        function fecharModalRegistrarGol() {
+            const modal = document.getElementById('modalRegistrarGol');
+            if (modal) modal.style.display = 'none';
+            document.body.classList.remove('no-scroll');
+            golMarcadorAtual = null;
+            golEquipeAtual = null;
+            selecionadoAssistenteGol = '';
+        }
+
+        function selecionarAssistenteGol(nome) {
+            selecionadoAssistenteGol = nome || '';
+            const botoes = document.querySelectorAll('#listaAssistenciasGol .assist-btn');
+            botoes.forEach(botao => {
+                const jogador = botao.getAttribute('data-jogador') || '';
+                botao.classList.toggle('assist-selecionado', jogador === selecionadoAssistenteGol);
+            });
+        }
+
+        function confirmarGolComAssistencia() {
+            if (!golMarcadorAtual) {
+                alert('Nenhum jogador selecionado para registrar o gol.');
+                return;
+            }
+
+            const nome = golMarcadorAtual;
+            const equipe = golEquipeAtual;
+            const assistente = selecionadoAssistenteGol || '';
             const tempoGol = formatarTempo(tempoRestante);
-            
+
             if (!jogadoresStats[nome]) {
                 jogadoresStats[nome] = normalizarJogador(nome);
             }
@@ -2288,28 +2493,66 @@
             statsDia.equipe = equipe || statsDia.equipe || '';
             statsDia.golsComHorario = Array.isArray(statsDia.golsComHorario) ? statsDia.golsComHorario : [];
             statsDia.golsComHorario.push(tempoGol);
-            
+
             golsRegistrados.push({
                 jogador: nome,
-                equipe: equipe,
+                equipe,
                 tempo: tempoGol,
-                tempoSegundos: tempoRestante
+                tempoSegundos: tempoRestante,
+                assistencia: assistente || null
             });
-            
+
+            let descricaoEvento = `⚽ Gol de ${nome}`;
+            if (assistente) {
+                descricaoEvento += `, assistência de ${assistente}`;
+            }
+
             eventosPartida.push({
                 tipo: 'gol',
                 tempo: tempoGol,
-                descricao: `⚽ Gol de ${nome} (${equipe})`
+                descricao: descricaoEvento
             });
-            
+
+            registrarEventoDia({
+                jogador: nome,
+                equipe,
+                tipo: 'Gol',
+                minuto: formatarMinutoPartida(),
+                partida: numeroPartidaAtual,
+                data: new Date(dataAtual).toLocaleDateString('pt-BR'),
+                horario: obterHorarioAtual(),
+                descricao: descricaoEvento
+            });
+
+            if (assistente) {
+                if (!jogadoresStats[assistente]) {
+                    jogadoresStats[assistente] = normalizarJogador(assistente);
+                }
+                jogadoresStats[assistente].assis++;
+                const statsAssist = garantirEstatisticasDiaJogador(assistente);
+                statsAssist.assis++;
+                statsAssist.equipe = jogadoresStats[assistente]?.equipe || statsAssist.equipe || '';
+
+                registrarEventoDia({
+                    jogador: assistente,
+                    equipe,
+                    tipo: 'Assistência',
+                    minuto: formatarMinutoPartida(),
+                    partida: numeroPartidaAtual,
+                    data: new Date(dataAtual).toLocaleDateString('pt-BR'),
+                    horario: obterHorarioAtual(),
+                    descricao: `👟 Assistência de ${assistente} para ${nome}`
+                });
+            }
+
             atualizarContadoresInterface(nome);
+            if (assistente) atualizarContadoresInterface(assistente);
             atualizarCronometroDisplay();
             renderizarPlacarPartida();
             atualizarRelatorioAtual();
             salvar();
-            
-            // Verificar vitória automática
             verificarVitoriaAutomatica();
+            fecharModalRegistrarGol();
         }
 
         function verificarVitoriaAutomatica() {
@@ -2400,6 +2643,17 @@
                 statsDia[t]++;
             }
             statsDia.equipe = jogadoresStats[n]?.equipe || statsDia.equipe || '';
+            const tipoEvento = t === 'assis' ? 'Assistência' : t === 'amarelo' ? 'Cartão amarelo' : t === 'vermelho' ? 'Cartão vermelho' : 'Evento';
+            registrarEventoDia({
+                jogador: n,
+                equipe: statsDia.equipe || '',
+                tipo: tipoEvento,
+                minuto: formatarMinutoPartida(),
+                partida: numeroPartidaAtual,
+                data: new Date(dataAtual).toLocaleDateString('pt-BR'),
+                horario: obterHorarioAtual(),
+                descricao: `${tipoEvento} de ${n}`
+            });
             atualizarContadoresInterface(n);
             renderizarPlacarPartida();
             atualizarRelatorioAtual();
@@ -2516,20 +2770,26 @@
         async function encerrarDia() {
             if (!verificarPermissao('encerramento do dia')) return;
 
-            const confirmarEncerramento = confirm("Deseja realmente finalizar este dia? O relatório diário será salvo permanentemente e as estatísticas diárias serão reiniciadas.");
-            if (!confirmarEncerramento) return;
+            if (!Array.isArray(partidasDia) || partidasDia.length === 0) {
+                alert('Não há partidas registradas neste dia.');
+                return;
+            }
 
             const dataId = dataAtual || new Date().toISOString().split('T')[0];
             const dataFormatada = new Date(dataId).toLocaleDateString('pt-BR');
+            const confirmarEncerramento = confirm(`Deseja realmente finalizar o dia ${dataFormatada}? O relatório diário será salvo permanentemente e as estatísticas diárias serão reiniciadas.`);
+            if (!confirmarEncerramento) return;
+
             const estatisticasDoDia = JSON.parse(JSON.stringify(estatisticasDia || {}));
-            const relatorioFinal = montarRelatorioDia(dataId, dataFormatada, estatisticasDoDia);
+            const relatorioFinal = montarRelatorioDia(dataId, dataFormatada, estatisticasDoDia, partidasDia || [], eventosDia || []);
             relatorioFinal.status = 'finalizado';
+            relatorioFinal.destaques = gerarDestaquesRelatorio(estatisticasDoDia);
+            relatorioFinal.estatisticasIndividuais = JSON.parse(JSON.stringify(relatorioFinal.estatisticas || {}));
 
             relatoriosDiarios[dataId] = relatorioFinal;
+            relatorioSelecionado = relatorioFinal;
             try {
-                if (window.fs && window.fs.saveRelatorio) {
-                    await window.fs.saveRelatorio(dataId, relatorioFinal);
-                }
+                await salvarRelatorioFirestore(dataId, relatorioFinal);
             } catch (e) {
                 console.error('Erro ao salvar relatório diário:', e);
                 alert('Não foi possível salvar o relatório diário. Nenhum dado foi apagado.');
@@ -2544,6 +2804,9 @@
             selecionados = [];
             selecionadosPartidaAtual = [];
             partidasDia = [];
+            eventosDia = [];
+            relatorioSelecionado = null;
+            numeroPartidaAtual = 0;
             ultimaPartida = null;
             golsRegistrados = [];
             eventosPartida = [];
@@ -2560,7 +2823,7 @@
             renderizarGerenciamento();
             renderizarRelatorios();
             renderizarDashboardEstatisticas();
-            alert(`Dia ${dataFormatada} encerrado com sucesso! O relatório foi salvo e as estatísticas diárias foram reiniciadas.`);
+            alert(`✅ Relatório do dia salvo com sucesso.\nPDF atualizado.\nFirebase atualizado.\nHistórico atualizado.`);
         }
 
         function abrirEstatisticas() {
@@ -2584,53 +2847,275 @@
             container.style.display = container.style.display === 'block' ? 'none' : 'block';
         }
 
-        function renderizarRelatorios() {
-            const container = document.getElementById('relatorioResumo');
-            if (!container) return;
+        function mostrarRelatorioDetalhes(dataId) {
+            const relatorio = relatoriosDiarios[dataId] || relatoriosDiarios[relatorioSelecionado?.id];
+            const detalhe = document.getElementById('relatorioDetalhes');
+            if (!detalhe) return;
+            if (!relatorio) {
+                detalhe.style.display = 'block';
+                detalhe.innerHTML = '<div class="empty-state">Nenhum relatório encontrado para esta data.</div>';
+                relatorioSelecionado = null;
+                renderizarRelatorios();
+                return;
+            }
+            relatorioSelecionado = relatorio;
 
+            const jogadores = Object.entries(relatorio.estatisticas || {})
+                .filter(([, s]) => Number(s.gols || 0) > 0 || Number(s.assis || 0) > 0 || Number(s.amarelo || 0) > 0 || Number(s.vermelho || 0) > 0)
+                .sort((a, b) => (Number(b[1].gols || 0) - Number(a[1].gols || 0)) || (Number(b[1].assis || 0) - Number(a[1].assis || 0)) || a[0].localeCompare(b[0], 'pt-BR'));
+
+            const destaques = [
+                { titulo: '🥇 Artilheiro do Dia', tipo: 'gols', icone: '⚽' },
+                { titulo: '🎯 Garçom do Dia', tipo: 'assis', icone: '🅰' },
+                { titulo: '🟨 Mais Cartões', tipo: 'amarelo', icone: '🟨' },
+                { titulo: '🔥 Participação em Gols', tipo: 'participacao', icone: '🔥' }
+            ].map(item => {
+                const jogador = Object.entries(relatorio.estatisticas || {}).map(([nome, stats]) => ({ nome, stats: normalizarJogador(nome, stats) }))
+                    .filter(({ stats }) => item.tipo === 'participacao' ? (stats.gols || 0) + (stats.assis || 0) > 0 : (stats[item.tipo] || 0) > 0)
+                    .sort((a, b) => {
+                        const valorA = item.tipo === 'participacao' ? (a.stats.gols || 0) + (a.stats.assis || 0) : (a.stats[item.tipo] || 0);
+                        const valorB = item.tipo === 'participacao' ? (b.stats.gols || 0) + (b.stats.assis || 0) : (b.stats[item.tipo] || 0);
+                        return valorB - valorA || a.nome.localeCompare(b.nome, 'pt-BR');
+                    })[0];
+                return { ...item, jogador };
+            });
+
+            const cardsDestaque = destaques.map(item => {
+                if (!item.jogador) {
+                    return `<div class="dashboard-card"><div class="dashboard-card-header"><div><div class="dashboard-card-title">${item.icone} ${item.titulo}</div></div></div><div style="margin-top:12px; font-size:13px; color:#64748b;">Nenhum registro</div></div>`;
+                }
+                const valor = item.tipo === 'participacao' ? (item.jogador.stats.gols || 0) + (item.jogador.stats.assis || 0) : (item.jogador.stats[item.tipo] || 0);
+                return `
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-header">
+                            <div>
+                                <div class="dashboard-card-title">${item.icone} ${item.titulo}</div>
+                            </div>
+                            <div class="dashboard-card-total">${valor}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:14px; margin-top:12px;">
+                            <img src="${item.jogador.stats.foto || 'https://via.placeholder.com/72'}" style="width:72px;height:72px;border-radius:18px;object-fit:cover;" alt="${escapeHtml(item.jogador.nome)}" />
+                            <div style="text-align:left; min-width:0;">
+                                <div style="font-weight:800; font-size:16px;">${escapeHtml(item.jogador.nome)}</div>
+                                <div style="color:#64748b; margin-top:6px; font-size:14px;">${item.tipo === 'participacao' ? 'Gols + Assistências' : item.tipo === 'gols' ? 'Gols' : item.tipo === 'assis' ? 'Assistências' : 'Cartões'}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            const resumoEquipes = Object.entries(relatorio.resumoEquipes || {}).map(([equipe, stats]) => `
+                <div class="dashboard-card equipe-card" style="padding:18px;">
+                    <div class="dashboard-card-header"><div><div class="dashboard-card-title">${escapeHtml(equipe)}</div></div><div class="dashboard-card-total">${stats.gols || 0} ⚽</div></div>
+                    <div style="margin-top:18px; display:grid; gap:8px; font-size:14px; color:#334155;">
+                        <div>🅰 ${stats.assis || 0}</div>
+                        <div>🟨 ${stats.amarelos || 0}</div>
+                        <div>🟥 ${stats.vermelhos || 0}</div>
+                        <div>👥 Jogadores: ${stats.jogadores || '—'}</div>
+                        <div>🎮 Partidas: ${stats.partidas || 0}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            const linhasJogadores = jogadores.map(([nome, stats]) => `
+                <tr>
+                    <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:left;">${escapeHtml(nome)}</td>
+                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${stats.gols || 0}</td>
+                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${stats.assis || 0}</td>
+                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${stats.amarelo || 0}</td>
+                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${stats.vermelho || 0}</td>
+                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(stats.equipe || 'Sem equipe')}</td>
+                </tr>
+            `).join('');
+
+            const linhaDoTempoHtml = (relatorio.linhaDoTempo || []).map(ev => `
+                <div class="timeline-item">
+                    <div class="timeline-time">${escapeHtml(ev.minuto || ev.tempo || '')} • ${escapeHtml(ev.data || '')} • ${escapeHtml(ev.horario || '')}</div>
+                    <div class="timeline-text">${escapeHtml(ev.descricao || `${escapeHtml(ev.tipo || '')} de ${escapeHtml(ev.jogador || '')}`)}</div>
+                    <div style="color:#94a3b8; font-size:12px; margin-top:8px;">${escapeHtml(ev.equipe || '')} • Partida ${escapeHtml(String(ev.partida || ''))}</div>
+                </div>
+            `).join('');
+
+            detalhe.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
+                    <div>
+                        <h2 style="margin:0; font-size:28px;">📅 Relatório do Dia</h2>
+                        <p style="margin:8px 0 0; color:#64748b;">${escapeHtml(relatorio.data || dataId)} • ${relatorio.quantidadePartidas || 0} partida(s)</p>
+                        <p style="margin:8px 0 0; color:#64748b;">Resumo da pelada com todos os eventos, jogadores e equipes.</p>
+                    </div>
+                    <button class="btn-blue btn-xs" onclick="exportarRelatorioPDF('${escapeParaAtributoJs(dataId)}')">📄 Exportar PDF</button>
+                </div>
+                <div class="dashboard-grid" style="margin-bottom:20px;">
+                    <div class="dashboard-card dashboard-card-green"><div class="dashboard-card-title">⚽ Total de Gols</div><div class="dashboard-card-total">${relatorio.totalGols || 0}</div></div>
+                    <div class="dashboard-card dashboard-card-blue"><div class="dashboard-card-title">🅰 Total de Assistências</div><div class="dashboard-card-total">${relatorio.totalAssistencias || 0}</div></div>
+                    <div class="dashboard-card dashboard-card-yellow"><div class="dashboard-card-title">🟨 Cartões Amarelos</div><div class="dashboard-card-total">${relatorio.totalAmarelos || 0}</div></div>
+                    <div class="dashboard-card dashboard-card-red"><div class="dashboard-card-title">🟥 Cartões Vermelhos</div><div class="dashboard-card-total">${relatorio.totalVermelhos || 0}</div></div>
+                    <div class="dashboard-card"><div class="dashboard-card-title">👥 Jogadores</div><div class="dashboard-card-total">${relatorio.quantidadeJogadores || 0}</div></div>
+                    <div class="dashboard-card"><div class="dashboard-card-title">🏟 Partidas</div><div class="dashboard-card-total">${relatorio.quantidadePartidas || 0}</div></div>
+                </div>
+                <div class="section-header"><h3>Destaques do Dia</h3></div>
+                <div class="dashboard-grid" style="margin-bottom:20px;">${cardsDestaque}</div>
+                <div class="section-header"><h3>Resumo das Equipes</h3></div>
+                <div class="dashboard-grid" style="margin-bottom:20px;">${resumoEquipes || '<div class="empty-state">Nenhuma equipe registrada</div>'}</div>
+                <div class="section-header"><h3>Estatísticas Individuais</h3></div>
+                <div style="overflow-x:auto; background:#fff; border:1px solid #e2e8f0; border-radius:20px;">
+                    <table style="width:100%; border-collapse:collapse; min-width:720px;">
+                        <thead style="background:#f8fafc;"><tr><th style="padding:14px; text-align:left;">Jogador</th><th style="padding:14px;">⚽</th><th style="padding:14px;">🅰</th><th style="padding:14px;">🟨</th><th style="padding:14px;">🟥</th><th style="padding:14px;">Equipe</th></tr></thead>
+                        <tbody>${linhasJogadores || '<tr><td colspan="6" style="padding:14px; text-align:center; color:#64748b;">Nenhum jogador com registro neste dia.</td></tr>'}</tbody>
+                    </table>
+                </div>
+                <div class="section-header" style="margin-top:24px;"><h3>⏱ Linha do Tempo da Pelada</h3></div>
+                <div class="timeline">${linhaDoTempoHtml || '<div class="timeline-item">Nenhum evento registrado.</div>'}</div>
+                <div class="section-header" style="margin-top:24px;"><h3>🎯 Estratégias do Dia</h3></div>
+                <div class="stat-list" style="background:#fff; border:1px solid #e2e8f0; border-radius:20px; padding:18px;">
+                    ${(relatorio.estrategias || []).map(e => `<div class="stat-row" style="padding:10px 0;border-bottom:1px solid #e2e8f0;">${escapeHtml(e)}</div>`).join('') || '<div style="padding:10px 0;color:#64748b;">Sem estratégias definidas.</div>'}
+                </div>
+            `;
+            detalhe.style.display = 'block';
+        }
+
+        function selecionarRelatorioDia(dataId) {
+            if (!dataId) return;
+            if (!relatoriosDiarios[dataId]) {
+                relatorioSelecionado = null;
+                const detalhe = document.getElementById('relatorioDetalhes');
+                if (detalhe) {
+                    detalhe.style.display = 'block';
+                    detalhe.innerHTML = '<div class="empty-state">Nenhum relatório encontrado para esta data.</div>';
+                }
+                renderizarRelatorios();
+                return;
+            }
+            relatorioSelecionado = relatoriosDiarios[dataId];
+            renderizarRelatorios();
+        }
+
+        function renderizarRelatorios() {
+            const selecao = document.getElementById('relatorioSelecao');
+            const lista = document.getElementById('relatorioListaDias');
+            if (!lista || !selecao) return;
             const datas = Object.keys(relatoriosDiarios || {}).sort().reverse();
             if (datas.length === 0) {
-                container.innerHTML = '<p style="color:#555; margin:0;">Nenhum relatório registrado ainda.</p>';
+                selecao.innerHTML = '<div class="empty-state">Nenhum relatório registrado ainda.</div>';
+                lista.innerHTML = '';
+                const detalhe = document.getElementById('relatorioDetalhes');
+                if (detalhe) {
+                    detalhe.style.display = 'none';
+                    detalhe.innerHTML = '';
+                }
                 return;
             }
 
-            let html = '';
-            datas.forEach(data => {
-                const relatorio = relatoriosDiarios[data];
-                const estatisticas = relatorio && relatorio.estatisticas ? relatorio.estatisticas : {};
-                const jogadoresAtivos = Object.entries(estatisticas || {})
-                    .filter(([, stats]) => stats && (Number(stats.gols || 0) > 0 || Number(stats.assis || 0) > 0 || Number(stats.amarelo || 0) > 0 || Number(stats.vermelho || 0) > 0))
-                    .sort((a, b) => (b[1].gols || 0) - (a[1].gols || 0) || a[0].localeCompare(b[0], 'pt-BR'));
-                const gols = Object.values(estatisticas).reduce((acc, stats) => acc + (stats.gols || 0), 0);
-                const assistencias = Object.values(estatisticas).reduce((acc, stats) => acc + (stats.assis || 0), 0);
-                const amarelos = Object.values(estatisticas).reduce((acc, stats) => acc + (stats.amarelo || 0), 0);
-                const vermelhos = Object.values(estatisticas).reduce((acc, stats) => acc + (stats.vermelho || 0), 0);
-                const idSegura = String(data || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+            const selectedId = relatorioSelecionado?.id || datas[0];
+            relatorioSelecionado = relatoriosDiarios[selectedId] || relatorioSelecionado;
 
-                html += `
-                    <div class="relatorio-dia">
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+            selecao.innerHTML = `
+                <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;">
+                    <select id="selectRelatorioDia" class="config-input" onchange="selecionarRelatorioDia(this.value)" style="min-width:240px; padding:12px 14px; border-radius:14px; background:#fff; border:1px solid #cbd5e1; color:#0f172a;">
+                        <option value="">▼ Selecione um dia</option>
+                        ${datas.map(data => `<option value="${escapeParaAtributoJs(data)}" ${data === selectedId ? 'selected' : ''}>${escapeHtml(relatoriosDiarios[data]?.data || data)}</option>`).join('')}
+                    </select>
+                    <div style="color:#475569; font-size:14px;">Total de relatórios: ${datas.length}</div>
+                </div>`;
+
+            lista.innerHTML = datas.map(data => {
+                const relatorio = relatoriosDiarios[data];
+                const selecionado = selectedId === data;
+                const destaque = selecionado ? 'background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.3);' : '';
+                return `
+                    <div class="dashboard-card" style="cursor:pointer; ${destaque}" onclick="mostrarRelatorioDetalhes('${escapeParaAtributoJs(data)}')">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                             <div>
-                                <h3>${escapeHtml(relatorio?.data || data)}</h3>
-                                <p style="margin:6px 0 0; color:#666;">${escapeHtml(data)} • ${relatorio?.status === 'finalizado' ? 'Finalizado' : 'Em andamento'}</p>
+                                <div style="font-weight:800; font-size:16px;">📅 ${escapeHtml(relatorio.data || data)}</div>
+                                <div style="color:#64748b; font-size:13px; margin-top:6px;">${relatorio.totalGols || 0} gols • ${relatorio.totalAssistencias || 0} assistências</div>
                             </div>
-                            <button class="btn-blue btn-xs" onclick="alternarDetalhesRelatorio('${escapeParaAtributoJs(data)}')">Ver relatório</button>
-                        </div>
-                        <p><strong>Gols:</strong> ${gols} | <strong>Assistências:</strong> ${assistencias} | <strong>Amarelos:</strong> ${amarelos} | <strong>Vermelhos:</strong> ${vermelhos}</p>
-                        <div class="stats-resumo">
-                            <div class="stat-box"><strong>Jogadores com ação</strong><br>${jogadoresAtivos.length}</div>
-                            <div class="stat-box"><strong>Resumo</strong><br>${escapeHtml(Object.keys(relatorio?.resumoEquipes || {}).join(', ') || 'Sem resumo')}</div>
-                        </div>
-                        <div id="detalhes-relatorio-${idSegura}" style="display:none; margin-top:10px; padding-top:10px; border-top:1px solid #eee;">
-                            ${jogadoresAtivos.length === 0
-                                ? '<p style="margin:0; color:#777;">Nenhum jogador com participação registrada neste dia.</p>'
-                                : `<ul style="margin:0; padding-left:18px; display:grid; gap:6px;">${jogadoresAtivos.map(([nome, stats]) => `<li><strong>${escapeHtml(nome)}</strong>: gols ${stats.gols || 0}, assistências ${stats.assis || 0}, amarelos ${stats.amarelo || 0}, vermelhos ${stats.vermelho || 0}</li>`).join('')}</ul>`}
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="font-size:13px; color:#0f172a; font-weight:700;">▶ Ver relatório</div>
+                            </div>
                         </div>
                     </div>`;
-            });
+            }).join('');
 
-            container.innerHTML = html;
+            mostrarRelatorioDetalhes(selectedId);
         }
+
+        async function exportarRelatorioPDF(dataId) {
+            const relatorio = relatoriosDiarios[dataId || relatorioSelecionado?.id];
+            if (!relatorio) {
+                alert('Selecione um relatório para exportar.');
+                return;
+            }
+            const { jsPDF } = window.jspdf || {};
+            if (!jsPDF) {
+                alert('Biblioteca de PDF não está disponível.');
+                return;
+            }
+            const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+            doc.setFont('helvetica', 'normal');
+            const margem = 40;
+            let y = margem;
+            const largura = doc.internal.pageSize.getWidth() - margem * 2;
+            doc.setFontSize(22);
+            doc.text('FUTIB', margem, y);
+            y += 28;
+            doc.setFontSize(16);
+            doc.text('Relatório Diário', margem, y);
+            y += 24;
+            doc.setFontSize(12);
+            doc.text(`Data: ${relatorio.data || dataId}`, margem, y);
+            y += 18;
+            const resumoText = `Partidas: ${relatorio.resumo?.partidas || relatorio.quantidadePartidas || 0} | Jogadores: ${relatorio.resumo?.jogadores || relatorio.quantidadeJogadores || 0}`;
+            doc.text(resumoText, margem, y);
+            y += 22;
+            const totalsText = `Gols: ${relatorio.resumo?.totalGols || relatorio.totalGols || 0} | Assistências: ${relatorio.resumo?.totalAssistencias || relatorio.totalAssistencias || 0} | Cartões Amarelos: ${relatorio.resumo?.totalAmarelos || relatorio.totalAmarelos || 0} | Cartões Vermelhos: ${relatorio.resumo?.totalVermelhos || relatorio.totalVermelhos || 0}`;
+            doc.text(totalsText, margem, y);
+            y += 24;
+            const addSection = (title, text) => {
+                if (y > doc.internal.pageSize.getHeight() - 80) { doc.addPage(); y = margem; }
+                doc.setFontSize(13);
+                doc.setFont('helvetica', 'bold');
+                doc.text(title, margem, y);
+                y += 18;
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'normal');
+                const split = doc.splitTextToSize(text, largura);
+                doc.text(split, margem, y);
+                y += split.length * 14 + 10;
+            };
+            addSection('Destaques', destaquesRelatorioTexto(relatorio));
+            addSection('Resumo das Equipes', Object.entries(relatorio.resumoEquipes || {}).map(([equipe, stats]) => `${equipe}: ${stats.gols || 0} gols, ${stats.assis || 0} assistências, ${stats.amarelos || 0} amarelos, ${stats.vermelhos || 0} vermelhos`).join('\n') || 'Nenhuma equipe registrada.');
+            addSection('Linha do Tempo', (relatorio.linhaDoTempo || []).map(ev => `${ev.minuto || ''} - ${ev.descricao || ''}${ev.jogador ? ` (${ev.jogador})` : ''}${ev.equipe ? ` [${ev.equipe}]` : ''}`).join('\n') || 'Nenhum evento registrado.');
+            const jogadoresRelatorio = Object.entries(relatorio.estatisticas || {}).filter(([, s]) => Number(s.gols || 0) > 0 || Number(s.assis || 0) > 0 || Number(s.amarelo || 0) > 0 || Number(s.vermelho || 0) > 0);
+            addSection('Estatísticas Individuais', jogadoresRelatorio.map(([nome, stats]) => `${nome} | Equipe: ${stats.equipe || 'Sem equipe'} | Gols: ${stats.gols || 0} | Assistências: ${stats.assis || 0} | Amarelos: ${stats.amarelo || 0} | Vermelhos: ${stats.vermelho || 0} | Participações em gols: ${(stats.gols || 0) + (stats.assis || 0)}`).join('\n') || 'Nenhum registro.');
+            doc.save(`relatorio-${dataId}.pdf`);
+        }
+
+        function destaquesRelatorioTexto(relatorio) {
+            const data = relatorio.estatisticas || {};
+            const artilheiro = Object.entries(data).sort(([, a], [, b]) => (b.gols || 0) - (a.gols || 0))[0];
+            const garcom = Object.entries(data).sort(([, a], [, b]) => (b.assis || 0) - (a.assis || 0))[0];
+            const maisAmarelos = Object.entries(data).sort(([, a], [, b]) => (b.amarelo || 0) - (a.amarelo || 0))[0];
+            const maisVermelhos = Object.entries(data).sort(([, a], [, b]) => (b.vermelho || 0) - (a.vermelho || 0))[0];
+            const participacao = Object.entries(data).sort(([, a], [, b]) => ((b.gols || 0) + (b.assis || 0)) - ((a.gols || 0) + (a.assis || 0)))[0];
+            return [`🥇 Artilheiro: ${artilheiro ? `${artilheiro[0]} (${artilheiro[1].gols || 0} gols)` : 'Nenhum'}`, `🥇 Garçom: ${garcom ? `${garcom[0]} (${garcom[1].assis || 0} assistências)` : 'Nenhum'}`, `🟨 Mais Cartões Amarelos: ${maisAmarelos ? `${maisAmarelos[0]} (${maisAmarelos[1].amarelo || 0})` : 'Nenhum'}`, `🟥 Mais Cartões Vermelhos: ${maisVermelhos ? `${maisVermelhos[0]} (${maisVermelhos[1].vermelho || 0})` : 'Nenhum'}`, `🔥 Participação em gols: ${participacao ? `${participacao[0]} (${(participacao[1].gols || 0) + (participacao[1].assis || 0)} participações)` : 'Nenhum'}`].join('\n');
+        }
+
+        function gerarDestaquesRelatorio(estatisticas = {}) {
+            const data = estatisticas || {};
+            const ordenar = (chave) => Object.entries(data).sort(([, a], [, b]) => (b[chave] || 0) - (a[chave] || 0))[0] || null;
+            const maisAmarelos = ordenar('amarelo');
+            const maisVermelhos = ordenar('vermelho');
+            const artilheiro = ordenar('gols');
+            const garcom = ordenar('assis');
+            const participacao = Object.entries(data).sort(([, a], [, b]) => ((b.gols || 0) + (b.assis || 0)) - ((a.gols || 0) + (a.assis || 0)))[0] || null;
+            return {
+                artilheiro: artilheiro ? { nome: artilheiro[0], gols: artilheiro[1].gols || 0 } : null,
+                garcom: garcom ? { nome: garcom[0], assistencias: garcom[1].assis || 0 } : null,
+                maisAmarelos: maisAmarelos ? { nome: maisAmarelos[0], amarelos: maisAmarelos[1].amarelo || 0 } : null,
+                maisVermelhos: maisVermelhos ? { nome: maisVermelhos[0], vermelhos: maisVermelhos[1].vermelho || 0 } : null,
+                participacao: participacao ? { nome: participacao[0], total: (participacao[1].gols || 0) + (participacao[1].assis || 0) } : null
+            };
+        }
+
         async function salvar() {
             try {
                 if (window.fs && window.fs.saveAllPlayers) {
@@ -2799,6 +3284,8 @@
 
             estatisticasDia = {};
             partidasDia = [];
+            eventosDia = [];
+            numeroPartidaAtual = 0;
             ultimaPartida = null;
             selecionados = [];
             selecionadosPartidaAtual = [];
@@ -3060,6 +3547,7 @@
             const horario = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
             return {
+                numero: numeroPartidaAtual || ((partidasDia?.length || 0) + 1),
                 data: dataAtual,
                 horario,
                 equipeA,
