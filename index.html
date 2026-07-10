@@ -2973,6 +2973,43 @@
             detalhe.style.display = 'block';
         }
 
+        function toggleSelecaoRelatorio() {
+            const relatorios = Object.keys(relatoriosDiarios || {}).sort().reverse();
+            mostrarTela('relatorios');
+
+            if (relatorios.length === 0) {
+                const selecao = document.getElementById('relatorioSelecao');
+                if (selecao) {
+                    selecao.innerHTML = '<div class="empty-state">Nenhum relatório registrado ainda.</div>';
+                }
+                const detalhe = document.getElementById('relatorioDetalhes');
+                if (detalhe) {
+                    detalhe.style.display = 'block';
+                    detalhe.innerHTML = '<div class="empty-state">Nenhum relatório encontrado para esta data.</div>';
+                }
+                alert('Nenhum relatório encontrado para esta data.');
+                return;
+            }
+
+            const selectedId = relatorioSelecionado?.id || relatorios[0];
+            relatorioSelecionado = relatoriosDiarios[selectedId] || relatorioSelecionado;
+            renderizarRelatorios();
+
+            const select = document.getElementById('selectRelatorioDia');
+            if (select) {
+                select.focus();
+            }
+            const lista = document.getElementById('relatorioListaDias');
+            if (lista) {
+                lista.style.display = '';
+            }
+            const selecao = document.getElementById('relatorioSelecao');
+            if (selecao) {
+                selecao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        window.toggleSelecaoRelatorio = toggleSelecaoRelatorio;
+
         function selecionarRelatorioDia(dataId) {
             if (!dataId) return;
             if (!relatoriosDiarios[dataId]) {
