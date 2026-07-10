@@ -597,7 +597,7 @@
                 </div>
 
                 <div id="telaRelatorios" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Relatórios</h2><p>Resumo executivo com gols, assistências, cartões e linha do tempo do dia.</p></div><div class="hero-badge">📜 Relatórios Diários</div></div>
+                    <div class="page-hero"><div><h2>Relatórios</h2><p>Resumo executivo do dia em formato de ranking com gols, assistências e cartões.</p></div><div class="hero-badge">📜 Relatórios Diários</div></div>
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                         <button id="btnAbrirSelecaoRelatorio" class="btn-blue btn-xs" onclick="toggleSelecaoRelatorio()">📅 Selecionar dia</button>
                         <button id="btnExportPDF" class="btn-blue btn-xs" onclick="exportarRelatorioPDF()">📄 Exportar PDF</button>
@@ -1070,50 +1070,57 @@
 
         function montarRelatorioDia(dataId, dataFormatada, estatisticasDoDia = {}, partidas = [], eventos = []) {
             const estatisticasAtivas = filtrarEstatisticasAtivas(estatisticasDoDia || {});
-            const resumoEquipes = gerarResumoEquipes(estatisticasAtivas);
-            const estrategias = gerarEstrategias(estatisticasAtivas);
-            const equipesAtivas = new Set();
+            const equipes = new Set();
+            const jogadores = Object.keys(estatisticasAtivas || {}).filter(nome => {
+                const stats = estatisticasAtivas[nome] || {};
+                return Number(stats.gols || 0) > 0 || Number(stats.assis || 0) > 0 || Number(stats.amarelo || 0) > 0 || Number(stats.vermelho || 0) > 0 || Number(stats.partidas || 0) > 0 || Number(stats.fora || 0) > 0;
+            }).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
             Object.values(estatisticasAtivas || {}).forEach(stats => {
                 const equipe = stats.equipe || 'Sem equipe';
-                if (equipe) equipesAtivas.add(equipe);
+                if (equipe) equipes.add(equipe);
             });
-            partidas.forEach(pt => {
-                if (pt.equipeA) equipesAtivas.add(pt.equipeA);
-                if (pt.equipeB) equipesAtivas.add(pt.equipeB);
-            });
+
             const totalGols = Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.gols || 0), 0);
             const totalAssistencias = Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.assis || 0), 0);
             const totalAmarelos = Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.amarelo || 0), 0);
             const totalVermelhos = Object.values(estatisticasAtivas || {}).reduce((s, p) => s + (p.vermelho || 0), 0);
+
+            const resumoEquipes = gerarResumoEquipes(estatisticasAtivas);
+            const estrategias = gerarEstrategias(estatisticasAtivas);
+            const destaques = gerarDestaquesRelatorio(estatisticasAtivas);
+
             return {
                 id: dataId,
                 data: dataFormatada,
                 dataIso: dataId,
                 status: 'finalizado',
+                partidas: JSON.parse(JSON.stringify(partidas || [])),
+                eventos: JSON.parse(JSON.stringify(eventos || [])),
+                estatisticas: JSON.parse(JSON.stringify(estatisticasAtivas || {})),
+                estatisticasIndividuais: JSON.parse(JSON.stringify(estatisticasAtivas || {})),
+                resumoEquipes,
+                estrategias,
+                destaques,
                 resumo: {
-                    partidas: partidas.length,
-                    jogadores: Object.keys(estatisticasAtivas || {}).length,
-                    equipes: equipesAtivas.size,
+                    partidas: (partidas || []).length,
+                    jogadores: jogadores.length,
+                    equipes: equipes.size,
                     totalGols,
                     totalAssistencias,
                     totalAmarelos,
                     totalVermelhos
                 },
-                estrategias,
-                resumoEquipes,
-                estatisticas: JSON.parse(JSON.stringify(estatisticasAtivas || {})),
-                estatisticasIndividuais: JSON.parse(JSON.stringify(estatisticasAtivas || {})),
-                partidas: JSON.parse(JSON.stringify(partidas || [])),
-                eventos: JSON.parse(JSON.stringify(eventos || [])),
+                linhaDoTempo: ordenarLinhaDoTempo(eventos || []),
                 totalGols,
                 totalAssistencias,
                 totalAmarelos,
                 totalVermelhos,
-                quantidadePartidas: partidas.length,
-                quantidadeEquipes: equipesAtivas.size,
-                quantidadeJogadores: Object.keys(estatisticasAtivas || {}).length,
-                linhaDoTempo: ordenarLinhaDoTempo(eventos || []),
-                destaques: gerarDestaquesRelatorio(estatisticasAtivas)
+                quantidadePartidas: (partidas || []).length,
+                quantidadeJogadores: jogadores.length,
+                quantidadeEquipes: equipes.size,
+                equipes: Array.from(equipes).sort((a, b) => a.localeCompare(b, 'pt-BR')),
+                jogadores
             };
         }
 
@@ -1147,37 +1154,55 @@
 
         function atualizarRelatorioAtual() {
             const dataId = dataAtual || new Date().toISOString().split('T')[0];
-            if (!relatoriosDiarios[dataId]) {
-                relatoriosDiarios[dataId] = montarRelatorioDia(dataId, new Date(dataId).toLocaleDateString('pt-BR'), estatisticasDia || {}, partidasDia || [], eventosDia || []);
-            }
-            const relatorioAtual = relatoriosDiarios[dataId];
-            relatorioAtual.estatisticas = JSON.parse(JSON.stringify(estatisticasDia || {}));
-            relatorioAtual.resumoEquipes = gerarResumoEquipes(relatorioAtual.estatisticas);
-            relatorioAtual.estrategias = gerarEstrategias(relatorioAtual.estatisticas);
-            relatorioAtual.totalGols = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.gols || 0), 0);
-            relatorioAtual.totalAssistencias = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.assis || 0), 0);
-            relatorioAtual.totalAmarelos = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.amarelo || 0), 0);
-            relatorioAtual.totalVermelhos = Object.values(relatorioAtual.estatisticas || {}).reduce((s, p) => s + (p.vermelho || 0), 0);
-            relatorioAtual.partidas = JSON.parse(JSON.stringify(partidasDia || []));
-            relatorioAtual.eventos = JSON.parse(JSON.stringify(eventosDia || []));
-            relatorioAtual.quantidadePartidas = (partidasDia || []).length;
-            relatorioAtual.quantidadeEquipes = Object.keys(relatorioAtual.resumoEquipes || {}).length;
-            relatorioAtual.quantidadeJogadores = Object.keys(relatorioAtual.estatisticas || {}).length;
+            const dataFormatada = new Date(dataId).toLocaleDateString('pt-BR');
+            const relatorioAtual = montarRelatorioDia(dataId, dataFormatada, estatisticasDia || {}, partidasDia || [], eventosDia || []);
             relatorioAtual.status = 'em_andamento';
-            relatorioAtual.linhaDoTempo = ordenarLinhaDoTempo(relatorioAtual.eventos || []);
-            relatorioAtual.resumo = {
-                partidas: relatorioAtual.quantidadePartidas,
-                jogadores: relatorioAtual.quantidadeJogadores,
-                equipes: relatorioAtual.quantidadeEquipes,
-                totalGols: relatorioAtual.totalGols,
-                totalAssistencias: relatorioAtual.totalAssistencias,
-                totalAmarelos: relatorioAtual.totalAmarelos,
-                totalVermelhos: relatorioAtual.totalVermelhos
-            };
-            relatorioAtual.estatisticasIndividuais = JSON.parse(JSON.stringify(relatorioAtual.estatisticas || {}));
-            relatorioAtual.destaques = gerarDestaquesRelatorio(relatorioAtual.estatisticas);
+            relatoriosDiarios[dataId] = relatorioAtual;
+            relatorioSelecionado = relatorioAtual;
             try { salvarEstadoFirestore(); } catch(e){}
+            if (document.getElementById('telaRelatorios')?.classList.contains('ativa')) {
+                renderizarRelatorios();
+            }
             return relatorioAtual;
+        }
+
+        function gerarRankingPorChave(estatisticas = {}, chave) {
+            return Object.entries(estatisticas || {})
+                .map(([nome, stats]) => ({ nome, valor: Number(stats[chave] || 0), equipe: stats.equipe || 'Sem equipe' }))
+                .filter(item => item.valor > 0)
+                .sort((a, b) => b.valor - a.valor || a.nome.localeCompare(b.nome, 'pt-BR'));
+        }
+
+        function formatarPosicaoRanking(posicao) {
+            if (posicao === 1) return '🥇';
+            if (posicao === 2) return '🥈';
+            if (posicao === 3) return '🥉';
+            return `${posicao}º`;
+        }
+
+        function montarRankingHtml(ranking, unidade) {
+            if (!Array.isArray(ranking) || ranking.length === 0) {
+                return '<div class="empty-state">Nenhum jogador com registro nesta categoria.</div>';
+            }
+            let html = '<div class="ranking-list" style="display:grid; gap:10px;">';
+            let posicao = 0;
+            let ultimoValor = null;
+            let contagem = 0;
+            ranking.forEach(item => {
+                contagem += 1;
+                if (ultimoValor === null || item.valor !== ultimoValor) {
+                    posicao = contagem;
+                }
+                ultimoValor = item.valor;
+                const label = formatarPosicaoRanking(posicao);
+                html += `
+                    <div class="dashboard-card" style="display:flex; justify-content:space-between; align-items:center; padding:16px;">
+                        <div style="font-weight:700;">${escapeHtml(label)} ${escapeHtml(item.nome)}</div>
+                        <div style="font-weight:700; opacity:.9;">${item.valor} ${escapeHtml(unidade)}</div>
+                    </div>`;
+            });
+            html += '</div>';
+            return html;
         }
 
         function atualizarContadoresInterface(nome) {
@@ -2860,115 +2885,47 @@
             }
             relatorioSelecionado = relatorio;
 
-            const jogadores = Object.entries(relatorio.estatisticas || {})
-                .filter(([, s]) => Number(s.gols || 0) > 0 || Number(s.assis || 0) > 0 || Number(s.amarelo || 0) > 0 || Number(s.vermelho || 0) > 0)
-                .sort((a, b) => (Number(b[1].gols || 0) - Number(a[1].gols || 0)) || (Number(b[1].assis || 0) - Number(a[1].assis || 0)) || a[0].localeCompare(b[0], 'pt-BR'));
-
-            const destaques = [
-                { titulo: '🥇 Artilheiro do Dia', tipo: 'gols', icone: '⚽' },
-                { titulo: '🎯 Garçom do Dia', tipo: 'assis', icone: '🅰' },
-                { titulo: '🟨 Mais Cartões', tipo: 'amarelo', icone: '🟨' },
-                { titulo: '🔥 Participação em Gols', tipo: 'participacao', icone: '🔥' }
-            ].map(item => {
-                const jogador = Object.entries(relatorio.estatisticas || {}).map(([nome, stats]) => ({ nome, stats: normalizarJogador(nome, stats) }))
-                    .filter(({ stats }) => item.tipo === 'participacao' ? (stats.gols || 0) + (stats.assis || 0) > 0 : (stats[item.tipo] || 0) > 0)
-                    .sort((a, b) => {
-                        const valorA = item.tipo === 'participacao' ? (a.stats.gols || 0) + (a.stats.assis || 0) : (a.stats[item.tipo] || 0);
-                        const valorB = item.tipo === 'participacao' ? (b.stats.gols || 0) + (b.stats.assis || 0) : (b.stats[item.tipo] || 0);
-                        return valorB - valorA || a.nome.localeCompare(b.nome, 'pt-BR');
-                    })[0];
-                return { ...item, jogador };
-            });
-
-            const cardsDestaque = destaques.map(item => {
-                if (!item.jogador) {
-                    return `<div class="dashboard-card"><div class="dashboard-card-header"><div><div class="dashboard-card-title">${item.icone} ${item.titulo}</div></div></div><div style="margin-top:12px; font-size:13px; color:#64748b;">Nenhum registro</div></div>`;
-                }
-                const valor = item.tipo === 'participacao' ? (item.jogador.stats.gols || 0) + (item.jogador.stats.assis || 0) : (item.jogador.stats[item.tipo] || 0);
-                return `
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-header">
-                            <div>
-                                <div class="dashboard-card-title">${item.icone} ${item.titulo}</div>
-                            </div>
-                            <div class="dashboard-card-total">${valor}</div>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:14px; margin-top:12px;">
-                            <img src="${item.jogador.stats.foto || 'https://via.placeholder.com/72'}" style="width:72px;height:72px;border-radius:18px;object-fit:cover;" alt="${escapeHtml(item.jogador.nome)}" />
-                            <div style="text-align:left; min-width:0;">
-                                <div style="font-weight:800; font-size:16px;">${escapeHtml(item.jogador.nome)}</div>
-                                <div style="color:#64748b; margin-top:6px; font-size:14px;">${item.tipo === 'participacao' ? 'Gols + Assistências' : item.tipo === 'gols' ? 'Gols' : item.tipo === 'assis' ? 'Assistências' : 'Cartões'}</div>
-                            </div>
-                        </div>
-                    </div>`;
-            }).join('');
-
-            const resumoEquipes = Object.entries(relatorio.resumoEquipes || {}).map(([equipe, stats]) => `
-                <div class="dashboard-card equipe-card" style="padding:18px;">
-                    <div class="dashboard-card-header"><div><div class="dashboard-card-title">${escapeHtml(equipe)}</div></div><div class="dashboard-card-total">${stats.gols || 0} ⚽</div></div>
-                    <div style="margin-top:18px; display:grid; gap:8px; font-size:14px; color:#334155;">
-                        <div>🅰 ${stats.assis || 0}</div>
-                        <div>🟨 ${stats.amarelos || 0}</div>
-                        <div>🟥 ${stats.vermelhos || 0}</div>
-                        <div>👥 Jogadores: ${stats.jogadores || '—'}</div>
-                        <div>🎮 Partidas: ${stats.partidas || 0}</div>
-                    </div>
-                </div>
-            `).join('');
-
-            const linhasJogadores = jogadores.map(([nome, stats]) => `
-                <tr>
-                    <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:left;">${escapeHtml(nome)}</td>
-                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${stats.gols || 0}</td>
-                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${stats.assis || 0}</td>
-                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${stats.amarelo || 0}</td>
-                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${stats.vermelho || 0}</td>
-                    <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(stats.equipe || 'Sem equipe')}</td>
-                </tr>
-            `).join('');
-
-            const linhaDoTempoHtml = (relatorio.linhaDoTempo || []).map(ev => `
-                <div class="timeline-item">
-                    <div class="timeline-time">${escapeHtml(ev.minuto || ev.tempo || '')} • ${escapeHtml(ev.data || '')} • ${escapeHtml(ev.horario || '')}</div>
-                    <div class="timeline-text">${escapeHtml(ev.descricao || `${escapeHtml(ev.tipo || '')} de ${escapeHtml(ev.jogador || '')}`)}</div>
-                    <div style="color:#94a3b8; font-size:12px; margin-top:8px;">${escapeHtml(ev.equipe || '')} • Partida ${escapeHtml(String(ev.partida || ''))}</div>
-                </div>
-            `).join('');
+            const rankingGols = gerarRankingPorChave(relatorio.estatisticas, 'gols');
+            const rankingAssis = gerarRankingPorChave(relatorio.estatisticas, 'assis');
+            const rankingAmarelos = gerarRankingPorChave(relatorio.estatisticas, 'amarelo');
+            const rankingVermelhos = gerarRankingPorChave(relatorio.estatisticas, 'vermelho');
 
             detalhe.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
-                    <div>
-                        <h2 style="margin:0; font-size:28px;">📅 Relatório do Dia</h2>
-                        <p style="margin:8px 0 0; color:#64748b;">${escapeHtml(relatorio.data || dataId)} • ${relatorio.quantidadePartidas || 0} partida(s)</p>
-                        <p style="margin:8px 0 0; color:#64748b;">Resumo da pelada com todos os eventos, jogadores e equipes.</p>
+                <div style="margin-bottom:20px;">
+                    <h2 style="margin:0; font-size:28px; letter-spacing:0.02em;">RELATÓRIO DIÁRIO</h2>
+                    <div style="margin-top:12px; color:#64748b; font-size:14px; line-height:1.8;">
+                        Data: ${escapeHtml(relatorio.data || relatorio.dataIso || dataId)}<br>
+                        Partidas: ${relatorio.quantidadePartidas || 0}<br>
+                        Jogadores: ${relatorio.quantidadeJogadores || 0}<br>
+                        Equipes: ${relatorio.quantidadeEquipes || 0}
                     </div>
-                    <button class="btn-blue btn-xs" onclick="exportarRelatorioPDF('${escapeParaAtributoJs(dataId)}')">📄 Exportar PDF</button>
                 </div>
-                <div class="dashboard-grid" style="margin-bottom:20px;">
-                    <div class="dashboard-card dashboard-card-green"><div class="dashboard-card-title">⚽ Total de Gols</div><div class="dashboard-card-total">${relatorio.totalGols || 0}</div></div>
-                    <div class="dashboard-card dashboard-card-blue"><div class="dashboard-card-title">🅰 Total de Assistências</div><div class="dashboard-card-total">${relatorio.totalAssistencias || 0}</div></div>
-                    <div class="dashboard-card dashboard-card-yellow"><div class="dashboard-card-title">🟨 Cartões Amarelos</div><div class="dashboard-card-total">${relatorio.totalAmarelos || 0}</div></div>
-                    <div class="dashboard-card dashboard-card-red"><div class="dashboard-card-title">🟥 Cartões Vermelhos</div><div class="dashboard-card-total">${relatorio.totalVermelhos || 0}</div></div>
-                    <div class="dashboard-card"><div class="dashboard-card-title">👥 Jogadores</div><div class="dashboard-card-total">${relatorio.quantidadeJogadores || 0}</div></div>
-                    <div class="dashboard-card"><div class="dashboard-card-title">🏟 Partidas</div><div class="dashboard-card-total">${relatorio.quantidadePartidas || 0}</div></div>
+                <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:28px;">
+                    <div class="dashboard-card dashboard-card-green" style="padding:18px; text-align:center;">
+                        <div class="dashboard-card-title">⚽ GOLS</div>
+                        <div class="dashboard-card-total" style="font-size:36px;">${relatorio.totalGols || 0}</div>
+                    </div>
+                    <div class="dashboard-card dashboard-card-blue" style="padding:18px; text-align:center;">
+                        <div class="dashboard-card-title">🅰 ASSISTÊNCIAS</div>
+                        <div class="dashboard-card-total" style="font-size:36px;">${relatorio.totalAssistencias || 0}</div>
+                    </div>
+                    <div class="dashboard-card dashboard-card-yellow" style="padding:18px; text-align:center;">
+                        <div class="dashboard-card-title">🟨 CARTÕES AMARELOS</div>
+                        <div class="dashboard-card-total" style="font-size:36px;">${relatorio.totalAmarelos || 0}</div>
+                    </div>
+                    <div class="dashboard-card dashboard-card-red" style="padding:18px; text-align:center;">
+                        <div class="dashboard-card-title">🟥 CARTÕES VERMELHOS</div>
+                        <div class="dashboard-card-total" style="font-size:36px;">${relatorio.totalVermelhos || 0}</div>
+                    </div>
                 </div>
-                <div class="section-header"><h3>Destaques do Dia</h3></div>
-                <div class="dashboard-grid" style="margin-bottom:20px;">${cardsDestaque}</div>
-                <div class="section-header"><h3>Resumo das Equipes</h3></div>
-                <div class="dashboard-grid" style="margin-bottom:20px;">${resumoEquipes || '<div class="empty-state">Nenhuma equipe registrada</div>'}</div>
-                <div class="section-header"><h3>Estatísticas Individuais</h3></div>
-                <div style="overflow-x:auto; background:#fff; border:1px solid #e2e8f0; border-radius:20px;">
-                    <table style="width:100%; border-collapse:collapse; min-width:720px;">
-                        <thead style="background:#f8fafc;"><tr><th style="padding:14px; text-align:left;">Jogador</th><th style="padding:14px;">⚽</th><th style="padding:14px;">🅰</th><th style="padding:14px;">🟨</th><th style="padding:14px;">🟥</th><th style="padding:14px;">Equipe</th></tr></thead>
-                        <tbody>${linhasJogadores || '<tr><td colspan="6" style="padding:14px; text-align:center; color:#64748b;">Nenhum jogador com registro neste dia.</td></tr>'}</tbody>
-                    </table>
-                </div>
-                <div class="section-header" style="margin-top:24px;"><h3>⏱ Linha do Tempo da Pelada</h3></div>
-                <div class="timeline">${linhaDoTempoHtml || '<div class="timeline-item">Nenhum evento registrado.</div>'}</div>
-                <div class="section-header" style="margin-top:24px;"><h3>🎯 Estratégias do Dia</h3></div>
-                <div class="stat-list" style="background:#fff; border:1px solid #e2e8f0; border-radius:20px; padding:18px;">
-                    ${(relatorio.estrategias || []).map(e => `<div class="stat-row" style="padding:10px 0;border-bottom:1px solid #e2e8f0;">${escapeHtml(e)}</div>`).join('') || '<div style="padding:10px 0;color:#64748b;">Sem estratégias definidas.</div>'}
-                </div>
+                <div class="section-header"><h3>Ranking de Artilharia</h3></div>
+                ${montarRankingHtml(rankingGols, 'gols')}
+                <div class="section-header" style="margin-top:24px;"><h3>Ranking de Assistências</h3></div>
+                ${montarRankingHtml(rankingAssis, 'assistências')}
+                <div class="section-header" style="margin-top:24px;"><h3>Ranking de Cartões Amarelos</h3></div>
+                ${montarRankingHtml(rankingAmarelos, 'cartões')}
+                <div class="section-header" style="margin-top:24px;"><h3>Ranking de Cartões Vermelhos</h3></div>
+                ${montarRankingHtml(rankingVermelhos, 'cartões')}
             `;
             detalhe.style.display = 'block';
         }
@@ -3076,54 +3033,78 @@
         }
 
         async function exportarRelatorioPDF(dataId) {
-            const relatorio = relatoriosDiarios[dataId || relatorioSelecionado?.id];
+            const id = dataId || relatorioSelecionado?.id;
+            const relatorio = relatoriosDiarios[id];
             if (!relatorio) {
                 alert('Selecione um relatório para exportar.');
                 return;
             }
-            const { jsPDF } = window.jspdf || {};
-            if (!jsPDF) {
+            const PdfConstructor = window.jspdf?.jsPDF || window.jsPDF || window.jspdf;
+            if (!PdfConstructor) {
                 alert('Biblioteca de PDF não está disponível.');
                 return;
             }
-            const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-            doc.setFont('helvetica', 'normal');
+            const doc = new PdfConstructor({ unit: 'pt', format: 'a4' });
             const margem = 40;
             let y = margem;
             const largura = doc.internal.pageSize.getWidth() - margem * 2;
-            doc.setFontSize(22);
-            doc.text('FUTIB', margem, y);
-            y += 28;
-            doc.setFontSize(16);
-            doc.text('Relatório Diário', margem, y);
-            y += 24;
-            doc.setFontSize(12);
-            doc.text(`Data: ${relatorio.data || dataId}`, margem, y);
-            y += 18;
-            const resumoText = `Partidas: ${relatorio.resumo?.partidas || relatorio.quantidadePartidas || 0} | Jogadores: ${relatorio.resumo?.jogadores || relatorio.quantidadeJogadores || 0}`;
-            doc.text(resumoText, margem, y);
-            y += 22;
-            const totalsText = `Gols: ${relatorio.resumo?.totalGols || relatorio.totalGols || 0} | Assistências: ${relatorio.resumo?.totalAssistencias || relatorio.totalAssistencias || 0} | Cartões Amarelos: ${relatorio.resumo?.totalAmarelos || relatorio.totalAmarelos || 0} | Cartões Vermelhos: ${relatorio.resumo?.totalVermelhos || relatorio.totalVermelhos || 0}`;
-            doc.text(totalsText, margem, y);
-            y += 24;
-            const addSection = (title, text) => {
-                if (y > doc.internal.pageSize.getHeight() - 80) { doc.addPage(); y = margem; }
+
+            const rankingGols = gerarRankingPorChave(relatorio.estatisticas, 'gols');
+            const rankingAssis = gerarRankingPorChave(relatorio.estatisticas, 'assis');
+            const rankingAmarelos = gerarRankingPorChave(relatorio.estatisticas, 'amarelo');
+            const rankingVermelhos = gerarRankingPorChave(relatorio.estatisticas, 'vermelho');
+
+            const addSection = (title, lines) => {
+                if (y > doc.internal.pageSize.getHeight() - 100) {
+                    doc.addPage();
+                    y = margem;
+                }
                 doc.setFontSize(13);
                 doc.setFont('helvetica', 'bold');
                 doc.text(title, margem, y);
                 y += 18;
                 doc.setFontSize(11);
                 doc.setFont('helvetica', 'normal');
-                const split = doc.splitTextToSize(text, largura);
-                doc.text(split, margem, y);
-                y += split.length * 14 + 10;
+                const wrapped = doc.splitTextToSize(lines.join('\n'), largura);
+                doc.text(wrapped, margem, y);
+                y += wrapped.length * 14 + 10;
             };
-            addSection('Destaques', destaquesRelatorioTexto(relatorio));
-            addSection('Resumo das Equipes', Object.entries(relatorio.resumoEquipes || {}).map(([equipe, stats]) => `${equipe}: ${stats.gols || 0} gols, ${stats.assis || 0} assistências, ${stats.amarelos || 0} amarelos, ${stats.vermelhos || 0} vermelhos`).join('\n') || 'Nenhuma equipe registrada.');
-            addSection('Linha do Tempo', (relatorio.linhaDoTempo || []).map(ev => `${ev.minuto || ''} - ${ev.descricao || ''}${ev.jogador ? ` (${ev.jogador})` : ''}${ev.equipe ? ` [${ev.equipe}]` : ''}`).join('\n') || 'Nenhum evento registrado.');
-            const jogadoresRelatorio = Object.entries(relatorio.estatisticas || {}).filter(([, s]) => Number(s.gols || 0) > 0 || Number(s.assis || 0) > 0 || Number(s.amarelo || 0) > 0 || Number(s.vermelho || 0) > 0);
-            addSection('Estatísticas Individuais', jogadoresRelatorio.map(([nome, stats]) => `${nome} | Equipe: ${stats.equipe || 'Sem equipe'} | Gols: ${stats.gols || 0} | Assistências: ${stats.assis || 0} | Amarelos: ${stats.amarelo || 0} | Vermelhos: ${stats.vermelho || 0} | Participações em gols: ${(stats.gols || 0) + (stats.assis || 0)}`).join('\n') || 'Nenhum registro.');
-            doc.save(`relatorio-${dataId}.pdf`);
+
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('FUTIB - Relatório Diário', margem, y);
+            y += 24;
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Data: ${relatorio.data || relatorio.dataIso || id}`, margem, y);
+            y += 18;
+            doc.text(`Partidas: ${relatorio.quantidadePartidas || 0}`, margem, y);
+            y += 16;
+            doc.text(`Jogadores: ${relatorio.quantidadeJogadores || 0}`, margem, y);
+            y += 16;
+            doc.text(`Equipes: ${relatorio.quantidadeEquipes || 0}`, margem, y);
+            y += 24;
+
+            addSection('Totais', [
+                `Gols: ${relatorio.totalGols || 0}`,
+                `Assistências: ${relatorio.totalAssistencias || 0}`,
+                `Cartões Amarelos: ${relatorio.totalAmarelos || 0}`,
+                `Cartões Vermelhos: ${relatorio.totalVermelhos || 0}`,
+                `Jogadores: ${relatorio.quantidadeJogadores || 0}`,
+                `Partidas: ${relatorio.quantidadePartidas || 0}`
+            ]);
+
+            const posicaoTexto = (index) => `TOP ${index + 1}`;
+            const rankingParaTexto = (ranking, unidade) => ranking.length === 0
+                ? ['Nenhum jogador com registro nesta categoria.']
+                : ranking.map((item, index) => `${posicaoTexto(index)} ${item.nome}\n${item.valor} ${unidade}`);
+
+            addSection('Ranking de Gols', rankingParaTexto(rankingGols, 'gols'));
+            addSection('Ranking de Assistências', rankingParaTexto(rankingAssis, 'assistências'));
+            addSection('Ranking de Cartões Amarelos', rankingParaTexto(rankingAmarelos, 'cartões'));
+            addSection('Ranking de Cartões Vermelhos', rankingParaTexto(rankingVermelhos, 'cartões'));
+
+            doc.save(`relatorio-${relatorio.id || relatorio.dataIso || id}.pdf`);
         }
 
         function destaquesRelatorioTexto(relatorio) {
