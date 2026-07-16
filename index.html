@@ -214,16 +214,16 @@
         .config-label { flex: 1; font-weight: bold; }
         .config-input { padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 150px; }
         .config-checkbox { width: 20px; height: 20px; cursor: pointer; }
-        .cronometro-container { background: #000; color: #fff; padding: 24px 20px; border-radius: 24px; text-align: center; margin-bottom: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); position: relative; }
-        .cronometro-container::before, .cronometro-container::after { content: '──────────────'; display: block; letter-spacing: 2px; color: #666; margin: 8px auto; }
-        .cronometro-display { font-size: 88px; font-weight: 800; font-family: 'Courier New', monospace; margin: 8px 0; letter-spacing: 0.15em; }
+        .cronometro-container { background: var(--cronometro-bg); color: var(--cronometro-text); padding: 24px 20px; border-radius: 24px; text-align: center; margin-bottom: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); position: relative; }
+        .cronometro-container::before, .cronometro-container::after { content: '──────────────'; display: block; letter-spacing: 2px; color: rgba(255,255,255,0.32); margin: 8px auto; }
+        .cronometro-display { font-size: 102px; font-weight: 900; font-family: 'Courier New', monospace; margin: 8px 0; letter-spacing: 0.18em; color: var(--cronometro-text); text-shadow: var(--cronometro-shadow); }
         .cronometro-info { display: flex; justify-content: space-around; gap: 16px; margin-bottom: 15px; font-size: 14px; }
         .cronometro-info div { flex: 1; }
         .cronometro-info strong { display: block; font-size: 18px; margin-bottom: 5px; }
         .cronometro-botoes { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
-        .btn-cronometro { padding: 10px 15px; font-size: 13px; cursor: pointer; border: none; border-radius: 5px; color: white; background: rgba(255,255,255,0.2); border: 2px solid white; transition: all 0.3s; }
-        .btn-cronometro:hover { background: rgba(255,255,255,0.4); }
-        .btn-cronometro.ativo { background: rgba(255,255,255,0.6); }
+        .btn-cronometro { padding: 10px 15px; font-size: 13px; cursor: pointer; border: none; border-radius: 5px; color: var(--btn-cronometro-text, inherit); background: var(--btn-cronometro-bg, rgba(255,255,255,0.15)); border: 2px solid var(--btn-cronometro-border, rgba(255,255,255,0.25)); transition: all 0.3s; }
+        .btn-cronometro:hover { background: var(--btn-cronometro-hover, rgba(255,255,255,0.3)); }
+        .btn-cronometro.ativo { background: var(--btn-cronometro-active, rgba(255,255,255,0.5)); }
         .estado-partida { font-size: 16px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
         .estado-pausado { animation: piscar 1s infinite; }
         @keyframes piscar { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -244,9 +244,9 @@
         #listaJogadoresDisponiveis { max-height: 55vh; overflow-y: auto; }
         .modal-sel-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; position: sticky; bottom: 0; background: white; padding-top: 10px; }
         .assistencia-opcoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-        .assist-btn { border: 1px solid #cbd5e1; background: #f8fafc; color: #0f172a; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; }
-        .assist-btn:hover { background: #e2e8f0; }
-        .assist-btn.assist-selecionado { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+        .assist-btn { border: 1px solid var(--assist-border); background: var(--assist-bg); color: var(--assist-text); border-radius: 6px; cursor: pointer; transition: all 0.15s ease; }
+        .assist-btn:hover { background: var(--assist-hover-bg); }
+        .assist-btn.assist-selecionado { background: var(--assist-selected-bg); color: var(--assist-selected-text); border-color: var(--assist-selected-border); }
         body.no-scroll { overflow: hidden; }
         .hero-badge.hero-badge-clickable { cursor: pointer; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -268,6 +268,23 @@
             --accent-3: #facc15;
             --accent-4: #ef4444;
             --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+            --cronometro-bg: rgba(15, 23, 42, 0.95);
+            --cronometro-text: #FFC107;
+            --cronometro-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+            --btn-green-bg: #d1fae5;
+            --btn-green-text: #065f46;
+            --btn-red-bg: #fee2e2;
+            --btn-red-text: #991b1b;
+            --btn-blue-bg: #dbeafe;
+            --btn-blue-text: #1d4ed8;
+            --btn-orange-bg: #ffedd5;
+            --btn-orange-text: #92400e;
+            --assist-bg: #f8fafc;
+            --assist-text: #0f172a;
+            --assist-hover-bg: #e2e8f0;
+            --assist-selected-bg: #2563eb;
+            --assist-selected-text: #ffffff;
+            --assist-selected-border: #1d4ed8;
         }
 
         body.theme-dark {
@@ -282,6 +299,23 @@
             --accent-3: #facc15;
             --accent-4: #f87171;
             --shadow: 0 16px 38px rgba(2, 8, 23, 0.35);
+            --cronometro-bg: rgba(255, 255, 255, 0.08);
+            --cronometro-text: #FFC107;
+            --cronometro-shadow: 0 8px 25px rgba(0, 0, 0, 0.45);
+            --btn-green-bg: #22c55e;
+            --btn-green-text: #ffffff;
+            --btn-red-bg: #ef4444;
+            --btn-red-text: #ffffff;
+            --btn-blue-bg: #2563eb;
+            --btn-blue-text: #ffffff;
+            --btn-orange-bg: #f59e0b;
+            --btn-orange-text: #ffffff;
+            --assist-bg: #1f2937;
+            --assist-text: #f8fafc;
+            --assist-hover-bg: #374151;
+            --assist-selected-bg: #2563eb;
+            --assist-selected-text: #ffffff;
+            --assist-selected-border: #1d4ed8;
         }
 
         * { box-sizing: border-box; }
@@ -365,6 +399,24 @@
         .equipe-jogador span { font-weight: 600; }
         .equipe-card-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .equipe-card-footer .btn { flex: 1; }
+        .equipes-gerenciamento { display: flex; flex-direction: column; gap: 16px; }
+        .equipes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .equipes-area { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+        .equipes-area.reservas { grid-column: 1 / -1; }
+        .equipes-area-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .equipes-area-title { font-size: 18px; font-weight: 800; }
+        .equipes-area-subtitle { color: var(--muted); font-size: 13px; }
+        .equipes-search-input { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--text); }
+        .equipes-card-list { display: flex; flex-direction: column; gap: 10px; }
+        .equipes-player-card, .equipes-reserva-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-alt); }
+        .equipes-player-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .equipes-player-info strong { font-size: 15px; }
+        .equipes-player-info small { color: var(--muted); font-size: 12px; }
+        .equipes-player-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .equipes-empty { padding: 12px; border: 1px dashed var(--border); border-radius: 14px; color: var(--muted); text-align: center; }
+        .equipes-status { background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.14); color: var(--accent); padding: 12px 14px; border-radius: 14px; }
+        .equipes-status.is-error { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); color: var(--accent-4); }
+        .equipes-reserva-card.is-active { border-color: var(--accent); box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.2); }
         .btn-desativado { background: #999 !important; cursor: not-allowed !important; opacity: 0.7; }
         button[disabled] { cursor: not-allowed; opacity: 0.65; }
         .modal-sel-conteudo { max-width: 700px; width: 100%; }
@@ -380,7 +432,7 @@
         .btn-xs { padding: 7px 10px; font-size: 12px; }
         .btn, button { padding: 10px 14px; cursor: pointer; border: none; border-radius: 999px; color: white; margin: 4px; transition: transform 0.2s ease, opacity 0.2s ease; }
         .btn:hover, button:hover { transform: translateY(-1px); }
-        .btn-green { background: var(--accent-2); } .btn-red { background: var(--accent-4); } .btn-blue { background: var(--accent); } .btn-orange { background: var(--accent-3); color: #111827; }
+        .btn-green { background: var(--btn-green-bg); color: var(--btn-green-text); } .btn-red { background: var(--btn-red-bg); color: var(--btn-red-text); } .btn-blue { background: var(--btn-blue-bg); color: var(--btn-blue-text); } .btn-orange { background: var(--btn-orange-bg); color: var(--btn-orange-text); }
         .btn-xs { padding: 7px 10px; font-size: 12px; }
         .timeline { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
         .timeline-item { padding: 12px 14px; border-radius: 14px; background: var(--surface-alt); border: 1px solid var(--border); }
@@ -544,12 +596,8 @@
                 </div>
 
                 <div id="telaEquipes" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Equipes</h2><p>Cards com organização visual de cada equipe e seus jogadores.</p></div><div class="hero-badge">🛡 Gerenciamento</div></div>
-                    <div id="containerEquipesGerenciamento" class="grid-jogadores"></div>
-                <div class="secao-gerenciamento" style="margin-top:20px;">
-                    <h3>Reservas</h3>
-                    <div id="lista-reservas" class="lista-gerenciamento"></div>
-                </div>
+                    <div class="page-hero"><div><h2>Equipes</h2><p>Monte as equipes de forma rápida com o Banco de Reservas e trocas em um clique.</p></div><div class="hero-badge">🛡 Gerenciamento</div></div>
+                    <div id="containerEquipesGerenciamento"></div>
                 </div>
 
                 <div id="telaPartidas" class="tela page-shell">
@@ -641,21 +689,9 @@
             <input type="file" id="cadastroFotoInput" accept="image/*" onchange="previsualizarFotoCadastro(this)">
             <label for="cadastroNome">Nome:</label>
             <input type="text" id="cadastroNome" style="width: 100%; box-sizing: border-box;" placeholder="Nome completo do jogador">
-            <label for="cadastroEquipe" style="display:block; margin-top:10px;">Equipe:</label>
-            <select id="cadastroEquipe" style="width: 100%; box-sizing: border-box;">
-                <option value="">Sem equipe</option>
-                <option value="Equipe 1">Equipe 1</option>
-                <option value="Equipe 2">Equipe 2</option>
-                <option value="Equipe 3">Equipe 3</option>
-                <option value="Equipe 4">Equipe 4</option>
-                <option value="Equipe 5">Equipe 5</option>
-                <option value="Equipe 6">Equipe 6</option>
-                <option value="Equipe 7">Equipe 7</option>
-                <option value="Equipe 8">Equipe 8</option>
-                <option value="Equipe 9">Equipe 9</option>
-                <option value="Equipe 10">Equipe 10</option>
-                <option value="Equipe 11">Equipe 11</option>
-            </select>
+            <div style="margin-top:12px; padding:12px; border-radius:12px; background:#f8fafc; border:1px solid rgba(15,23,42,0.08); color:#475569;">
+                Os jogadores cadastrados entram automaticamente no Banco de Reservas. Depois você pode colocá-los nas equipes com um clique.
+            </div>
             <div style="display:flex; gap:8px; margin-top:15px; flex-wrap:wrap;">
                 <button class="btn-blue" onclick="salvarCadastroJogador()">Salvar</button>
                 <button class="btn-red" onclick="fecharModalCadastroJogador()">Cancelar</button>
@@ -1748,7 +1784,7 @@
         }
 
         function obterNomesEquipes() {
-            return Array.from({ length: 11 }, (_, i) => `Equipe ${i + 1}`);
+            return ['Equipe A', 'Equipe B'];
         }
 
         function obterEquipesDisponiveisParaPartida() {
@@ -1973,23 +2009,14 @@
             if (!verificarPermissao('cadastro de jogadores')) return;
 
             const nome = document.getElementById('novoNome').value.trim();
-            const equipe = document.getElementById('novaEquipe').value;
             const fileInput = document.getElementById('fotoInput');
             
             if (!nome) {
                 alert("Digite um nome!");
                 return;
             }
-            if (!equipe) {
-                alert("Selecione uma equipe!");
-                return;
-            }
             if (jogadoresStats[nome]) {
                 alert("Jogador já cadastrado!");
-                return;
-            }
-            if (contarJogadoresEquipe(equipe) >= MAX_JOGADORES_POR_EQUIPE) {
-                alert(`A ${equipe} já tem 3 jogadores! Máximo atingido.`);
                 return;
             }
             
@@ -1997,22 +2024,24 @@
             reader.onload = (e) => {
                 jogadoresStats[nome] = normalizarJogador(nome, {
                     foto: e.target.result,
-                    equipe: equipe
+                    equipe: ''
                 });
                 salvar(); 
                 renderizarGrid();
+                renderizarGerenciamento();
                 document.getElementById('novoNome').value = '';
                 document.getElementById('fotoInput').value = '';
-                document.getElementById('novaEquipe').value = '';
+                if (document.getElementById('novaEquipe')) document.getElementById('novaEquipe').value = '';
             };
             
             fileInput.files[0] ? reader.readAsDataURL(fileInput.files[0]) : (
-                jogadoresStats[nome] = normalizarJogador(nome, { foto: '', equipe: equipe }),
+                jogadoresStats[nome] = normalizarJogador(nome, { foto: '', equipe: '' }),
                 salvar(), 
                 renderizarGrid(),
+                renderizarGerenciamento(),
                 document.getElementById('novoNome').value = '',
                 document.getElementById('fotoInput').value = '',
-                document.getElementById('novaEquipe').value = ''
+                document.getElementById('novaEquipe') ? document.getElementById('novaEquipe').value = '' : null
             );
         }
 
@@ -2688,39 +2717,35 @@
         function finalizarPartida() {
             if (!verificarPermissao('finalização de partida')) return;
 
-            if(solicitarPin()) {
-                const nomesSelecionadosPartida = Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0
-                    ? selecionadosPartidaAtual
-                    : [...selecionados];
+            const nomesSelecionadosPartida = Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0
+                ? selecionadosPartidaAtual
+                : [...selecionados];
 
-                Object.keys(jogadoresStats).forEach(nome => {
-                    if (nomesSelecionadosPartida.includes(nome)) {
-                        jogadoresStats[nome].partidas++;
-                        jogadoresStats[nome].fora = 0;
-                        garantirEstatisticasDiaJogador(nome).partidas = Number(garantirEstatisticasDiaJogador(nome).partidas || 0) + 1;
-                    } else {
-                        jogadoresStats[nome].fora++;
-                        garantirEstatisticasDiaJogador(nome).fora = Number(garantirEstatisticasDiaJogador(nome).fora || 0) + 1;
-                    }
-                });
-                
-                aplicarSelecaoPorResultadoPartida();
-                const partida = criarResumoPartidaAtual('Partida finalizada');
-                registrarPartidaEncerrada(partida);
-                salvar();
-                
-                // Limpar dados da partida
-                golsRegistrados = [];
-                eventosPartida = [];
-                cronometroRodando = false;
-                cronometroPausado = false;
-                
-                alert("Partida computada!");
-                renderizarGrid();
-                voltarMenu();
-            } else {
-                alert("PIN incorreto! A partida não pôde ser finalizada.");
-            }
+            Object.keys(jogadoresStats).forEach(nome => {
+                if (nomesSelecionadosPartida.includes(nome)) {
+                    jogadoresStats[nome].partidas++;
+                    jogadoresStats[nome].fora = 0;
+                    garantirEstatisticasDiaJogador(nome).partidas = Number(garantirEstatisticasDiaJogador(nome).partidas || 0) + 1;
+                } else {
+                    jogadoresStats[nome].fora++;
+                    garantirEstatisticasDiaJogador(nome).fora = Number(garantirEstatisticasDiaJogador(nome).fora || 0) + 1;
+                }
+            });
+            
+            aplicarSelecaoPorResultadoPartida();
+            const partida = criarResumoPartidaAtual('Partida finalizada');
+            registrarPartidaEncerrada(partida);
+            salvar();
+            
+            // Limpar dados da partida
+            golsRegistrados = [];
+            eventosPartida = [];
+            cronometroRodando = false;
+            cronometroPausado = false;
+            
+            alert("Partida computada!");
+            renderizarGrid();
+            voltarMenu();
         }
 
         function gerarEstrategias(dadosEstatisticas = estatisticasDia) {
@@ -3145,6 +3170,7 @@
             try { renderizarPainelGerenciarJogadores(); } catch (e) {}
             try { renderizarListaJogadoresDisponiveis(); } catch (e) {}
             try { renderizarSelecaoEquipesPartida(); } catch (e) {}
+            try { renderizarGerenciamento(); } catch (e) {}
             renderizarDashboardEstatisticas();
             atualizarResumoDashboard();
             atualizarInterfacePorPermissao();
@@ -3211,77 +3237,199 @@
             mostrarTela('equipes');
         }
 
+        let termoBuscaReservas = '';
+        let jogadorParaTrocar = null;
+        const nomesEquipesGerenciamento = ['Equipe A', 'Equipe B'];
+
+        function removerAcentos(texto) {
+            return String(texto || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        }
+
+        function atualizarBuscaReservas(valor) {
+            termoBuscaReservas = String(valor || '').trim();
+            renderizarGerenciamento();
+        }
+
+        function mostrarMensagemEquipes(mensagem, tipo = 'info') {
+            const statusEl = document.getElementById('equipesMensagemStatus');
+            if (!statusEl) return;
+            statusEl.textContent = mensagem;
+            statusEl.className = `equipes-status ${tipo === 'erro' ? 'is-error' : ''}`.trim();
+        }
+
+        function contarJogadoresEquipeGerenciamento(nomeEquipe) {
+            return Object.keys(jogadoresStats || {})
+                .filter(nome => (jogadoresStats[nome]?.equipe || '') === nomeEquipe)
+                .length;
+        }
+
+        function obterJogadoresEquipeGerenciamento(nomeEquipe) {
+            return Object.keys(jogadoresStats || {})
+                .filter(nome => (jogadoresStats[nome]?.equipe || '') === nomeEquipe)
+                .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+        }
+
+        function obterJogadoresReservasGerenciamento() {
+            const termo = removerAcentos(termoBuscaReservas);
+            return Object.keys(jogadoresStats || {})
+                .filter(nome => !nomesEquipesGerenciamento.includes(jogadoresStats[nome]?.equipe || ''))
+                .filter(nome => !termo || removerAcentos(nome).includes(termo))
+                .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+        }
+
+        function iniciarTrocaJogador(nomeEquipe, nomeJogador) {
+            if (!verificarPermissao('gerenciamento de equipes')) return;
+            jogadorParaTrocar = { nomeEquipe, nomeJogador };
+            mostrarMensagemEquipes(`Troca ativa para ${nomeEquipe}: selecione um jogador do Banco de Reservas.`, 'info');
+            renderizarGerenciamento();
+        }
+
+        function cancelarTrocaJogador() {
+            jogadorParaTrocar = null;
+            mostrarMensagemEquipes('Troca cancelada. Selecione um jogador para colocar na equipe.', 'info');
+            renderizarGerenciamento();
+        }
+
+        function removerJogadorDaEquipeGerenciamento(nome) {
+            if (!verificarPermissao('gerenciamento de equipes')) return;
+            if (!jogadoresStats[nome]) return;
+            jogadoresStats[nome].equipe = '';
+            salvar();
+            renderizarGerenciamento();
+            renderizarGrid();
+            renderizarSelecaoEquipesPartida();
+            mostrarMensagemEquipes(`${nome} voltou para o Banco de Reservas.`, 'info');
+        }
+
+        function adicionarJogadorAoBanco(nome) {
+            if (!verificarPermissao('gerenciamento de equipes')) return false;
+            if (!jogadoresStats[nome]) return false;
+
+            if (jogadorParaTrocar) {
+                const { nomeEquipe, nomeJogador } = jogadorParaTrocar;
+                if (jogadoresStats[nomeJogador]) {
+                    jogadoresStats[nomeJogador].equipe = '';
+                }
+                if (contarJogadoresEquipeGerenciamento(nomeEquipe) >= MAX_JOGADORES_POR_EQUIPE) {
+                    mostrarMensagemEquipes(`A ${nomeEquipe} já está com ${MAX_JOGADORES_POR_EQUIPE} jogadores.`, 'erro');
+                    return false;
+                }
+                jogadoresStats[nome].equipe = nomeEquipe;
+                jogadorParaTrocar = null;
+                salvar();
+                renderizarGerenciamento();
+                renderizarGrid();
+                renderizarSelecaoEquipesPartida();
+                mostrarMensagemEquipes(`${nome} entrou na ${nomeEquipe} e ${nomeJogador} voltou para o Banco de Reservas.`, 'info');
+                return true;
+            }
+
+            const equipeDestino = nomesEquipesGerenciamento.find(equipe => contarJogadoresEquipeGerenciamento(equipe) < MAX_JOGADORES_POR_EQUIPE) || '';
+            if (!equipeDestino) {
+                mostrarMensagemEquipes('As duas equipes já estão com 3 jogadores.', 'erro');
+                return false;
+            }
+
+            jogadoresStats[nome].equipe = equipeDestino;
+            salvar();
+            renderizarGerenciamento();
+            renderizarGrid();
+            renderizarSelecaoEquipesPartida();
+            mostrarMensagemEquipes(`${nome} entrou em ${equipeDestino}.`, 'info');
+            return true;
+        }
+
         function renderizarGerenciamento() {
-            const equipes = obterJogadoresPorEquipe();
             const container = document.getElementById('containerEquipesGerenciamento');
             if (!container) return;
-            container.innerHTML = '';
 
-            obterNomesEquipes().forEach(nomEquipe => {
-                const jogadoresEquipe = equipes[nomEquipe] || [];
-                const estaCheia = jogadoresEquipe.length >= MAX_JOGADORES_POR_EQUIPE;
-                const equipeCard = document.createElement('div');
-                equipeCard.className = 'equipe-card';
-
-                let jogadoresHtml = '';
-                if (jogadoresEquipe.length === 0) {
-                    jogadoresHtml = '<div class="empty-state" style="margin:0; padding:14px;">Sem jogadores nesta equipe.</div>';
-                } else {
-                    jogadoresEquipe.forEach(nome => {
+            const jogadoresReservas = obterJogadoresReservasGerenciamento();
+            const montarEquipe = (nomeEquipe) => {
+                const jogadoresEquipe = obterJogadoresEquipeGerenciamento(nomeEquipe).slice(0, MAX_JOGADORES_POR_EQUIPE);
+                const contador = jogadoresEquipe.length;
+                const cards = jogadoresEquipe.length > 0
+                    ? jogadoresEquipe.map(nome => {
                         const jogador = normalizarJogador(nome, jogadoresStats[nome]);
                         const nomeEscapado = escaparParaAtributoJs(nome);
-                        jogadoresHtml += `
-                            <div class="equipe-jogador">
-                                <span>${escapeHtml(nome)}</span>
-                                ${modoAdministrador ? `<button class="btn-red btn-xs" onclick="removerJogadorDaEquipe('${nomeEscapado}')">❌</button>` : ''}
-                            </div>`;
-                    });
-                }
-
-                equipeCard.innerHTML = `
-                    <div class="equipe-card-header">
-                        <div class="equipe-nome">${escapeHtml(nomEquipe)}</div>
-                        <div class="modal-sel-status">${jogadoresEquipe.length} / ${MAX_JOGADORES_POR_EQUIPE}</div>
-                    </div>
-                    <div class="equipe-jogadores">${jogadoresHtml}</div>
-                    <div class="equipe-card-footer">
-                        ${modoAdministrador
-                            ? `<button class="btn ${estaCheia ? 'btn-desativado' : 'btn-green'} btn-xs" ${estaCheia ? 'disabled' : `onclick="abrirModalSelecionarJogador('${escaparParaAtributoJs(nomEquipe)}')"`}>➕ ${estaCheia ? 'Cheia' : 'Adicionar'}</button>`
-                            : '<div style="color:#999;font-size:12px;">Modo somente leitura</div>'}
-                        ${estaCheia ? '<span class="modal-sel-status">Equipe completa</span>' : ''}
-                    </div>`;
-
-                container.appendChild(equipeCard);
-            });
-
-            const listaReservas = document.getElementById('lista-reservas');
-            if (!listaReservas) return;
-            listaReservas.innerHTML = '';
-
-            const todosJogadores = Object.keys(jogadoresStats);
-            const jogadoresEmEquipe = Object.values(equipes).flat();
-            const reservas = todosJogadores.filter(j => !jogadoresEmEquipe.includes(j));
-
-            if (reservas.length === 0) {
-                listaReservas.innerHTML = '<p style="color: #999; text-align: center;">Sem jogadores reservas</p>';
-            } else {
-                reservas.forEach(nome => {
-                    const jogador = normalizarJogador(nome, jogadoresStats[nome]);
-                    listaReservas.innerHTML += `
-                        <div class="jogador-gerenciar">
-                            <div class="jogador-info" style="display:flex; align-items:center;">
-                                <img class="foto-gerenciar" src="${jogador.foto || 'https://via.placeholder.com/44'}" alt="${escapeHtml(nome)}">
-                                <div>
-                                    <div class="jogador-nome">${escapeHtml(nome)}</div>
-                                    <div class="jogador-equipe">Gols: ${jogador.gols} | Assis: ${jogador.assis}</div>
+                        return `
+                            <div class="equipes-player-card">
+                                <div class="equipes-player-info">
+                                    <strong>${escapeHtml(nome)}</strong>
+                                    <small>${escapeHtml(jogador.equipe || 'Disponível')}</small>
                                 </div>
+                                <div class="equipes-player-actions">
+                                    <button class="btn-red btn-xs" type="button" onclick="event.stopPropagation(); removerJogadorDaEquipeGerenciamento('${nomeEscapado}')">Remover</button>
+                                    <button class="btn-blue btn-xs" type="button" onclick="event.stopPropagation(); iniciarTrocaJogador('${escapeHtml(nomeEquipe)}', '${nomeEscapado}')">Trocar</button>
+                                </div>
+                            </div>`;
+                    }).join('')
+                    : '<div class="equipes-empty">Nenhum jogador nesta equipe.</div>';
+
+                return `
+                    <div class="equipes-area">
+                        <div class="equipes-area-header">
+                            <div>
+                                <div class="equipes-area-title">${escapeHtml(nomeEquipe)}</div>
+                                <div class="equipes-area-subtitle">Até ${MAX_JOGADORES_POR_EQUIPE} jogadores</div>
                             </div>
-                            <div class="botoes-acao">
-                                <span style="color:#999;font-size:12px;">Disponível para adicionar</span>
+                            <div class="chip">${contador}/${MAX_JOGADORES_POR_EQUIPE}</div>
+                        </div>
+                        <div class="equipes-card-list">${cards}</div>
+                    </div>`;
+            };
+
+            const montarReservas = () => {
+                if (jogadoresReservas.length === 0) {
+                    return '<div class="equipes-empty">Nenhum jogador no Banco de Reservas.</div>';
+                }
+                return `
+                    <div class="equipes-card-list">
+                        ${jogadoresReservas.map(nome => {
+                            const nomeEscapado = escaparParaAtributoJs(nome);
+                            const jogador = normalizarJogador(nome, jogadoresStats[nome]);
+                            const ativo = jogadorParaTrocar?.nomeJogador === nome;
+                            return `
+                                <div class="equipes-reserva-card ${ativo ? 'is-active' : ''}">
+                                    <div class="equipes-player-info">
+                                        <strong>${escapeHtml(nome)}</strong>
+                                        <small>${ativo ? 'Selecionado para a troca' : 'Disponível para entrar em uma equipe'}</small>
+                                    </div>
+                                    <button class="btn-green btn-xs" type="button" onclick="event.stopPropagation(); adicionarJogadorAoBanco('${nomeEscapado}')">${jogadorParaTrocar ? 'Colocar' : 'Adicionar'}</button>
+                                </div>`;
+                        }).join('')}
+                    </div>`;
+            };
+
+            const textoStatus = jogadorParaTrocar
+                ? `Troca ativa para ${jogadorParaTrocar.nomeEquipe}: selecione um jogador do Banco de Reservas.`
+                : 'Clique em um jogador do Banco de Reservas para colocá-lo em uma equipe. Use Trocar para substituir rapidamente alguém.';
+
+            container.innerHTML = `
+                <div class="equipes-gerenciamento">
+                    <div class="equipes-grid">
+                        ${montarEquipe('Equipe A')}
+                        ${montarEquipe('Equipe B')}
+                    </div>
+                    <div class="equipes-area reservas">
+                        <div class="equipes-area-header">
+                            <div>
+                                <div class="equipes-area-title">Banco de Reservas</div>
+                                <div class="equipes-area-subtitle">Jogadores cadastrados que ainda não estão em uma equipe</div>
                             </div>
-                        </div>`;
-                });
-            }
+                            <div class="equipes-player-actions">
+                                ${jogadorParaTrocar ? '<button class="btn-red btn-xs" type="button" onclick="event.stopPropagation(); cancelarTrocaJogador()">Cancelar troca</button>' : ''}
+                                <div class="chip">${jogadoresReservas.length}</div>
+                            </div>
+                        </div>
+                        <input class="equipes-search-input" type="text" placeholder="Pesquisar reserva..." value="${escapeHtml(termoBuscaReservas)}" oninput="atualizarBuscaReservas(this.value)" autocomplete="off">
+                        ${montarReservas()}
+                    </div>
+                    <div id="equipesMensagemStatus" class="equipes-status">${textoStatus}</div>
+                </div>`;
+        }
+
+        function obterPrimeiraEquipeComVaga() {
+            return nomesEquipesGerenciamento.find(nome => contarJogadoresEquipeGerenciamento(nome) < MAX_JOGADORES_POR_EQUIPE) || '';
         }
 
         function novoDia() {
@@ -3329,7 +3477,7 @@
             if (!verificarPermissao('cadastro de jogadores')) return;
 
             document.getElementById('cadastroNome').value = '';
-            document.getElementById('cadastroEquipe').value = '';
+            if (document.getElementById('cadastroEquipe')) document.getElementById('cadastroEquipe').value = '';
             document.getElementById('cadastroFotoInput').value = '';
             document.getElementById('previewFotoCadastro').src = 'https://via.placeholder.com/100';
             document.getElementById('modalCadastroJogador').style.display = 'flex';
@@ -3374,7 +3522,6 @@
             }
 
             const nome = document.getElementById('cadastroNome').value.trim();
-            const equipe = document.getElementById('cadastroEquipe').value;
             const arquivo = document.getElementById('cadastroFotoInput').files[0];
 
             if (!nome) {
@@ -3385,21 +3532,18 @@
                 alert('Já existe um jogador com este nome.');
                 return;
             }
-            if (equipe && contarJogadoresEquipe(equipe) >= MAX_JOGADORES_POR_EQUIPE) {
-                alert(`${equipe} já atingiu o limite de 3 jogadores.`);
-                return;
-            }
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 jogadoresStats[nome] = normalizarJogador(nome, {
                     foto: e.target.result,
-                    equipe: equipe
+                    equipe: ''
                 });
                 salvar();
                 renderizarGrid();
                 renderizarGerenciamento();
                 renderizarPainelGerenciarJogadores();
+                renderizarSelecaoEquipesPartida();
                 fecharModalCadastroJogador();
                 alert('Jogador cadastrado com sucesso!');
             };
@@ -3407,11 +3551,12 @@
             if (arquivo) {
                 reader.readAsDataURL(arquivo);
             } else {
-                jogadoresStats[nome] = normalizarJogador(nome, { foto: '', equipe: equipe });
+                jogadoresStats[nome] = normalizarJogador(nome, { foto: '', equipe: '' });
                 salvar();
                 renderizarGrid();
                 renderizarGerenciamento();
                 renderizarPainelGerenciarJogadores();
+                renderizarSelecaoEquipesPartida();
                 fecharModalCadastroJogador();
                 alert('Jogador cadastrado com sucesso!');
             }
