@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -238,7 +238,6 @@
         .admin-only { display: none; }
         [data-admin-control] { opacity: 1; }
         [data-admin-control][disabled] { opacity: 0.6; pointer-events: none; }
-        .btn-reset-tudo { position: fixed; left: 20px; bottom: 20px; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .modal-edicao { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
         .modal-conteudo { background: white; width: min(520px, 100%); border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         #listaJogadoresDisponiveis { max-height: 55vh; overflow-y: auto; }
@@ -327,30 +326,30 @@
             min-height: 100vh;
         }
         button, input, select { font: inherit; }
-        .app-shell { display: flex; min-height: 100vh; }
-        .sidebar {
-            width: 270px;
+        .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+        .topnav {
+            width: 100%;
             background: linear-gradient(180deg, var(--surface) 0%, var(--surface-alt) 100%);
-            border-right: 1px solid var(--border);
-            padding: 24px 18px;
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
             position: sticky;
             top: 0;
-            height: 100vh;
+            z-index: 30;
         }
-        .brand { display: flex; align-items: center; gap: 12px; padding: 8px 10px; }
-        .brand-logo { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; font-size: 22px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; box-shadow: var(--shadow); }
-        .brand-name { font-size: 22px; font-weight: 800; letter-spacing: 0.04em; }
+        .brand { display: flex; align-items: center; gap: 12px; padding: 4px 0; }
+        .brand-logo { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 20px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; box-shadow: var(--shadow); }
+        .brand-name { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; }
         .brand-subtitle { font-size: 12px; color: var(--muted); }
-        .nav-links { display: flex; flex-direction: column; gap: 8px; }
+        .nav-links { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; }
         .nav-item {
-            width: 100%; border: none; background: transparent; color: var(--text); padding: 12px 14px; border-radius: 14px; text-align: left; display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; cursor: pointer;
+            border: none; background: transparent; color: var(--text); padding: 10px 14px; border-radius: 14px; text-align: left; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; cursor: pointer; white-space: nowrap;
         }
-        .nav-item:hover { background: rgba(59, 130, 246, 0.12); transform: translateX(2px); }
+        .nav-item:hover { background: rgba(59, 130, 246, 0.12); }
         .nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.18), rgba(34,197,85,0.12)); color: var(--accent); font-weight: 700; }
-        .sidebar-footer { margin-top: auto; padding: 12px; border-radius: 16px; background: rgba(59,130,246,0.08); color: var(--muted); font-size: 13px; }
         .main-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
         .topbar {
             background: rgba(255,255,255,0.75); backdrop-filter: blur(16px);
@@ -448,10 +447,8 @@
             .dashboard-grid.gap-2 { grid-template-columns: 1fr; }
         }
         @media (max-width: 900px) {
-            .app-shell { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; }
-            .nav-links { flex-direction: row; flex-wrap: wrap; }
-            .nav-item { width: auto; flex: 1; min-width: 120px; }
+            .topnav { padding: 12px 16px; gap: 12px; }
+            .nav-item { flex: 1; min-width: 100px; justify-content: center; }
             .content-panel { padding: 16px; }
         }
         @media (max-width: 640px) {
@@ -486,7 +483,7 @@
 <body>
 
     <div class="app-shell">
-        <aside class="sidebar">
+        <header class="topnav">
             <div class="brand">
                 <div class="brand-logo">⚽</div>
                 <div>
@@ -502,32 +499,15 @@
                 <button class="nav-item" data-view="estatisticas" onclick="mostrarTela('estatisticas')">📊 Estatísticas</button>
                 <button class="nav-item" data-view="relatorios" onclick="mostrarTela('relatorios')">📜 Relatórios</button>
                 <button class="nav-item" data-view="historico" onclick="mostrarTela('historico')">🕓 Histórico</button>
-                <button class="nav-item admin-only" data-view="admin" onclick="mostrarTela('admin')" style="display:none;">⚙ Painel Administrador</button>
-                <button class="nav-item" onclick="sairPainelAdmin()">🚪 Sair</button>
             </div>
-            <div class="sidebar-footer">
-                <div class="chip"><span class="status-dot"></span> Firebase Online</div>
-                <div style="margin-top:10px;">Acesso rápido para gestão da pelada.</div>
-            </div>
-        </aside>
+        </header>
 
         <main class="main-panel">
-            <header class="topbar">
-                <div class="topbar-left">
-                    <div>
-                        <div class="topbar-title" id="topbarTitle">FUTIB Dashboard</div>
-                        <div class="topbar-subtitle" id="topbarSubtitle">Competição ativa • Atualização em tempo real</div>
-                    </div>
-                </div>
-                    <div class="topbar-right">
-                    <div class="mode-pill"><span id="badgeModo">Somente Leitura</span></div>
-                    <div class="mode-pill"><span class="status-dot"></span><span id="statusFirebase">Online</span></div>
-                    <div class="mode-pill" id="relogioTopbar">--:--</div>
-                    <button class="theme-toggle" onclick="alternarTema()">☀/☾</button>
+            <header class="topbar admin-topbar" id="adminTopbar" style="display:none;">
+                <div class="topbar-right">
                     <button id="btnFinalizarDiaTopbar" class="btn-orange admin-only btn-xs" onclick="encerrarDia()" style="display:none;">🏁 Finalizar Dia</button>
+                    <button id="btnResetarTudo" class="btn-red btn-xs admin-only" onclick="resetarTudo()" style="display:none;">Resetar Tudo</button>
                     <button id="btnNovoDia" class="btn-orange admin-only btn-xs" onclick="novoDia()" style="display:none;">📅 Novo Dia</button>
-                    <button id="btnPainelAdmin" class="btn-blue btn-xs" onclick="abrirPainelAdmin()">Painel do Administrador</button>
-                    <button id="btnSairAdmin" class="btn-red btn-xs" onclick="sairPainelAdmin()" style="display:none;">Sair do Painel</button>
                 </div>
             </header>
 
@@ -665,10 +645,9 @@
                     <div class="dashboard-grid">
                         <div class="stat-card"><div class="stat-icon">👤</div><div><div class="stat-title">Jogadores</div><div class="stat-value" id="adminJogadores">0</div></div></div>
                         <div class="stat-card"><div class="stat-icon">🛡</div><div><div class="stat-title">Equipes</div><div class="stat-value" id="adminEquipes">0</div></div></div>
-                        <div class="stat-card"><div class="stat-icon">☁</div><div><div class="stat-title">Firebase</div><div class="stat-value">Online</div></div></div>
                     </div>
                     <div class="dashboard-grid">
-                        <div class="card" style="text-align:left;"><h3>⚙ Sistema</h3><div class="stat-list"><div class="stat-row"><span>Modo administrador</span><strong id="adminModoStatus">Desativado</strong></div><div class="stat-row"><span>Partidas</span><strong id="adminPartidas">0</strong></div><div class="stat-row"><span>Relatórios</span><strong id="adminRelatorios">0</strong></div></div></div>
+                        <div class="card" style="text-align:left;"><h3>⚙ Sistema</h3><div class="stat-list"><div class="stat-row"><span>Partidas</span><strong id="adminPartidas">0</strong></div><div class="stat-row"><span>Relatórios</span><strong id="adminRelatorios">0</strong></div></div></div>
                         <div class="card" style="text-align:left;"><h3>🧰 Ações</h3><div class="stat-list"><div class="stat-row"><span>Reset</span><button class="btn-red btn-xs" onclick="resetarTudo()">Resetar</button></div><div class="stat-row"><span>Finalizar dia</span><button class="btn-orange btn-xs" onclick="encerrarDia()">🏁 Finalizar Dia</button></div><div class="stat-row"><span>Finalizar competição</span><button class="btn-green btn-xs" onclick="finalizarCompeticao()">🏆 Finalizar Competição</button></div></div></div>
                     </div>
                 </div>
@@ -771,7 +750,6 @@
         </div>
     </div>
 
-    <button id="btnResetarTudo" class="btn-red btn-reset-tudo admin-only" onclick="resetarTudo()" style="display:none;">Resetar Tudo</button>
 
     <script>
         const db = firebase.firestore();
@@ -1623,12 +1601,8 @@
                 badge.className = modoAdministrador ? 'admin' : '';
             }
 
-            const btnPainelAdmin = document.getElementById('btnPainelAdmin');
-            const btnSairAdmin = document.getElementById('btnSairAdmin');
-            const btnFinalizarDiaTopbar = document.getElementById('btnFinalizarDiaTopbar');
-            const btnNovoDia = document.getElementById('btnNovoDia');
-            if (btnPainelAdmin) btnPainelAdmin.style.display = modoAdministrador ? 'none' : '';
-            if (btnSairAdmin) btnSairAdmin.style.display = modoAdministrador ? '' : 'none';
+            const adminTopbar = document.getElementById('adminTopbar');
+            if (adminTopbar) adminTopbar.style.display = modoAdministrador ? 'flex' : 'none';
             if (btnFinalizarDiaTopbar) btnFinalizarDiaTopbar.style.display = modoAdministrador ? 'inline-flex' : 'none';
             if (btnNovoDia) btnNovoDia.style.display = modoAdministrador ? 'inline-flex' : 'none';
 
