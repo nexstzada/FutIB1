@@ -370,8 +370,20 @@
         .page-hero { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(34,197,85,0.12)); border: 1px solid var(--border); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); }
         .page-hero h2 { margin: 0 0 6px 0; font-size: 24px; }
         .page-hero p { margin: 0; color: var(--muted); }
-        .opcoes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
-        .opcoes-grid .opcao-acao { display: flex; align-items: center; justify-content: flex-start; min-height: 76px; margin: 0; padding: 16px 18px; border-radius: 12px; font-size: 15px; font-weight: 700; text-align: left; }
+        .opcoes-painel { width: 100%; max-width: 1100px; align-self: center; padding: 26px; border: 1px solid var(--border); border-radius: 24px; background: var(--surface); box-shadow: var(--shadow); }
+        .opcoes-intro { display: flex; align-items: center; gap: 16px; padding: 4px 2px 22px; border-bottom: 1px solid var(--border); }
+        .opcoes-intro-icon { display: grid; place-items: center; flex: 0 0 54px; width: 54px; height: 54px; border-radius: 16px; background: rgba(59,130,246,0.13); font-size: 25px; }
+        .opcoes-intro h3 { margin: 0 0 6px; font-size: 18px; }
+        .opcoes-intro p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+        .opcoes-section-label { margin: 22px 0 12px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+        .opcoes-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 0; }
+        .opcoes-grid .opcao-acao { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 12px; min-height: 156px; margin: 0; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-alt); color: var(--text); font-size: 15px; font-weight: 700; text-align: left; white-space: normal; transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease; }
+        .opcoes-grid .opcao-acao:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow); }
+        .opcao-acao .opcao-icone { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(59,130,246,.14); font-size: 21px; }
+        .opcao-acao .opcao-titulo { display: block; }
+        .opcao-acao .opcao-descricao { display: block; color: var(--muted); font-size: 12px; font-weight: 400; line-height: 1.5; }
+        @media (max-width: 900px) { .opcoes-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .opcoes-painel { padding: 20px; } }
+        @media (max-width: 560px) { .opcoes-grid { grid-template-columns: 1fr; } .opcoes-painel { padding: 16px; border-radius: 18px; } .opcoes-grid .opcao-acao { min-height: 130px; } }
         .hero-badge { padding: 10px 12px; border-radius: 999px; background: var(--surface); color: var(--accent); font-weight: 700; }
         .jogadores-toolbar { display: none; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 16px; }
@@ -641,12 +653,19 @@
                 </div>
 
                 <div id="telaOpcoes" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Opções</h2><p>Ações de gerenciamento de jogadores</p></div></div>
-                    <div id="selecaoCadastro" class="opcoes-grid">
-                        <button class="opcao-acao btn-blue" onclick="mostrarGerenciarJogadores()">👤 Gerenciar Jogadores</button>
-                        <button class="opcao-acao btn-green" onclick="abrirModalCadastroJogador()">➕ Cadastrar Jogador</button>
-                        <button id="btnMostrarJogadores" class="opcao-acao btn-orange" onclick="alternarVisibilidadeJogadores()">👥 Mostrar Jogadores</button>
-                    </div>
+                    <div class="page-hero"><div><h2>Opções</h2><p>Central de ferramentas e gerenciamento do FUTIB</p></div><div class="hero-badge">⚙️ Configurações</div></div>
+                    <section class="opcoes-painel" aria-label="Painel de opções">
+                        <div class="opcoes-intro">
+                            <div class="opcoes-intro-icon" aria-hidden="true">⚙️</div>
+                            <div><h3>Central de gerenciamento</h3><p>Escolha uma ação abaixo. Cada ferramenta está organizada em seu próprio cartão para facilitar o acesso.</p></div>
+                        </div>
+                        <div class="opcoes-section-label">Ferramentas de jogadores</div>
+                        <div id="selecaoCadastro" class="opcoes-grid">
+                            <button class="opcao-acao btn-blue" onclick="mostrarGerenciarJogadores()"><span class="opcao-icone">👤</span><span class="opcao-titulo">Gerenciar Jogadores</span><span class="opcao-descricao">Visualize e gerencie os jogadores cadastrados.</span></button>
+                            <button class="opcao-acao btn-green" onclick="abrirModalCadastroJogador()"><span class="opcao-icone">➕</span><span class="opcao-titulo">Cadastrar Jogador</span><span class="opcao-descricao">Adicione um novo jogador ao seu elenco.</span></button>
+                            <button id="btnMostrarJogadores" class="opcao-acao btn-orange" onclick="alternarVisibilidadeJogadores()"><span class="opcao-icone">👥</span><span class="opcao-titulo">Mostrar Jogadores</span><span class="opcao-descricao">Alterne a exibição da lista de jogadores.</span></button>
+                        </div>
+                    </section>
                 </div>
 
             </section>
