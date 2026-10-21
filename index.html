@@ -234,10 +234,6 @@
         .vencedor-info { background: #c8e6c9; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; font-weight: bold; color: #2e7d32; }
         #barraModoAcesso { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px 15px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         #badgeModo { padding: 6px 12px; border-radius: 999px; font-weight: bold; color: white; background: #2196F3; }
-        #badgeModo.admin { background: #4CAF50; }
-        .admin-only { display: none; }
-        [data-admin-control] { opacity: 1; }
-        [data-admin-control][disabled] { opacity: 0.6; pointer-events: none; }
         .modal-edicao { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
         .modal-conteudo { background: white; width: min(520px, 100%); border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         #listaJogadoresDisponiveis { max-height: 55vh; overflow-y: auto; }
@@ -366,12 +362,13 @@
         .topbar-subtitle { font-size: 13px; color: var(--muted); }
         .mode-pill { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 999px; background: var(--surface); box-shadow: var(--shadow); }
         .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(34,197,85,0.12); color: var(--accent-2); font-size: 13px; font-weight: 600; }
-        .chip.admin { background: rgba(59,130,246,0.12); color: var(--accent); }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 0 4px rgba(34,197,85,0.16); }
         .content-panel { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
         .page-hero { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(34,197,85,0.12)); border: 1px solid var(--border); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); }
         .page-hero h2 { margin: 0 0 6px 0; font-size: 24px; }
         .page-hero p { margin: 0; color: var(--muted); }
+        .opcoes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+        .opcoes-grid .opcao-acao { display: flex; align-items: center; justify-content: flex-start; min-height: 76px; margin: 0; padding: 16px 18px; border-radius: 12px; font-size: 15px; font-weight: 700; text-align: left; }
         .hero-badge { padding: 10px 12px; border-radius: 999px; background: var(--surface); color: var(--accent); font-weight: 700; }
         .jogadores-toolbar { display: none; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 16px; }
@@ -499,15 +496,17 @@
                 <button class="nav-item" data-view="estatisticas" onclick="mostrarTela('estatisticas')">📊 Estatísticas</button>
                 <button class="nav-item" data-view="relatorios" onclick="mostrarTela('relatorios')">📜 Relatórios</button>
                 <button class="nav-item" data-view="historico" onclick="mostrarTela('historico')">🕓 Histórico</button>
+                <button class="nav-item" data-view="opcoes" onclick="mostrarTela('opcoes')">⚙ Opções</button>
             </div>
         </header>
 
         <main class="main-panel">
-            <header class="topbar admin-topbar" id="adminTopbar" style="display:none;">
+            <header class="topbar">
                 <div class="topbar-right">
-                    <button id="btnFinalizarDiaTopbar" class="btn-orange admin-only btn-xs" onclick="encerrarDia()" style="display:none;">🏁 Finalizar Dia</button>
-                    <button id="btnResetarTudo" class="btn-red btn-xs admin-only" onclick="resetarTudo()" style="display:none;">Resetar Tudo</button>
-                    <button id="btnNovoDia" class="btn-orange admin-only btn-xs" onclick="novoDia()" style="display:none;">📅 Novo Dia</button>
+                    <button id="btnFinalizarDiaTopbar" class="btn-orange btn-xs" onclick="encerrarDia()">🏁 Finalizar Dia</button>
+                    <button id="btnResetarTudo" class="btn-red btn-xs" onclick="resetarTudo()">Resetar Tudo</button>
+                    <button id="btnNovoDia" class="btn-orange btn-xs" onclick="novoDia()">📅 Novo Dia</button>
+                    <button id="btnCompartilhar" class="btn-blue btn-xs" onclick="abrirModalCompartilhar()">🔗 Compartilhar</button>
                 </div>
             </header>
 
@@ -520,8 +519,7 @@
                         </div>
                         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                             <button class="btn-green" onclick="iniciarJogo()">▶ Iniciar partida</button>
-                            <div class="hero-badge" id="heroBadge">Modo Visualização</div>
-                        </div>
+                                                    </div>
                     </div>
                     <div class="dashboard-grid">
                         <div class="stat-card"><div class="stat-icon">👤</div><div><div class="stat-title">Jogadores</div><div class="stat-value" id="statsJogadores">0</div></div></div>
@@ -558,25 +556,18 @@
                 </div>
 
                 <div id="telaJogadores" class="tela page-shell telaJogadores">
-                    <div class="page-hero"><div><h2>Jogadores</h2><p>Visão centralizada com cards, foto e estatísticas rápidas.</p></div><div class="hero-badge">👤 Cadastro</div></div>
+                    <div class="page-hero"><div><h2>Jogadores</h2><p>Visão centralizada com cards, foto e estatísticas rápidas.</p></div><button type="button" class="hero-badge" onclick="abrirModalCadastroJogador()" style="border:none;cursor:pointer;">👤 Cadastro</button></div>
                     <div class="jogadores-toolbar">
                         <input id="searchJogadoresMobile" type="text" placeholder="Pesquisar jogador..." oninput="renderizarGrid()">
                         <button id="btnToggleJogadores" class="btn-blue" onclick="alternarVisibilidadeJogadores()">� Mostrar Jogadores</button>
-                        <button id="btnAddJogadorMobile" class="btn-green admin-only" onclick="abrirModalCadastroJogador()" style="display:none;">➕</button>
-                    </div>
-                    <div id="selecaoCadastro" class="admin-only" style="display:none; margin-bottom:12px;">
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <button class="btn-blue" onclick="mostrarGerenciarJogadores()">👤 Gerenciar Jogadores</button>
-                            <button class="btn-green" onclick="abrirModalCadastroJogador()">➕ Cadastrar Jogador</button>
-                            <button id="btnMostrarJogadores" class="btn-orange" onclick="alternarVisibilidadeJogadores()">👥 Mostrar Jogadores</button>
-                        </div>
+                        <button id="btnAddJogadorMobile" class="btn-green" onclick="abrirModalCadastroJogador()">➕</button>
                     </div>
                     <div id="mensagemJogadoresVazia" style="padding:18px; text-align:center; color:#666;">Use o botão “Mostrar Jogadores” para listar os cadastros quando quiser.</div>
                     <div id="gridJogadores" class="grid-jogadores" style="display:none;"></div>
                 </div>
 
                 <div id="telaEquipes" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Equipes</h2><p>Monte as equipes de forma rápida com o Banco de Reservas e trocas em um clique.</p></div><div class="hero-badge">🛡 Gerenciamento</div></div>
+                    <div class="page-hero"><div><h2>Equipes</h2><p>Monte as equipes de forma rápida com o Banco de Reservas e trocas em um clique.</p></div><button type="button" class="hero-badge" onclick="abrirGerenciamento()" style="border:none;cursor:pointer;">🛡 Gerenciamento</button></div>
                     <div id="containerEquipesGerenciamento"></div>
                 </div>
 
@@ -584,10 +575,10 @@
                     <div class="page-hero"><div><h2>Partidas</h2><p>Controle limpo do placar, cronômetro e ações de partida.</p></div><div class="hero-badge">⚽ Ao vivo</div></div>
                     <div class="card" style="padding:18px; text-align:left;">
                         <div class="section-header"><h3>Configuração rápida</h3><div class="chip">⚙</div></div>
-                        <div class="config-opcao"><label class="config-label">⏱️ Duração da partida</label><input type="number" id="duracao" class="config-input" value="7" min="1" max="60" data-admin-control></div>
-                        <div class="config-opcao"><label class="config-label">⚽ Gols para vitória</label><input type="number" id="golsVitoria" class="config-input" value="2" min="1" max="10" data-admin-control></div>
-                        <div class="config-opcao"><input type="checkbox" id="primeiraPartida" class="config-checkbox" data-admin-control><label class="config-label">📌 Primeira partida (3 gols)</label></div>
-                        <div class="config-opcao"><input type="checkbox" id="encerramentoAutomatico" class="config-checkbox" checked data-admin-control><label class="config-label">🏁 Encerramento automático</label></div>
+                        <div class="config-opcao"><label class="config-label">⏱️ Duração da partida</label><input type="number" id="duracao" class="config-input" value="7" min="1" max="60"></div>
+                        <div class="config-opcao"><label class="config-label">⚽ Gols para vitória</label><input type="number" id="golsVitoria" class="config-input" value="2" min="1" max="10"></div>
+                        <div class="config-opcao"><input type="checkbox" id="primeiraPartida" class="config-checkbox"><label class="config-label">📌 Primeira partida (3 gols)</label></div>
+                        <div class="config-opcao"><input type="checkbox" id="encerramentoAutomatico" class="config-checkbox" checked><label class="config-label">🏁 Encerramento automático</label></div>
                         <div class="section-header"><h3>Selecionar equipes da partida</h3><div class="chip">👥</div></div>
                         <div class="config-opcao"><label class="config-label">🏠 Equipe mandante</label><select id="selectEquipeMandante" class="config-input" style="width:220px;"></select></div>
                         <div class="config-opcao"><label class="config-label">✈️ Equipe visitante</label><select id="selectEquipeVisitante" class="config-input" style="width:220px;"></select></div>
@@ -603,19 +594,19 @@
                             <div style="font-size:24px;font-weight:bold;">×</div>
                             <div><strong id="placarTime2">Equipe</strong><span id="golsTime2">0</span></div>
                         </div>
-                        <div class="cronometro-botoes admin-only">
-                            <button class="btn-cronometro" onclick="iniciarCronometro()" id="btnIniciar" data-admin-control>▶ Iniciar</button>
-                            <button class="btn-cronometro" onclick="pausarCronometro()" id="btnPausar" style="display:none;" data-admin-control>⏸ Pausar</button>
-                            <button class="btn-cronometro" onclick="continuarCronometro()" id="btnContinuar" style="display:none;" data-admin-control>▶ Continuar</button>
-                            <button class="btn-cronometro" onclick="abrirAcrescimos()" data-admin-control>➕ Acréscimo</button>
-                            <button class="btn-cronometro" onclick="encerrarPartidaManual()" style="background: rgba(244,67,54,0.3); border-color: #f44336;" data-admin-control>⏹ Encerrar</button>
+                        <div class="cronometro-botoes">
+                            <button class="btn-cronometro" onclick="iniciarCronometro()" id="btnIniciar">▶ Iniciar</button>
+                            <button class="btn-cronometro" onclick="pausarCronometro()" id="btnPausar" style="display:none;">⏸ Pausar</button>
+                            <button class="btn-cronometro" onclick="continuarCronometro()" id="btnContinuar" style="display:none;">▶ Continuar</button>
+                            <button class="btn-cronometro" onclick="abrirAcrescimos()">➕ Acréscimo</button>
+                            <button class="btn-cronometro" onclick="encerrarPartidaManual()" style="background: rgba(244,67,54,0.3); border-color: #f44336;">⏹ Encerrar</button>
                         </div>
                     </div>
                     <div class="card" style="padding:20px; text-align:left;">
                         <div class="section-header"><h3>Placar em tempo real</h3><div class="chip">⚽ Evento</div></div>
                         <div id="placarEquipes"></div>
                     </div>
-                    <div class="admin-only" style="display:none;"><button class="btn-blue" onclick="finalizarPartida()" data-admin-control>Finalizar Partida e Rodar 🔄</button></div>
+                    <div><button class="btn-blue" onclick="finalizarPartida()">Finalizar Partida e Rodar 🔄</button></div>
                 </div>
 
                 <div id="telaEstatisticas" class="tela page-shell">
@@ -640,19 +631,69 @@
                     <div id="listaCompeticiones" style="display:flex; flex-direction:column; gap:16px;"></div>
                 </div>
 
-                <div id="telaAdmin" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Painel Administrativo</h2></div><div class="hero-badge">⚙ Admin</div></div>
-                    <div class="dashboard-grid">
-                        <div class="stat-card"><div class="stat-icon">👤</div><div><div class="stat-title">Jogadores</div><div class="stat-value" id="adminJogadores">0</div></div></div>
-                        <div class="stat-card"><div class="stat-icon">🛡</div><div><div class="stat-title">Equipes</div><div class="stat-value" id="adminEquipes">0</div></div></div>
-                    </div>
-                    <div class="dashboard-grid">
-                        <div class="card" style="text-align:left;"><h3>⚙ Sistema</h3><div class="stat-list"><div class="stat-row"><span>Partidas</span><strong id="adminPartidas">0</strong></div><div class="stat-row"><span>Relatórios</span><strong id="adminRelatorios">0</strong></div></div></div>
-                        <div class="card" style="text-align:left;"><h3>🧰 Ações</h3><div class="stat-list"><div class="stat-row"><span>Reset</span><button class="btn-red btn-xs" onclick="resetarTudo()">Resetar</button></div><div class="stat-row"><span>Finalizar dia</span><button class="btn-orange btn-xs" onclick="encerrarDia()">🏁 Finalizar Dia</button></div><div class="stat-row"><span>Finalizar competição</span><button class="btn-green btn-xs" onclick="finalizarCompeticao()">🏆 Finalizar Competição</button></div></div></div>
+                <div id="telaOpcoes" class="tela page-shell">
+                    <div class="page-hero"><div><h2>Opções</h2><p>Ações de gerenciamento de jogadores</p></div></div>
+                    <div id="selecaoCadastro" class="opcoes-grid">
+                        <button class="opcao-acao btn-blue" onclick="mostrarGerenciarJogadores()">👤 Gerenciar Jogadores</button>
+                        <button class="opcao-acao btn-green" onclick="abrirModalCadastroJogador()">➕ Cadastrar Jogador</button>
+                        <button id="btnMostrarJogadores" class="opcao-acao btn-orange" onclick="alternarVisibilidadeJogadores()">👥 Mostrar Jogadores</button>
                     </div>
                 </div>
+
             </section>
         </main>
+    </div>
+
+    <main id="telaCompartilhada" style="display:none; max-width:900px; margin:40px auto; padding:24px; background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.1);">
+        <h1 style="margin-top:0;">Resultados compartilhados</h1>
+        <p id="statusCompartilhado">Carregando resultados...</p>
+        <section id="resumoCompartilhado" style="display:none;">
+            <h2 id="dataCompartilhada"></h2>
+            <h3>Jogadores</h3>
+            <div style="overflow-x:auto;">
+                <table style="margin-top:8px;">
+                    <thead><tr><th>Jogador</th><th>Gols</th><th>Assistências</th><th>Partidas</th></tr></thead>
+                    <tbody id="jogadoresCompartilhados"></tbody>
+                </table>
+            </div>
+            <h3>Estatísticas de hoje</h3>
+            <pre id="estatisticasCompartilhadas" style="white-space:pre-wrap; overflow-wrap:anywhere; background:#f5f5f5; padding:12px; border-radius:6px;"></pre>
+        </section>
+    </main>
+
+    <div id="modalEscolherEquipe" class="modal-edicao">
+        <div class="modal-conteudo" style="max-width:380px;">
+            <div class="modal-header">
+                <h3 style="margin: 0;">Escolher equipe</h3>
+                <button class="btn-red btn-xs" onclick="fecharModalEscolherEquipe()">✕</button>
+            </div>
+            <div id="modalEscolherEquipeTexto" style="margin-bottom:14px; color:#475569;"></div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn-blue" style="flex:1;" id="btnEscolherEquipeA" onclick="confirmarEscolhaEquipe('Equipe A')">Equipe A</button>
+                <button class="btn-green" style="flex:1;" id="btnEscolherEquipeB" onclick="confirmarEscolhaEquipe('Equipe B')">Equipe B</button>
+            </div>
+            <div style="margin-top:12px;">
+                <button class="btn-red" style="width:100%;" onclick="fecharModalEscolherEquipe()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalCompartilhar" class="modal-edicao">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <h3 style="margin:0;">Compartilhar resultados</h3>
+                <button class="btn-red btn-xs" onclick="fecharModalCompartilhar()">✕</button>
+            </div>
+            <p>Gera um link público com o placar e as estatísticas de hoje. Quem abrir o link só visualiza, não pode editar.</p>
+            <button class="btn-blue" onclick="gerarLinkCompartilhamento()">Gerar link</button>
+            <div id="resultadoCompartilhamento" style="display:none; margin-top:12px;">
+                <input id="campoLinkCompartilhamento" type="text" readonly style="width:100%; box-sizing:border-box;">
+                <button class="btn-green" onclick="copiarLinkCompartilhamento()">Copiar link</button>
+            </div>
+            <div style="margin-top:12px;">
+                <button class="btn-red" onclick="fecharModalCompartilhar()">Fechar</button>
+            </div>
+        </div>
     </div>
 
     <div id="modalCadastroJogador" class="modal-edicao">
@@ -753,6 +794,99 @@
 
     <script>
         const db = firebase.firestore();
+
+        function abrirModalCompartilhar() {
+            document.getElementById('modalCompartilhar').style.display = 'flex';
+        }
+
+        function fecharModalCompartilhar() {
+            document.getElementById('modalCompartilhar').style.display = 'none';
+        }
+
+        function gerarIdCampeonato() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let id = '';
+            for (let i = 0; i < 22; i++) id += chars[Math.floor(Math.random() * chars.length)];
+            return id;
+        }
+
+        async function gerarLinkCompartilhamento() {
+            const id = gerarIdCampeonato();
+            const snapshot = {
+                jogadoresStats: JSON.parse(JSON.stringify(jogadoresStats || {})),
+                estatisticasDia: JSON.parse(JSON.stringify(estatisticasDia || {})),
+                partidasDia: JSON.parse(JSON.stringify(partidasDia || [])),
+                dataAtual: dataAtual,
+                criadoEm: new Date().toISOString()
+            };
+            try {
+                await db.collection("campeonatos").doc(id).set(snapshot);
+                const link = `${window.location.origin}${window.location.pathname}#/c/${id}`;
+                const campoLink = document.getElementById('campoLinkCompartilhamento');
+                if (campoLink) campoLink.value = link;
+                const resultado = document.getElementById('resultadoCompartilhamento');
+                if (resultado) resultado.style.display = 'block';
+            } catch (erro) {
+                alert('Não foi possível gerar o link agora. Tente de novo em instantes.');
+                console.warn('Erro ao gerar campeonato público:', erro);
+            }
+        }
+
+        function copiarLinkCompartilhamento() {
+            const campoLink = document.getElementById('campoLinkCompartilhamento');
+            if (!campoLink) return;
+            if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                alert('Não foi possível copiar o link neste navegador.');
+                return;
+            }
+            navigator.clipboard.writeText(campoLink.value).then(() => {
+                alert('Link copiado!');
+            }).catch(() => {
+                alert('Não foi possível copiar o link neste navegador.');
+            });
+        }
+
+        async function carregarCampeonatoPublico(id) {
+            const painel = document.querySelector('.app-shell');
+            const tela = document.getElementById('telaCompartilhada');
+            const status = document.getElementById('statusCompartilhado');
+            if (painel) painel.style.display = 'none';
+            if (tela) tela.style.display = 'block';
+
+            try {
+                const documento = await db.collection('campeonatos').doc(id).get();
+                if (!documento.exists) {
+                    status.textContent = 'Este link não existe ou não está mais disponível.';
+                    return;
+                }
+
+                const dados = documento.data() || {};
+                const jogadores = dados.jogadoresStats && typeof dados.jogadoresStats === 'object' ? dados.jogadoresStats : {};
+                const corpoTabela = document.getElementById('jogadoresCompartilhados');
+                const resumo = document.getElementById('resumoCompartilhado');
+                document.getElementById('dataCompartilhada').textContent = dados.dataAtual ? `Resultados de ${dados.dataAtual}` : 'Resultados do dia';
+                corpoTabela.replaceChildren();
+
+                Object.entries(jogadores).sort((a, b) => Number((b[1] || {}).gols || 0) - Number((a[1] || {}).gols || 0)).forEach(([nome, dadosJogador]) => {
+                    const jogador = normalizarJogador(nome, dadosJogador);
+                    const linha = document.createElement('tr');
+                    [nome, jogador.gols, jogador.assis, jogador.partidas].forEach(valor => {
+                        const celula = document.createElement('td');
+                        celula.textContent = String(valor);
+                        linha.appendChild(celula);
+                    });
+                    corpoTabela.appendChild(linha);
+                });
+
+                document.getElementById('estatisticasCompartilhadas').textContent = JSON.stringify(dados.estatisticasDia || {}, null, 2);
+                status.textContent = '';
+                resumo.style.display = 'block';
+            } catch (erro) {
+                status.textContent = 'Não foi possível carregar os resultados compartilhados.';
+                console.warn('Erro ao carregar campeonato público:', erro);
+            }
+        }
+
         let statsUnsubscribe = null;
         let jogadoresPanelAtivo = false;
         let jogadoresListaVisivel = false;
@@ -970,11 +1104,11 @@
 
     <script>
         // CONFIGURAÇÃO DOS PINS
-        const PIN_ADMIN = "0507"; // PIN para acessar o painel administrativo
         const PIN_EXCLUSAO_TOTAL = "02-29"; // PIN exclusivo para apagar todos os dados do sistema
         const MAX_JOGADORES_POR_EQUIPE = 3;
 
         let jogadoresStats = {};
+        let baseEstatisticasPartida = {};
         let relatoriosDiarios = {};
         let historicoCompeticions = [];
         let selecionados = [];
@@ -1005,7 +1139,6 @@
             primeiraPartida: false,
             encerramentoAutomatico: true
         };
-        let modoAdministrador = false;
         let jogadorEmEdicao = null;
         let equipesAtivasPartida = []; // Array com os 2 nomes de equipes da partida atual
         let nomesEquipesPartida = {}; // Mapeamento {equipeNome: 'Equipe NomePrimeiro'}
@@ -1046,6 +1179,23 @@
             jogador.partidas = Number(jogador.partidas || 0);
             jogador.fora = Number(jogador.fora || 0);
             return jogador;
+        }
+
+        function capturarBaseEstatisticasPartida() {
+            baseEstatisticasPartida = JSON.parse(JSON.stringify(jogadoresStats || {}));
+        }
+
+        function obterStatsDaPartidaAtual(nome) {
+            const atual = normalizarJogador(nome, jogadoresStats[nome]);
+            const base = normalizarJogador(nome, baseEstatisticasPartida[nome]);
+
+            return {
+                ...atual,
+                gols: Math.max(0, atual.gols - base.gols),
+                assis: Math.max(0, atual.assis - base.assis),
+                amarelo: Math.max(0, atual.amarelo - base.amarelo),
+                vermelho: Math.max(0, atual.vermelho - base.vermelho)
+            };
         }
 
         function gerarIdJogador(nome, prefix = 'jogador') {
@@ -1237,7 +1387,7 @@
 
             const categorias = [
                 { chave: 'gols', titulo: 'ARTILHEIROS', subtitulo: 'Ranking Geral', classe: 'green', icone: '⚽', sufixo: 'gols' },
-                { chave: 'assis', titulo: 'ASSISTÊNCIAS', subtitulo: 'Ranking Geral', classe: 'blue', icone: '🅰', sufixo: 'assistências' },
+                { chave: 'assis', titulo: 'ASSISTÊNCIAS', subtitulo: 'Ranking Geral', classe: 'blue', icone: '👟', sufixo: 'assistências' },
                 { chave: 'amarelo', titulo: 'CARTÕES AMARELOS', subtitulo: 'Jogadores com mais cartões amarelos', classe: 'yellow', icone: '🟨', sufixo: 'cartões' },
                 { chave: 'vermelho', titulo: 'CARTÕES VERMELHOS', subtitulo: 'Jogadores com mais cartões vermelhos', classe: 'red', icone: '🟥', sufixo: 'cartões' }
             ];
@@ -1320,17 +1470,18 @@
                             <tbody>
                     `;
                     jogadoresEquipe.forEach(nome => {
-                        const p = jogadoresStats[nome] ? normalizarJogador(nome, jogadoresStats[nome]) : normalizarJogador(nome);
+                        const p = obterStatsDaPartidaAtual(nome);
                         const nomeEscapado = escaparParaAtributoJs(nome);
-                        const podeRegistrarAcoes = modoAdministrador && !partidaEncerrada;
-                        const botaoRemoverGol = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'gols')"` : 'disabled title="Partida encerrada"'}>-</button>` : '';
-                        const botaoAdicionarGol = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="abrirModalRegistrarGol('${nomeEscapado}', '${escaparParaAtributoJs(equipe)}')"` : 'disabled title="Partida encerrada"'}>+</button>` : '';
-                        const botaoRemoverAssis = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'assis')"` : 'disabled title="Partida encerrada"'}>-</button>` : '';
-                        const botaoAdicionarAssis = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'assis')"` : 'disabled title="Partida encerrada"'}>+</button>` : '';
-                        const botaoRemoverAmarelo = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'amarelo')"` : 'disabled title="Partida encerrada"'}>-</button>` : '';
-                        const botaoAdicionarAmarelo = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'amarelo')"` : 'disabled title="Partida encerrada"'}>+</button>` : '';
-                        const botaoRemoverVermelho = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'vermelho')"` : 'disabled title="Partida encerrada"'}>-</button>` : '';
-                        const botaoAdicionarVermelho = modoAdministrador ? `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'vermelho')"` : 'disabled title="Partida encerrada"'}>+</button>` : '';
+                        const podeRegistrarAcoes = !partidaEncerrada;
+                        const motivoAcaoIndisponivel = 'Partida encerrada';
+                        const botaoRemoverGol = `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'gols')"` : `disabled title="${motivoAcaoIndisponivel}"`}>-</button>`;
+                        const botaoAdicionarGol = `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="abrirModalRegistrarGol('${nomeEscapado}', '${escaparParaAtributoJs(equipe)}')"` : `disabled title="${motivoAcaoIndisponivel}"`}>+</button>`;
+                        const botaoRemoverAssis = `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'assis')"` : `disabled title="${motivoAcaoIndisponivel}"`}>-</button>`;
+                        const botaoAdicionarAssis = `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'assis')"` : `disabled title="${motivoAcaoIndisponivel}"`}>+</button>`;
+                        const botaoRemoverAmarelo = `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'amarelo')"` : `disabled title="${motivoAcaoIndisponivel}"`}>-</button>`;
+                        const botaoAdicionarAmarelo = `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'amarelo')"` : `disabled title="${motivoAcaoIndisponivel}"`}>+</button>`;
+                        const botaoRemoverVermelho = `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'vermelho')"` : `disabled title="${motivoAcaoIndisponivel}"`}>-</button>`;
+                        const botaoAdicionarVermelho = `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'vermelho')"` : `disabled title="${motivoAcaoIndisponivel}"`}>+</button>`;
                         tableHTML += `<tr>
                             <td><img src="${p.foto || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;"></td>
                             <td>${escapeHtml(nome)}</td>
@@ -1363,11 +1514,6 @@
         }
 
         function removerEstatisticaJogador(nome, tipo, origemRelatorio = false) {
-            if (!verificarPermissao('remoção de eventos')) return;
-            if (!modoAdministrador) {
-                alert('Acesso negado. Esta ação é restrita ao Painel do Administrador.');
-                return;
-            }
 
             const participantesPartida = new Set(
                 (Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0 ? selecionadosPartidaAtual : selecionados)
@@ -1495,7 +1641,6 @@
                 statsUltimaPartidaHorario: document.getElementById('statsUltimaPartidaHorario'),
                 statsArtilheiroFoto: document.getElementById('statsArtilheiroFoto'),
                 statsAssistenteFoto: document.getElementById('statsAssistenteFoto'),
-                heroBadge: document.getElementById('heroBadge')
             };
 
             if (elementos.statsJogadores) elementos.statsJogadores.textContent = Object.keys(jogadoresStats || {}).length;
@@ -1515,7 +1660,6 @@
             if (elementos.statsUltimaPartida) elementos.statsUltimaPartida.textContent = ultima ? `${escapeHtml(ultima.equipeA || 'Equipe A')} ${Number(ultima.golsA || 0)} × ${Number(ultima.golsB || 0)} ${escapeHtml(ultima.equipeB || 'Equipe B')}` : 'Nenhuma partida encerrada.';
             if (elementos.statsUltimaPartidaHorario) elementos.statsUltimaPartidaHorario.textContent = ultima ? `${escapeHtml(ultima.horario || '')}` : '';
 
-            if (elementos.heroBadge) elementos.heroBadge.textContent = modoAdministrador ? 'Modo Admin' : 'Modo Visualização';
         }
 
         function mostrarTela(nomeTela) {
@@ -1527,7 +1671,7 @@
                 estatisticas: 'telaEstatisticas',
                 relatorios: 'telaRelatorios',
                 historico: 'telaHistorico',
-                admin: 'telaAdmin',
+                opcoes: 'telaOpcoes',
                 menu: 'telaDashboard'
             };
 
@@ -1539,7 +1683,7 @@
                 estatisticas: ['Estatísticas', 'Ranking e performances atualizados automaticamente'],
                 relatorios: ['Relatórios', 'Visão consolidada das partidas e relatórios do dia'],
                 historico: ['Histórico', 'Partidas e competições finalizadas no sistema'],
-                admin: ['Painel Administrativo', 'Configurações, resets e controle avançado']
+                opcoes: ['Opções', 'Ações de gerenciamento de jogadores'],
             };
 
             document.querySelectorAll('.tela').forEach(el => el.classList.remove('ativa'));
@@ -1563,10 +1707,10 @@
                 if (subtitle) subtitle.textContent = topo[1];
             }
 
-            atualizarInterfacePorPermissao();
+            atualizarInterface();
         }
 
-        function atualizarInterfacePorPermissao() {
+        function atualizarInterface() {
             const telaJogadores = document.getElementById('telaJogadores');
             const telaEquipes = document.getElementById('telaEquipes');
             const telaPartidas = document.getElementById('telaPartidas');
@@ -1594,77 +1738,11 @@
             }
         }
 
-        function atualizarModoAcesso() {
-            const badge = document.getElementById('badgeModo');
-            if (badge) {
-                badge.textContent = modoAdministrador ? 'Administrador' : 'Somente Leitura';
-                badge.className = modoAdministrador ? 'admin' : '';
-            }
-
-            const adminTopbar = document.getElementById('adminTopbar');
-            if (adminTopbar) adminTopbar.style.display = modoAdministrador ? 'flex' : 'none';
-            if (btnFinalizarDiaTopbar) btnFinalizarDiaTopbar.style.display = modoAdministrador ? 'inline-flex' : 'none';
-            if (btnNovoDia) btnNovoDia.style.display = modoAdministrador ? 'inline-flex' : 'none';
-
-            document.querySelectorAll('.admin-only').forEach(el => {
-                if (el) {
-                    if (el.id === 'btnAddJogadorMobile') {
-                        el.style.display = modoAdministrador ? 'grid' : 'none';
-                    } else {
-                        el.style.display = modoAdministrador ? 'block' : 'none';
-                    }
-                }
-            });
-
-            document.querySelectorAll('[data-admin-control]').forEach(el => {
-                if (el) {
-                    el.disabled = !modoAdministrador;
-                    el.style.pointerEvents = modoAdministrador ? '' : 'none';
-                    el.style.opacity = modoAdministrador ? '' : '0.6';
-                }
-            });
-
-            atualizarInterfacePorPermissao();
-        }
-
-        function verificarPermissao(acao = 'esta ação', mostrarMensagem = true) {
-            if (modoAdministrador) return true;
-            if (mostrarMensagem) {
-                alert(`Acesso negado. ${acao} é restrita ao Painel do Administrador.`);
-            }
-            return false;
-        }
-
-        function abrirPainelAdmin() {
-            const pinDigitado = prompt('Digite o PIN do administrador:');
-            if (pinDigitado === null) return;
-
-            if (pinDigitado === PIN_ADMIN) {
-                modoAdministrador = true;
-                atualizarModoAcesso();
-                mostrarTela('admin');
-                alert('Painel do administrador ativado.');
-            } else {
-                modoAdministrador = false;
-                atualizarModoAcesso();
-                alert('PIN incorreto. Acesso negado.');
-            }
-        }
-
-        function sairPainelAdmin() {
-            modoAdministrador = false;
-            atualizarModoAcesso();
-            mostrarTela('dashboard');
-            alert('Sessão administrativa encerrada.');
-        }
-
         function mostrarGerenciarJogadores() {
-            if (!verificarPermissao('gerenciamento de jogadores')) return;
             abrirModalGerenciarJogadores();
         }
 
         function abrirModalGerenciarJogadores() {
-            if (!verificarPermissao('gerenciamento de jogadores')) return;
             subscribeToStats();
             const modal = document.getElementById('modalGerenciarJogadores');
             const search = document.getElementById('searchGerenciarJogadores');
@@ -1721,14 +1799,14 @@
             subscribeToStats();
             const grid = document.getElementById('gridJogadores');
             const btn = document.getElementById('btnToggleJogadores');
-            const btnAdmin = document.getElementById('btnMostrarJogadores');
+            const btnMostrarJogadores = document.getElementById('btnMostrarJogadores');
             const msg = document.getElementById('mensagemJogadoresVazia');
             if (!grid) return;
 
             jogadoresListaVisivel = !jogadoresListaVisivel;
             const textoVisivel = jogadoresListaVisivel ? '👥 Ocultar Jogadores' : '👥 Mostrar Jogadores';
             if (btn) btn.textContent = textoVisivel;
-            if (btnAdmin) btnAdmin.textContent = textoVisivel;
+            if (btnMostrarJogadores) btnMostrarJogadores.textContent = textoVisivel;
             if (msg) msg.style.display = jogadoresListaVisivel ? 'none' : 'block';
 
             if (jogadoresListaVisivel) {
@@ -1748,13 +1826,8 @@
             if (msg) msg.style.display = 'block';
             const btn = document.getElementById('btnToggleJogadores');
             if (btn) btn.textContent = '� Mostrar Jogadores';
-            const btnAdmin = document.getElementById('btnMostrarJogadores');
-            if (btnAdmin) btnAdmin.textContent = '👥 Mostrar Jogadores';
-        }
-
-        function solicitarPin() {
-            const pinDigitado = prompt("Digite o PIN para finalizar a partida:");
-            return pinDigitado === PIN_ADMIN;
+            const btnMostrarJogadores = document.getElementById('btnMostrarJogadores');
+            if (btnMostrarJogadores) btnMostrarJogadores.textContent = '👥 Mostrar Jogadores';
         }
 
         function obterNomesEquipes() {
@@ -1876,7 +1949,6 @@
         }
 
         function abrirModalSelecionarJogador(equipe) {
-            if (!verificarPermissao('gerenciamento de equipes')) return;
             equipeModalAtual = equipe;
             document.getElementById('modalEquipeTitulo').textContent = equipe;
             document.getElementById('searchJogadorEquipe').value = '';
@@ -1951,7 +2023,6 @@
         }
 
         function selecionarJogadorParaEquipe(nome) {
-            if (!verificarPermissao('gerenciamento de equipes')) return;
             if (!equipeModalAtual || !jogadoresStats[nome]) return;
             if (contarJogadoresEquipe(equipeModalAtual) >= MAX_JOGADORES_POR_EQUIPE) {
                 alert(`${equipeModalAtual} já atingiu o limite de ${MAX_JOGADORES_POR_EQUIPE} jogadores.`);
@@ -1966,7 +2037,6 @@
         }
 
         function removerJogadorDaEquipe(nome) {
-            if (!verificarPermissao('gerenciamento de equipes')) return;
             if (!jogadoresStats[nome]) return;
             jogadoresStats[nome].equipe = '';
             salvar();
@@ -1980,7 +2050,6 @@
         }
 
         function cadastrarJogador() {
-            if (!verificarPermissao('cadastro de jogadores')) return;
 
             const nome = document.getElementById('novoNome').value.trim();
             const fileInput = document.getElementById('fotoInput');
@@ -2041,7 +2110,7 @@
             const equipes = obterJogadoresPorEquipe();
             const totalJogadores = Object.keys(jogadoresStats).length;
             if (totalJogadores === 0) {
-                grid.innerHTML = '<div class="empty-state">Nenhum jogador cadastrado ainda. Ative o modo administrador e adicione jogadores.</div>';
+                grid.innerHTML = '<div class="empty-state">Nenhum jogador cadastrado ainda. Cadastre jogadores para começar.</div>';
                 grid.style.display = '';
                 return;
             }
@@ -2063,8 +2132,8 @@
                         const p = normalizarJogador(nome, jogadoresStats[nome]);
                         const isSelected = selecionados.includes(nome);
                         const nomeEscapado = escaparParaAtributoJs(nome);
-                        const escolhaBotao = modoAdministrador ? `<button class="${isSelected ? 'btn-red' : 'btn-green'} btn-xs" onclick="toggleSelecao('${nomeEscapado}', this)">${isSelected ? '-' : '+'}</button>` : `<div style="color:#999;font-size:12px;">Somente leitura</div>`;
-                        const editarBotao = modoAdministrador ? `<button class="btn-blue btn-xs" onclick="abrirModalEdicaoJogador('${nomeEscapado}')">✎</button>` : '';
+                        const escolhaBotao = `<button class="${isSelected ? 'btn-red' : 'btn-green'} btn-xs" onclick="toggleSelecao('${nomeEscapado}', this)">${isSelected ? '-' : '+'}</button>`;
+                        const editarBotao = `<button class="btn-blue btn-xs" onclick="abrirModalEdicaoJogador('${nomeEscapado}')">✎</button>`;
 
                         grid.innerHTML += `<div class="card">
                             <img src="${p.foto || 'https://via.placeholder.com/100'}" alt="${escapeHtml(nome)}">
@@ -2097,7 +2166,6 @@
         }
 
         function toggleSelecao(nome, btn) {
-            if (!verificarPermissao('seleção de jogadores')) return;
 
             if(selecionados.includes(nome)) {
                 selecionados = selecionados.filter(n => n !== nome);
@@ -2188,6 +2256,7 @@
                 return;
             }
 
+            capturarBaseEstatisticasPartida();
             renderizarPlacarPartida();
             atualizarCronometroDisplay();
             mostrarTela('partidas');
@@ -2270,6 +2339,7 @@
                 descricao: 'Início da partida'
             });
 
+            capturarBaseEstatisticasPartida();
             renderizarPlacarPartida();
             atualizarCronometroDisplay();
             mostrarTela('partidas');
@@ -2345,7 +2415,6 @@
         }
 
         function iniciarCronometro() {
-            if (!verificarPermissao('controle do cronômetro')) return;
             if (cronometroRodando) return;
             
             cronometroRodando = true;
@@ -2371,7 +2440,6 @@
         }
 
         function pausarCronometro() {
-            if (!verificarPermissao('controle do cronômetro')) return;
 
             cronometroRodando = false;
             cronometroPausado = true;
@@ -2391,7 +2459,6 @@
         }
 
         function continuarCronometro() {
-            if (!verificarPermissao('controle do cronômetro')) return;
 
             iniciarCronometro();
             
@@ -2401,7 +2468,6 @@
         }
 
         function abrirAcrescimos() {
-            if (!verificarPermissao('controle do cronômetro')) return;
 
             const opcao = confirm('Escolha o acréscimo:\nOK = +1 minuto\nCancelar = entrada personalizada');
             let acrescimo = 0;
@@ -2430,11 +2496,6 @@
         }
 
         function adicionarGol(nome, equipe) {
-            if (!verificarPermissao('registro de gols')) return;
-            if (!modoAdministrador) {
-                alert('Acesso negado. Esta ação é restrita ao Painel do Administrador.');
-                return;
-            }
 
             if (partidaEncerrada) {
                 alert('A partida foi encerrada!');
@@ -2610,7 +2671,6 @@
         }
 
         function encerrarPartidaManual() {
-            if (!verificarPermissao('encerramento de partidas')) return;
 
             if (confirm('Encerrar a partida agora?')) {
                 encerrarPartidaAutomatica('Encerramento manual');
@@ -2643,11 +2703,6 @@
         }
 
         function somar(n, t) { 
-            if (!verificarPermissao('registro de estatísticas')) return;
-            if (!modoAdministrador) {
-                alert('Acesso negado. Esta ação é restrita ao Painel do Administrador.');
-                return;
-            }
 
             if (partidaEncerrada) {
                 alert('A partida foi encerrada!');
@@ -2689,7 +2744,6 @@
         }
 
         function finalizarPartida() {
-            if (!verificarPermissao('finalização de partida')) return;
 
             const nomesSelecionadosPartida = Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0
                 ? selecionadosPartidaAtual
@@ -2792,7 +2846,6 @@
         }
 
         async function encerrarDia() {
-            if (!verificarPermissao('encerramento do dia')) return;
 
             if (!Array.isArray(partidasDia) || partidasDia.length === 0) {
                 alert('Não há partidas registradas neste dia.');
@@ -3147,10 +3200,9 @@
             try { renderizarGerenciamento(); } catch (e) {}
             renderizarDashboardEstatisticas();
             atualizarResumoDashboard();
-            atualizarInterfacePorPermissao();
+            atualizarInterface();
         }
         async function resetarTudo() { 
-            if (!verificarPermissao('reset do sistema')) return;
 
             const pinDigitado = prompt(
                 '⚠️ Atenção!\n\nVocê está prestes a apagar permanentemente todos os dados do sistema.\nEsta ação não poderá ser desfeita.\n\nDigite o PIN de segurança para continuar:',
@@ -3203,7 +3255,6 @@
         }
         
         function abrirGerenciamento() {
-            if (!verificarPermissao('gerenciamento de equipes')) return;
 
             // Ensure players data available before rendering management
             subscribeToStats();
@@ -3213,6 +3264,7 @@
 
         let termoBuscaReservas = '';
         let jogadorParaTrocar = null;
+        let jogadorParaColocar = null;
         const nomesEquipesGerenciamento = ['Equipe A', 'Equipe B'];
 
         function removerAcentos(texto) {
@@ -3252,7 +3304,6 @@
         }
 
         function iniciarTrocaJogador(nomeEquipe, nomeJogador) {
-            if (!verificarPermissao('gerenciamento de equipes')) return;
             jogadorParaTrocar = { nomeEquipe, nomeJogador };
             mostrarMensagemEquipes(`Troca ativa para ${nomeEquipe}: selecione um jogador do Banco de Reservas.`, 'info');
             renderizarGerenciamento();
@@ -3265,7 +3316,6 @@
         }
 
         function removerJogadorDaEquipeGerenciamento(nome) {
-            if (!verificarPermissao('gerenciamento de equipes')) return;
             if (!jogadoresStats[nome]) return;
             jogadoresStats[nome].equipe = '';
             salvar();
@@ -3276,7 +3326,6 @@
         }
 
         function adicionarJogadorAoBanco(nome) {
-            if (!verificarPermissao('gerenciamento de equipes')) return false;
             if (!jogadoresStats[nome]) return false;
 
             if (jogadorParaTrocar) {
@@ -3311,6 +3360,51 @@
             renderizarSelecaoEquipesPartida();
             mostrarMensagemEquipes(`${nome} entrou em ${equipeDestino}.`, 'info');
             return true;
+        }
+
+        function abrirModalEscolherEquipe(nome) {
+            if (!jogadoresStats[nome]) return;
+
+            jogadorParaColocar = nome;
+            const vagaA = contarJogadoresEquipeGerenciamento('Equipe A') < MAX_JOGADORES_POR_EQUIPE;
+            const vagaB = contarJogadoresEquipeGerenciamento('Equipe B') < MAX_JOGADORES_POR_EQUIPE;
+
+            const texto = document.getElementById('modalEscolherEquipeTexto');
+            if (texto) texto.textContent = `Em qual equipe ${nome} vai jogar?`;
+
+            const btnA = document.getElementById('btnEscolherEquipeA');
+            const btnB = document.getElementById('btnEscolherEquipeB');
+            if (btnA) { btnA.disabled = !vagaA; btnA.style.opacity = vagaA ? '' : '0.5'; }
+            if (btnB) { btnB.disabled = !vagaB; btnB.style.opacity = vagaB ? '' : '0.5'; }
+
+            const modal = document.getElementById('modalEscolherEquipe');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function fecharModalEscolherEquipe() {
+            jogadorParaColocar = null;
+            const modal = document.getElementById('modalEscolherEquipe');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function confirmarEscolhaEquipe(nomeEquipe) {
+            if (!jogadorParaColocar) return;
+
+            const nome = jogadorParaColocar;
+            if (!jogadoresStats[nome]) { fecharModalEscolherEquipe(); return; }
+
+            if (contarJogadoresEquipeGerenciamento(nomeEquipe) >= MAX_JOGADORES_POR_EQUIPE) {
+                mostrarMensagemEquipes(`A ${nomeEquipe} já está com ${MAX_JOGADORES_POR_EQUIPE} jogadores.`, 'erro');
+                return;
+            }
+
+            jogadoresStats[nome].equipe = nomeEquipe;
+            salvar();
+            fecharModalEscolherEquipe();
+            renderizarGerenciamento();
+            renderizarGrid();
+            renderizarSelecaoEquipesPartida();
+            mostrarMensagemEquipes(`${nome} entrou na ${nomeEquipe}.`, 'info');
         }
 
         function renderizarGerenciamento() {
@@ -3368,7 +3462,7 @@
                                         <strong>${escapeHtml(nome)}</strong>
                                         <small>${ativo ? 'Selecionado para a troca' : 'Disponível para entrar em uma equipe'}</small>
                                     </div>
-                                    <button class="btn-green btn-xs" type="button" onclick="event.stopPropagation(); adicionarJogadorAoBanco('${nomeEscapado}')">${jogadorParaTrocar ? 'Colocar' : 'Adicionar'}</button>
+                                    <button class="btn-green btn-xs" type="button" onclick="event.stopPropagation(); ${jogadorParaTrocar ? `adicionarJogadorAoBanco('${nomeEscapado}')` : `abrirModalEscolherEquipe('${nomeEscapado}')`}">${jogadorParaTrocar ? 'Colocar' : 'Adicionar'}</button>
                                 </div>`;
                         }).join('')}
                     </div>`;
@@ -3407,7 +3501,6 @@
         }
 
         function novoDia() {
-            if (!verificarPermissao('iniciar novo dia')) return;
 
             const temDiaEmAndamento = Object.keys(estatisticasDia || {}).length > 0
                 || (Array.isArray(partidasDia) && partidasDia.length > 0)
@@ -3448,7 +3541,6 @@
         }
 
         function abrirModalCadastroJogador() {
-            if (!verificarPermissao('cadastro de jogadores')) return;
 
             document.getElementById('cadastroNome').value = '';
             if (document.getElementById('cadastroEquipe')) document.getElementById('cadastroEquipe').value = '';
@@ -3489,11 +3581,6 @@
         }
 
         function salvarCadastroJogador() {
-            if (!verificarPermissao('cadastro de jogadores')) return;
-            if (!modoAdministrador) {
-                alert('Acesso negado. Esta ação é restrita ao Painel do Administrador.');
-                return;
-            }
 
             const nome = document.getElementById('cadastroNome').value.trim();
             const arquivo = document.getElementById('cadastroFotoInput').files[0];
@@ -3537,7 +3624,6 @@
         }
 
         function abrirModalEdicaoJogador(nome) {
-            if (!verificarPermissao('edição de jogadores')) return;
             const jogador = normalizarJogador(nome, jogadoresStats[nome]);
             if (!jogador) return;
 
@@ -3591,11 +3677,6 @@
         }
 
         function salvarEdicaoJogador() {
-            if (!verificarPermissao('edição de jogadores')) return;
-            if (!modoAdministrador) {
-                alert('Acesso negado. Esta ação é restrita ao Painel do Administrador.');
-                return;
-            }
             if (!jogadorEmEdicao) return;
 
             const nomeAtual = jogadorEmEdicao;
@@ -3810,7 +3891,6 @@
         }
 
         async function finalizarCompeticao() {
-            if (!verificarPermissao('finalização da competição')) return;
 
             if (Object.keys(relatoriosDiarios).length === 0) {
                 alert('Nenhum dia foi disputado ainda.');
@@ -3929,9 +4009,14 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Apply theme and access mode
+            const rotaCompartilhada = window.location.hash.match(/^#\/c\/([A-Za-z0-9]+)$/);
+            if (rotaCompartilhada) {
+                carregarCampeonatoPublico(rotaCompartilhada[1]);
+                return;
+            }
+
+            // Apply saved theme.
             try { aplicarTemaSalvo(); } catch(e){}
-            try { atualizarModoAcesso(); } catch(e){}
 
             // Bind nav/menu items (data-view) to mostrarTela
             document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
@@ -3994,7 +4079,6 @@
                     renderizarSelecaoEquipesPartida();
                     renderizarDashboardEstatisticas();
                     atualizarResumoDashboard();
-                    atualizarModoAcesso();
                 };
                 inicializarDados().catch((erro) => console.warn('Falha ao carregar dados iniciais:', erro));
             } catch (e) {
