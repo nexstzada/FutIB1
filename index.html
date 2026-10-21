@@ -457,6 +457,7 @@
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
@@ -478,6 +479,7 @@
     </script>
 </head>
 <body>
+    <div id="statusFirebase" role="status" style="display:none; position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:5000; padding:10px 14px; border-radius:6px; background:#fee2e2; color:#991b1b;">Sem conexão com o banco</div>
 
     <div class="app-shell">
         <header class="topnav">
@@ -794,6 +796,25 @@
 
     <script>
         const db = firebase.firestore();
+        let uidUsuario = null;
+
+        function colUsuario(nome) { return db.collection('users').doc(uidUsuario).collection(nome); }
+        function docUsuario(colecao, doc) { return colUsuario(colecao).doc(doc); }
+
+        function iniciarAutenticacao() {
+            return new Promise((resolve, reject) => {
+                firebase.auth().onAuthStateChanged(async (user) => {
+                    if (user) { uidUsuario = user.uid; resolve(user.uid); return; }
+                    try {
+                        const cred = await firebase.auth().signInAnonymously();
+                        uidUsuario = cred.user.uid;
+                        resolve(uidUsuario);
+                    } catch (erro) {
+                        reject(erro);
+                    }
+                });
+            });
+        }
 
         function abrirModalCompartilhar() {
             document.getElementById('modalCompartilhar').style.display = 'flex';
@@ -813,6 +834,8 @@
         async function gerarLinkCompartilhamento() {
             const id = gerarIdCampeonato();
             const snapshot = {
+                donoUid: uidUsuario,
+                publico: true,
                 jogadoresStats: JSON.parse(JSON.stringify(jogadoresStats || {})),
                 estatisticasDia: JSON.parse(JSON.stringify(estatisticasDia || {})),
                 partidasDia: JSON.parse(JSON.stringify(partidasDia || [])),
@@ -820,6 +843,7 @@
                 criadoEm: new Date().toISOString()
             };
             try {
+                if (!uidUsuario) throw new Error('Autenticação ainda não concluída.');
                 await db.collection("campeonatos").doc(id).set(snapshot);
                 const link = `${window.location.origin}${window.location.pathname}#/c/${id}`;
                 const campoLink = document.getElementById('campoLinkCompartilhamento');
@@ -854,6 +878,7 @@
             if (tela) tela.style.display = 'block';
 
             try {
+                if (!uidUsuario) throw new Error('Autenticação ainda não concluída.');
                 const documento = await db.collection('campeonatos').doc(id).get();
                 if (!documento.exists) {
                     status.textContent = 'Este link não existe ou não está mais disponível.';
@@ -909,13 +934,14 @@
         }
 
         function subscribeToStats() {
+            if (!uidUsuario) return;
             if (!db || typeof db.collection !== 'function') {
                 console.warn('Firestore indisponível; usando estado local.');
                 return;
             }
             if (statsUnsubscribe) return;
             try {
-                statsUnsubscribe = db.collection("competicaoAtual").doc("estado").onSnapshot((snapshot) => {
+                statsUnsubscribe = docUsuario("competicaoAtual", "estado").onSnapshot((snapshot) => {
                     const dados = snapshot.exists ? (snapshot.data() || {}) : {};
                     jogadoresStats = normalizarMapaEstatisticas(dados.jogadoresStats || {});
                     relatoriosDiarios = dados.relatoriosDiarios || {};
@@ -956,6 +982,7 @@
         }
 
         async function salvarEstadoFirestore() {
+            if (!uidUsuario) return;
             if (!db || typeof db.collection !== 'function') return;
             try {
                 const dadosStats = {
@@ -971,18 +998,19 @@
                     ultimaPartida: JSON.parse(JSON.stringify(ultimaPartida || null)),
                     dataAtual
                 };
-                await db.collection("competicaoAtual").doc("estado").set(dadosStats, { merge: true });
-                await Promise.all(Object.entries(relatoriosDiarios || {}).map(([id, relatorio]) => db.collection("relatoriosDiarios").doc(id).set(JSON.parse(JSON.stringify(relatorio)), { merge: true })));
+                await docUsuario("competicaoAtual", "estado").set(dadosStats, { merge: true });
+                await Promise.all(Object.entries(relatoriosDiarios || {}).map(([id, relatorio]) => docUsuario("relatoriosDiarios", id).set(JSON.parse(JSON.stringify(relatorio)), { merge: true })));
             } catch (erro) {
                 console.warn('Não foi possível salvar no Firestore:', erro);
             }
         }
 
         async function carregarEstadoFirestore() {
+            if (!uidUsuario) return;
             if (!db || typeof db.collection !== 'function') return;
             try {
-                const estadoSnapshot = await db.collection("competicaoAtual").doc("estado").get();
-                const relatoriosSnapshot = await db.collection("relatoriosDiarios").get();
+                const estadoSnapshot = await docUsuario("competicaoAtual", "estado").get();
+                const relatoriosSnapshot = await colUsuario("relatoriosDiarios").get();
                 const dadosStats = estadoSnapshot.exists ? (estadoSnapshot.data() || {}) : {};
                 const relatoriosMap = {};
                 relatoriosSnapshot.forEach(doc => {
@@ -1008,20 +1036,23 @@
         }
 
         async function salvarRelatorioFirestore(id, relatorio) {
+            if (!uidUsuario) return;
             relatoriosDiarios[id] = JSON.parse(JSON.stringify(relatorio));
-            await db.collection("relatoriosDiarios").doc(id).set(JSON.parse(JSON.stringify(relatorio)), { merge: true });
+            await docUsuario("relatoriosDiarios", id).set(JSON.parse(JSON.stringify(relatorio)), { merge: true });
             await salvarEstadoFirestore();
         }
 
         async function salvarHistoricoFirestore(data) {
+            if (!uidUsuario) return;
             historicoCompeticions = Array.isArray(historicoCompeticions) ? [...historicoCompeticions, data] : [data];
             const id = data.id || new Date().toISOString();
-            await db.collection("historicoCompeticoes").doc(id).set(JSON.parse(JSON.stringify(data)), { merge: true });
+            await docUsuario("historicoCompeticoes", id).set(JSON.parse(JSON.stringify(data)), { merge: true });
             await salvarEstadoFirestore();
         }
 
         async function limparDadosFirestore() {
-            await db.collection("competicaoAtual").doc("estado").set({
+            if (!uidUsuario) return;
+            await docUsuario("competicaoAtual", "estado").set({
                 jogadoresStats: {},
                 relatoriosDiarios: {},
                 historicoCompeticions: [],
@@ -1032,7 +1063,7 @@
                 ultimaPartida: null,
                 dataAtual: new Date().toISOString().split('T')[0]
             }, { merge: true });
-            await db.collection("relatoriosDiarios").get().then(snapshot => Promise.all(snapshot.docs.map(doc => doc.ref.delete())));
+            await colUsuario("relatoriosDiarios").get().then(snapshot => Promise.all(snapshot.docs.map(doc => doc.ref.delete())));
         }
 
         window.fs = {
@@ -1064,6 +1095,7 @@
                 await salvarEstadoFirestore();
             },
             async resetAllData() {
+                if (!uidUsuario) return;
                 if (cronometroInterval) {
                     clearInterval(cronometroInterval);
                     cronometroInterval = null;
@@ -4010,10 +4042,15 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const rotaCompartilhada = window.location.hash.match(/^#\/c\/([A-Za-z0-9]+)$/);
-            if (rotaCompartilhada) {
-                carregarCampeonatoPublico(rotaCompartilhada[1]);
-                return;
-            }
+            const painelApp = document.querySelector('.app-shell');
+            if (painelApp) painelApp.style.pointerEvents = 'none';
+
+            iniciarAutenticacao().then(() => {
+                if (painelApp) painelApp.style.pointerEvents = '';
+                if (rotaCompartilhada) {
+                    carregarCampeonatoPublico(rotaCompartilhada[1]);
+                    return;
+                }
 
             // Apply saved theme.
             try { aplicarTemaSalvo(); } catch(e){}
@@ -4087,6 +4124,22 @@
 
             // Ensure default view
             try { mostrarTela('dashboard'); } catch(e){}
+            }).catch((erro) => {
+                const aviso = document.getElementById('statusFirebase');
+                if (aviso) {
+                    aviso.textContent = 'Sem conexão com o banco';
+                    aviso.style.display = 'block';
+                }
+                if (painelApp) painelApp.style.pointerEvents = '';
+                if (rotaCompartilhada) {
+                    if (painelApp) painelApp.style.display = 'none';
+                    const tela = document.getElementById('telaCompartilhada');
+                    const status = document.getElementById('statusCompartilhado');
+                    if (tela) tela.style.display = 'block';
+                    if (status) status.textContent = 'Sem conexão com o banco';
+                }
+                console.warn('Falha na autenticação do Firebase:', erro);
+            });
         });
     </script>
 </body>
