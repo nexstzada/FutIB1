@@ -20,23 +20,7 @@
         .secao-equipe { background: #f9f9f9; padding: 15px; margin-top: 15px; border-left: 5px solid #2196F3; }
         .secao-equipe h3 { margin-top: 0; }
         .jogadores-equipe { display: flex; flex-wrap: wrap; gap: 15px; }
-        .relatorio-dia { background: #fff; padding: 20px; margin: 15px 0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .relatorio-dia h3 { color: #2196F3; margin-top: 0; }
-        .estrategia-item { background: #e3f2fd; padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 4px solid #2196F3; }
-        .stats-resumo { display: flex; gap: 20px; margin: 15px 0; flex-wrap: wrap; }
-        .stat-box { background: #f5f5f5; padding: 10px; border-radius: 5px; flex: 1; min-width: 150px; }
         .dashboard-estatisticas { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
-        .dashboard-card { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); transition: transform 0.25s ease, box-shadow 0.25s ease; }
-        .dashboard-card:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12); }
-        .dashboard-card-green { border-top: 5px solid #22c55e; }
-        .dashboard-card-blue { border-top: 5px solid #38bdf8; }
-        .dashboard-card-yellow { border-top: 5px solid #f59e0b; }
-        .dashboard-card-red { border-top: 5px solid #ef4444; }
-        .dashboard-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 10px; }
-        .dashboard-card-title { font-size: 18px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
-        .dashboard-card-subtitle { color: #64748b; font-size: 13px; margin-top: 4px; }
-        .dashboard-card-total { background: rgba(15, 23, 42, 0.06); color: #0f172a; padding: 8px 12px; border-radius: 999px; font-weight: 700; min-width: 62px; text-align: center; }
-        .ranking-list { display: flex; flex-direction: column; gap: 10px; }
 
         /* Estatísticas - Rankings Dashboard */
         .estatisticas-dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
@@ -326,29 +310,6 @@
         }
         button, input, select { font: inherit; }
         .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
-        .topnav {
-            width: 100%;
-            background: linear-gradient(180deg, var(--surface) 0%, var(--surface-alt) 100%);
-            border-bottom: 1px solid var(--border);
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            flex-wrap: wrap;
-            position: sticky;
-            top: 0;
-            z-index: 30;
-        }
-        .brand { display: flex; align-items: center; gap: 12px; padding: 4px 0; }
-        .brand-logo { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 20px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; box-shadow: var(--shadow); }
-        .brand-name { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; }
-        .brand-subtitle { font-size: 12px; color: var(--muted); }
-        .nav-links { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; }
-        .nav-item {
-            border: none; background: transparent; color: var(--text); padding: 10px 14px; border-radius: 14px; text-align: left; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; cursor: pointer; white-space: nowrap;
-        }
-        .nav-item:hover { background: rgba(59, 130, 246, 0.12); }
-        .nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.18), rgba(34,197,85,0.12)); color: var(--accent); font-weight: 700; }
         .main-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
         .topbar {
             background: rgba(255,255,255,0.75); backdrop-filter: blur(16px);
@@ -366,7 +327,7 @@
         .mode-pill { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 999px; background: var(--surface); box-shadow: var(--shadow); }
         .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(34,197,85,0.12); color: var(--accent-2); font-size: 13px; font-weight: 600; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 0 4px rgba(34,197,85,0.16); }
-        .content-panel { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+        .content-panel { padding: 24px 24px 80px; display: flex; flex-direction: column; gap: 18px; }
         .page-hero { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(34,197,85,0.12)); border: 1px solid var(--border); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); }
         .page-hero h2 { margin: 0 0 6px 0; font-size: 24px; }
         .page-hero p { margin: 0; color: var(--muted); }
@@ -376,10 +337,10 @@
         .jogadores-toolbar { display: none; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 16px; }
         .dashboard-grid.gap-2 { grid-template-columns: 1.2fr 0.8fr; }
-        .stat-card, .glass-card, .card, .secao-equipe, .relatorio-dia, .modal-conteudo, .configuracao-jogo, .cronometro-container, .secao-gerenciamento, .jogador-gerenciar {
+        .stat-card, .glass-card, .card, .secao-equipe, .modal-conteudo, .configuracao-jogo, .cronometro-container, .secao-gerenciamento, .jogador-gerenciar {
             background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow); transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .stat-card:hover, .card:hover, .secao-equipe:hover, .relatorio-dia:hover, .modal-conteudo:hover, .configuracao-jogo:hover, .cronometro-container:hover, .secao-gerenciamento:hover, .jogador-gerenciar:hover { transform: translateY(-2px); }
+        .stat-card:hover, .card:hover, .secao-equipe:hover, .modal-conteudo:hover, .configuracao-jogo:hover, .cronometro-container:hover, .secao-gerenciamento:hover, .jogador-gerenciar:hover { transform: translateY(-2px); }
         .stat-card { padding: 18px; display: flex; align-items: center; gap: 14px; }
         .stat-icon { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: rgba(59,130,246,0.12); color: var(--accent); }
         .stat-title { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; }
@@ -447,9 +408,7 @@
             .dashboard-grid.gap-2 { grid-template-columns: 1fr; }
         }
         @media (max-width: 900px) {
-            .topnav { padding: 12px 16px; gap: 12px; }
-            .nav-item { flex: 1; min-width: 100px; justify-content: center; }
-            .content-panel { padding: 16px; }
+            .content-panel { padding: 16px 16px 80px; }
         }
         .public-rank-screen { display: none; min-height: 100vh; box-sizing: border-box; padding: 38px 24px; color: #fff; background: linear-gradient(125deg, #0b1a2e 0%, #102542 58%, #13294b 100%); font-family: Arial, sans-serif; position: relative; overflow: hidden; }
         .public-rank-screen::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.13; background: repeating-linear-gradient(135deg, transparent 0 34px, rgba(255,255,255,0.12) 35px, transparent 36px 72px); }
@@ -485,7 +444,7 @@
         .public-rank-row:nth-child(3) .public-rank-bar { background: linear-gradient(135deg, #8a5a2b, #6b4420); }
         .public-rank-position, .public-rank-value { flex: 0 0 auto; font-family: 'Bebas Neue', Impact, sans-serif; font-size: 38px; line-height: 1; color: #d0d5dc; text-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .public-rank-position { min-width: 34px; }
-        .public-rank-avatar { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: rgba(11,26,46,0.48); font-size: 17px; font-weight: 800; }
+        .public-rank-avatar { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; border-radius: 50%; object-fit: cover; color: #fff; background: rgba(11,26,46,0.48); font-size: 17px; font-weight: 800; }
         .public-rank-player { min-width: 0; flex: 1; display: flex; flex-direction: column; color: #d0d5dc; line-height: 1.05; }
         .public-rank-firstname { font-size: 12px; opacity: 0.85; text-transform: uppercase; }
         .public-rank-surname { font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
@@ -510,7 +469,7 @@
             .public-rank-row { width: 100%; }
             .public-rank-bar { width: var(--rank-width); min-width: 45%; gap: 9px; padding: 9px 10px; }
             .public-rank-position, .public-rank-value { font-size: 32px; }
-            .public-rank-avatar { width: 38px; height: 38px; flex-basis: 38px; }
+            .public-rank-avatar { width: 36px; height: 36px; flex-basis: 36px; }
             .public-rank-surname { font-size: 15px; }
             .public-card-columns { gap: 10px; }
             .public-card-column { padding: 12px 9px; }
@@ -521,6 +480,179 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             .page-hero { flex-direction: column; align-items: flex-start; }
         }
+        .match-setup { padding: 24px; border-radius: 18px; background: #eef3f9; color: #0f1d33; }
+        .match-setup-hero { position: relative; min-height: 136px; display: flex; align-items: center; padding: 8px 0 22px; overflow: hidden; }
+        .match-setup-heading { position: relative; z-index: 1; }
+        .match-setup-accent { display: block; width: 36px; height: 4px; margin-bottom: 12px; border-radius: 999px; background: #22c55e; }
+        .match-setup-hero h1 { margin: 0; color: #0f1d33; font-size: 40px; line-height: 1.05; font-weight: 800; }
+        .match-setup-hero p { margin: 10px 0 0; color: #64748b; font-size: 16px; }
+        .match-field-decoration { position: absolute; width: 220px; height: 126px; right: 4px; top: 0; fill: none; stroke: #22c55e; stroke-width: 2; opacity: 0.14; pointer-events: none; }
+        .match-setup-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 24px; }
+        .match-setup-card { min-width: 0; padding: 24px; border: 1px solid rgba(15,29,51,0.06); border-radius: 16px; background: #fff; box-shadow: 0 12px 30px rgba(15,29,51,0.08); }
+        .match-card-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .match-card-icon { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; border-radius: 50%; background: #dcfce7; color: #16a34a; }
+        .match-card-icon svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .match-card-icon-blue { background: #dbeafe; color: #2563eb; }
+        .match-card-heading h2 { margin: 0; color: #0f1d33; font-size: 19px; font-weight: 800; }
+        .match-card-heading p { margin: 4px 0 0; color: #64748b; font-size: 13px; }
+        .match-fields { display: flex; flex-direction: column; gap: 20px; }
+        .match-field { display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: start; gap: 12px; cursor: pointer; }
+        .match-field-icon { display: grid; place-items: center; width: 24px; height: 24px; color: #16a34a; }
+        .match-field-icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .match-field-copy { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+        .match-field-copy strong, .match-checkbox-copy strong { color: #0f1d33; font-size: 14px; font-weight: 750; }
+        .match-field-copy small, .match-checkbox-copy small { color: #64748b; font-size: 12px; line-height: 1.45; }
+        .match-number-control { grid-column: 2; display: flex; align-items: center; gap: 10px; width: min(210px, 100%); }
+        .match-number-control .config-input { width: 100%; min-width: 0; height: 46px; margin: 0; padding: 10px 12px; border: 1px solid #d7dee8; border-radius: 10px; background: #fff; color: #0f1d33; }
+        .match-number-suffix { color: #64748b; font-size: 14px; }
+        .match-checkbox-list { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+        .match-checkbox-row { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 1px solid #e1e7ef; border-radius: 12px; cursor: pointer; }
+        .match-checkbox-row input.config-checkbox { appearance: none; width: 20px; height: 20px; flex: 0 0 20px; margin: 1px 0 0; border: 1.5px solid #b9c5d4; border-radius: 5px; background: #fff; cursor: pointer; }
+        .match-checkbox-row input.config-checkbox:checked { border-color: #22c55e; background: #22c55e; }
+        .match-checkbox-row input.config-checkbox:checked::after { content: ''; display: block; width: 5px; height: 10px; margin: 2px 6px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+        .match-checkbox-row input.config-checkbox:focus-visible { outline: 3px solid rgba(34,197,94,0.25); outline-offset: 2px; }
+        .match-checkbox-copy { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+        .match-teams { display: grid; grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr); align-items: center; gap: 12px; }
+        .match-team-card { min-width: 0; min-height: 230px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 18px 12px; border: 1px solid #bbf7d0; border-radius: 14px; background: #f0fdf4; text-align: center; }
+        .match-team-card-away { border-color: #bfdbfe; background: #eff6ff; }
+        .match-team-crest { width: 60px; height: 68px; display: grid; place-items: center; color: #16a34a; }
+        .match-team-card-away .match-team-crest { color: #2563eb; }
+        .match-team-crest svg { width: 58px; height: 66px; overflow: visible; }
+        .match-team-label { color: #16a34a; font-size: 11px; font-weight: 900; letter-spacing: 1px; }
+        .match-team-card-away .match-team-label { color: #2563eb; }
+        .match-team-card .config-input { width: 100%; min-width: 0; height: 46px; margin: 0; padding: 10px 30px 10px 10px; border: 1px solid #d7dee8; border-radius: 9px; background-color: #fff; color: #0f1d33; font-size: 13px; }
+        .match-team-versus { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid #e2e8f0; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 12px; font-weight: 900; }
+        .match-team-divider { height: 1px; margin: 22px 0 18px; border: 0; background: #e2e8f0; }
+        .match-setup-actions { display: flex; gap: 12px; }
+        .match-setup-actions button { min-height: 48px; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: 12px 16px; border: 0; border-radius: 12px; font-weight: 800; }
+        .match-setup-actions .match-start-button { background: #22c55e; color: #fff; }
+        .match-setup-actions .match-back-button { background: #dbeafe; color: #2563eb; }
+        @media (max-width: 900px) {
+            .match-setup-columns { grid-template-columns: 1fr; }
+            .match-setup-actions { flex-direction: column; }
+            .match-setup-actions button { width: 100%; flex: auto; }
+        }
+        @media (max-width: 600px) {
+            .match-setup { padding: 18px 12px; }
+            .match-setup-hero { min-height: 120px; }
+            .match-setup-hero h1 { font-size: 34px; }
+            .match-field-decoration { width: 140px; height: 90px; right: -16px; top: 5px; }
+            .match-setup-card { padding: 20px 16px; }
+            .match-teams { grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr); gap: 6px; }
+            .match-team-card { min-height: 210px; padding: 14px 8px; }
+            .match-team-versus { width: 36px; height: 36px; }
+            .match-team-card .config-input { padding-left: 7px; padding-right: 20px; font-size: 12px; }
+        }
+        #telaPartidas { gap: 20px; }
+        #telaPartidas .cronometro-container { padding: 0; overflow: hidden; border: 1px solid #dce4ed; border-radius: 16px; background: #fff; color: #0f1d33; box-shadow: 0 10px 26px rgba(15,29,51,0.08); }
+        #telaPartidas .cronometro-container::before, #telaPartidas .cronometro-container::after { display: none; }
+        .match-scoreboard { min-height: 96px; display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 22px; padding: 12px 24px; }
+        .match-score-team { min-width: 0; display: flex; align-items: center; gap: 12px; }
+        .match-score-team-away { justify-content: flex-end; text-align: right; }
+        .match-score-crest { width: 42px; height: 48px; flex: 0 0 42px; color: #2563eb; }
+        .match-score-team-away .match-score-crest { color: #16a34a; }
+        .match-score-crest svg { width: 100%; height: 100%; }
+        .match-score-team-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        .match-score-team-copy strong { color: #0f1d33; font-size: 15px; line-height: 1.2; overflow-wrap: anywhere; }
+        .match-score-team-copy small { color: #64748b; font-size: 12px; }
+        .match-score-center { min-width: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .match-score-numbers { display: flex; align-items: center; gap: 10px; color: #64748b; font-size: 22px; font-weight: 800; }
+        .match-score-box { width: 46px; height: 46px; display: grid; place-items: center; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; color: #0f1d33; font-size: 28px; font-weight: 900; }
+        .match-score-clock { display: flex; align-items: center; gap: 6px; margin-top: 5px; color: #64748b; }
+        .match-score-clock svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        #telaPartidas .cronometro-container .cronometro-display { margin: 0; color: #64748b; font: 700 14px/1.2 Arial, sans-serif; letter-spacing: 0; text-shadow: none; }
+        .match-live-area { width: 100%; min-width: 0; }
+        .match-live-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .match-live-header h2 { margin: 0; color: #0f1d33; font-size: 20px; font-weight: 800; }
+        .match-live-indicator { display: inline-flex; align-items: center; gap: 7px; color: #15803d; font-size: 11px; font-weight: 900; letter-spacing: 0.7px; }
+        .match-live-indicator::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+        .partida-teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 676px), 1fr)); align-items: start; gap: 16px; }
+        #telaPartidas .secao-equipe.match-team-table { min-width: 0; margin: 0; padding: 18px; overflow: hidden; border: 1px solid #e1e7ef; border-left: 0; border-radius: 16px; background: #fff; box-shadow: 0 10px 24px rgba(15,29,51,0.07); }
+        .match-team-table-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin: 0 0 14px; }
+        .match-team-table-title { min-width: 0; }
+        .match-team-table-title h3 { margin: 0; color: #0f1d33; font-size: 17px; line-height: 1.25; overflow-wrap: anywhere; }
+        .match-team-table-title small { display: block; margin-top: 4px; color: #64748b; font-size: 12px; }
+        .match-table-scroll { width: 100%; overflow-x: auto; }
+        #telaPartidas table.match-roster-table { width: 100%; min-width: 676px; margin: 0; table-layout: fixed; border-collapse: collapse; background: #fff; }
+        .match-roster-table col.match-col-photo { width: 56px; }
+        .match-roster-table col.match-col-name { width: 140px; }
+        .match-roster-table col.match-col-stat { width: 120px; }
+        .match-roster-table th, .match-roster-table td { padding: 10px 8px; border: 0; border-bottom: 1px solid #e8edf3; text-align: center; vertical-align: middle; }
+        .match-roster-table th { color: #526174; background: #f8fafc; font-size: 11px; font-weight: 800; white-space: nowrap; }
+        .match-roster-table th:first-child { border-radius: 8px 0 0 8px; }
+        .match-roster-table th:last-child { border-radius: 0 8px 8px 0; }
+        .match-roster-table tbody tr:last-child td { border-bottom: 0; }
+        .match-roster-table td.match-name-cell { text-align: left; }
+        .match-roster-photo { display: block; width: 44px; height: 44px; margin: auto; border-radius: 50%; object-fit: cover; }
+        .match-player-name { display: block; color: #0f1d33; font-size: 13px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+        .match-player-position { display: block; margin-top: 4px; color: #8491a1; font-size: 11px; line-height: 1.25; }
+        .match-stat-controls { display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+        .match-stat-controls .btn { display: inline-grid; width: 32px; min-width: 32px; height: 32px; min-height: 32px; place-items: center; margin: 0; padding: 0; border-radius: 8px; font-size: 16px; line-height: 1; }
+        .match-stat-value { min-width: 20px; color: #0f1d33; font-size: 14px; font-weight: 800; text-align: center; }
+        .match-finish-action { display: flex; justify-content: flex-end; }
+        .match-finish-action button { min-height: 44px; margin: 0; border-radius: 10px; font-weight: 750; }
+        @media (max-width: 1000px) {
+            .partida-teams-grid { grid-template-columns: minmax(0,1fr); }
+        }
+        @media (max-width: 600px) {
+            .match-scoreboard { grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 8px; padding: 10px; }
+            .match-score-team { flex-direction: column; justify-content: center; gap: 4px; text-align: center; }
+            .match-score-team-away { flex-direction: column; }
+            .match-score-crest { width: 30px; height: 34px; flex-basis: 34px; }
+            .match-score-team-copy strong { font-size: 12px; }
+            .match-score-team-copy small { font-size: 10px; }
+            .match-score-center { min-width: 108px; }
+            .match-score-numbers { gap: 6px; font-size: 18px; }
+            .match-score-box { width: 36px; height: 38px; font-size: 23px; }
+            #telaPartidas .secao-equipe.match-team-table { padding: 12px; }
+            .match-team-table-header { align-items: center; }
+            .match-finish-action button { width: 100%; }
+        }
+        .bottom-nav { position: fixed; right: 0; bottom: 0; left: 0; z-index: 1000; display: flex; height: calc(64px + env(safe-area-inset-bottom)); padding: 4px 8px env(safe-area-inset-bottom); background: #fff; box-shadow: 0 -4px 16px rgba(15,23,42,0.12); }
+        .bottom-nav-item { position: relative; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; margin: 0; padding: 4px 2px; border: 0; border-radius: 0; background: transparent; color: #6b7280; }
+        .bottom-nav-item:hover { transform: none; background: transparent; }
+        .bottom-nav-item.active { color: #2563eb; }
+        .bottom-nav-item.active::after { position: absolute; right: 24%; bottom: 0; left: 24%; height: 2px; background: #2563eb; content: ''; }
+        .bottom-nav-icon { font-size: 20px; line-height: 1; }
+        .bottom-nav-label { font-size: 10px; font-weight: 600; line-height: 1.1; white-space: nowrap; }
+        .admin-only { display: none; }
+        .admin-only.is-visible { display: block; }
+        .dashboard-grid-resumo { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .dashboard-highlights { width: 100%; }
+        .dashboard-highlights-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 14px; }
+        .dashboard-highlights-header h2 { margin: 0 0 5px; font-size: 20px; }
+        .dashboard-highlights-header p { margin: 0; color: var(--muted); font-size: 13px; }
+        .dashboard-highlights-link { flex: 0 0 auto; color: #2563eb; font-size: 14px; font-weight: 700; text-decoration: none; }
+        .dashboard-highlights-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+        .dashboard-highlight-card { min-width: 0; min-height: 174px; padding: 16px; border: 1px solid var(--border); border-radius: 16px; background: #fff; box-shadow: 0 6px 18px rgba(15,23,42,0.07); }
+        .dashboard-highlight-icon { width: 38px; height: 38px; display: grid; place-items: center; margin-bottom: 12px; border-radius: 50%; font-size: 19px; }
+        .dashboard-highlight-icon.green { background: #dcfce7; }
+        .dashboard-highlight-icon.blue { background: #dbeafe; }
+        .dashboard-highlight-icon.yellow { background: #fef3c7; }
+        .dashboard-highlight-label { color: #6b7280; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; }
+        .dashboard-highlight-player { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+        .dashboard-highlight-avatar { width: 40px; height: 40px; flex: 0 0 40px; display: grid; place-items: center; border-radius: 50%; object-fit: cover; background: #e5e7eb; color: #374151; font-size: 15px; font-weight: 800; }
+        .dashboard-highlight-player-info { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        .dashboard-highlight-player-info strong { overflow-wrap: anywhere; color: #111827; font-size: 14px; }
+        .dashboard-highlight-player-info small, .dashboard-highlight-date { color: #6b7280; font-size: 12px; }
+        .dashboard-highlight-empty { min-height: 74px; display: grid; place-items: center; color: #6b7280; font-size: 13px; text-align: center; }
+        .dashboard-highlight-score { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; margin-top: 12px; text-align: center; }
+        .dashboard-highlight-team { min-width: 0; color: #374151; font-size: 12px; font-weight: 700; overflow-wrap: anywhere; }
+        .dashboard-highlight-result { color: #111827; font-size: 24px; font-weight: 900; white-space: nowrap; }
+        .dashboard-highlight-date { margin-top: 10px; text-align: center; }
+        .admin-controls { display: flex; flex-wrap: wrap; gap: 10px; }
+        .admin-controls button { margin: 0; }
+        @media (max-width: 1100px) {
+            .dashboard-grid-resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 900px) {
+            .dashboard-highlights-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .dashboard-grid-resumo { grid-template-columns: 1fr; }
+            .dashboard-highlights-header { align-items: flex-start; }
+        }
+        body.public-view .bottom-nav { display: none !important; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -549,26 +681,6 @@
     <div id="statusFirebase" role="status" style="display:none; position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:5000; padding:10px 14px; border-radius:6px; background:#fee2e2; color:#991b1b;">Sem conexão com o banco</div>
 
     <div class="app-shell">
-        <header class="topnav">
-            <div class="brand">
-                <div class="brand-logo">⚽</div>
-                <div>
-                    <div class="brand-name">FUTIB</div>
-                    <div class="brand-subtitle">Painel esportivo</div>
-                </div>
-            </div>
-            <div class="nav-links">
-                <button class="nav-item active" data-view="dashboard" onclick="mostrarTela('dashboard')">🏠 Dashboard</button>
-                <button class="nav-item" data-view="jogadores" onclick="mostrarTela('jogadores')">👤 Jogadores</button>
-                <button class="nav-item" data-view="equipes" onclick="mostrarTela('equipes')">🛡 Equipes</button>
-                <button class="nav-item" data-view="partidas" onclick="mostrarTela('partidas')">⚽ Partidas</button>
-                <button class="nav-item" data-view="estatisticas" onclick="mostrarTela('estatisticas')">📊 Estatísticas</button>
-                <button class="nav-item" data-view="relatorios" onclick="mostrarTela('relatorios')">📜 Relatórios</button>
-                <button class="nav-item" data-view="historico" onclick="mostrarTela('historico')">🕓 Histórico</button>
-                <button class="nav-item" data-view="opcoes" onclick="mostrarTela('opcoes')">⚙ Opções</button>
-            </div>
-        </header>
-
         <main class="main-panel">
             <header class="topbar">
                 <div class="topbar-right">
@@ -590,38 +702,38 @@
                             <button class="btn-green" onclick="iniciarJogo()">▶ Iniciar partida</button>
                                                     </div>
                     </div>
-                    <div class="dashboard-grid">
+                    <div class="dashboard-grid dashboard-grid-resumo">
                         <div class="stat-card"><div class="stat-icon">👤</div><div><div class="stat-title">Jogadores</div><div class="stat-value" id="statsJogadores">0</div></div></div>
                         <div class="stat-card"><div class="stat-icon">🛡</div><div><div class="stat-title">Equipes</div><div class="stat-value" id="statsEquipes">0</div></div></div>
                         <div class="stat-card"><div class="stat-icon">⚽</div><div><div class="stat-title">Partidas</div><div class="stat-value" id="statsPartidas">0</div></div></div>
+                        <div class="stat-card"><div class="stat-icon">📊</div><div><div class="stat-title">Estatísticas</div><div class="stat-value" id="statsEstatisticas">0</div></div></div>
                     </div>
-                    <div class="dashboard-grid gap-2">
-                        <div class="stat-card" style="flex-direction:row; align-items:center; gap:14px;">
-                            <img id="statsArtilheiroFoto" src="https://via.placeholder.com/72" alt="Artilheiro" style="width:72px;height:72px;border-radius:16px;object-fit:cover;">
-                            <div style="text-align:left; min-width:0;">
-                                <div class="stat-title">Artilheiro</div>
-                                <div class="stat-value" id="statsArtilheiro">—</div>
-                                <div class="topbar-subtitle" id="statsArtilheiroDetalhes">0 gols</div>
+                    <section id="destaquesCompeticao" class="admin-only dashboard-highlights">
+                        <header class="dashboard-highlights-header">
+                            <div>
+                                <h2>Destaques da competição</h2>
+                                <p>Visão geral da sua liga, estatísticas e resultados das partidas.</p>
                             </div>
+                            <a class="dashboard-highlights-link" href="#" onclick="mostrarTela('estatisticas'); return false;">Ver todos →</a>
+                        </header>
+                        <div class="dashboard-highlights-grid">
+                            <article class="dashboard-highlight-card">
+                                <div class="dashboard-highlight-icon green" aria-hidden="true">⚽</div>
+                                <div class="dashboard-highlight-label">ARTILHEIRO</div>
+                                <div id="destaqueArtilheiro"></div>
+                            </article>
+                            <article class="dashboard-highlight-card">
+                                <div class="dashboard-highlight-icon blue" aria-hidden="true">👟</div>
+                                <div class="dashboard-highlight-label">ASSISTÊNCIAS</div>
+                                <div id="destaqueAssistencias"></div>
+                            </article>
+                            <article class="dashboard-highlight-card">
+                                <div class="dashboard-highlight-icon yellow" aria-hidden="true">🟨</div>
+                                <div class="dashboard-highlight-label">ÚLTIMO JOGO</div>
+                                <div id="destaqueUltimoJogo"></div>
+                            </article>
                         </div>
-                        <div class="stat-card" style="flex-direction:row; align-items:center; gap:14px;">
-                            <img id="statsAssistenteFoto" src="https://via.placeholder.com/72" alt="Assistente" style="width:72px;height:72px;border-radius:16px;object-fit:cover;">
-                            <div style="text-align:left; min-width:0;">
-                                <div class="stat-title">Assistente</div>
-                                <div class="stat-value" id="statsAssistente">—</div>
-                                <div class="topbar-subtitle" id="statsAssistenteDetalhes">0 assistências</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dashboard-grid-single">
-                        <div class="stat-card" style="display:flex; align-items:center; gap:14px;">
-                            <div style="flex:1; text-align:left;">
-                                <div class="stat-title">Última partida</div>
-                                <div class="stat-value" id="statsUltimaPartida">—</div>
-                                <div class="topbar-subtitle" id="statsUltimaPartidaHorario"></div>
-                            </div>
-                        </div>
-                    </div>
+                    </section>
                 </div>
 
                 <div id="telaJogadores" class="tela page-shell telaJogadores">
@@ -641,27 +753,94 @@
                 </div>
 
                 <div id="telaPartidas" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Partidas</h2><p>Controle limpo do placar, cronômetro e ações de partida.</p></div><div class="hero-badge">⚽ Ao vivo</div></div>
-                    <div class="card" style="padding:18px; text-align:left;">
-                        <div class="section-header"><h3>Configuração rápida</h3><div class="chip">⚙</div></div>
-                        <div class="config-opcao"><label class="config-label">⏱️ Duração da partida</label><input type="number" id="duracao" class="config-input" value="7" min="1" max="60"></div>
-                        <div class="config-opcao"><label class="config-label">⚽ Gols para vitória</label><input type="number" id="golsVitoria" class="config-input" value="2" min="1" max="10"></div>
-                        <div class="config-opcao"><input type="checkbox" id="primeiraPartida" class="config-checkbox"><label class="config-label">📌 Primeira partida (3 gols)</label></div>
-                        <div class="config-opcao"><input type="checkbox" id="encerramentoAutomatico" class="config-checkbox" checked><label class="config-label">🏁 Encerramento automático</label></div>
-                        <div class="section-header"><h3>Selecionar equipes da partida</h3><div class="chip">👥</div></div>
-                        <div class="config-opcao"><label class="config-label">🏠 Equipe mandante</label><select id="selectEquipeMandante" class="config-input" style="width:220px;"></select></div>
-                        <div class="config-opcao"><label class="config-label">✈️ Equipe visitante</label><select id="selectEquipeVisitante" class="config-input" style="width:220px;"></select></div>
-                        <div class="section-header"><h3>Ações</h3><div class="chip">▶</div></div>
-                        <button class="btn-green" onclick="iniciarPartida()">▶ Começar partida</button>
-                        <button class="btn-blue" onclick="mostrarTela('dashboard')">← Voltar</button>
+                    <div class="match-setup">
+                        <header class="match-setup-hero">
+                            <div class="match-setup-heading">
+                                <span class="match-setup-accent"></span>
+                                <h1>Configurar partida</h1>
+                                <p>Defina as regras e escolha as equipes para jogar.</p>
+                            </div>
+                            <svg class="match-field-decoration" viewBox="0 0 220 126" aria-hidden="true">
+                                <rect x="2" y="2" width="216" height="122" rx="4"></rect>
+                                <path d="M110 2v122M2 34h28v58H2m216-58h-28v58h28"></path>
+                                <circle cx="110" cy="63" r="22"></circle>
+                                <circle cx="110" cy="63" r="2" fill="#22c55e"></circle>
+                            </svg>
+                        </header>
+                        <div class="match-setup-columns">
+                            <section class="match-setup-card">
+                                <header class="match-card-heading">
+                                    <span class="match-card-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"></path><path d="m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 0 1-2.4-2.4l.1-.1a1.7 1.7 0 0 0-1.2-2.9H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 0 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2V2a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 0 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 2.9Z"></path></svg>
+                                    </span>
+                                    <span><h2>Regras da partida</h2><p>Configure a duração e as condições de vitória.</p></span>
+                                </header>
+                                <div class="match-fields">
+                                    <label class="match-field" for="duracao">
+                                        <span class="match-field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l3 2M9 2h6M12 2v3"></path></svg></span>
+                                        <span class="match-field-copy"><strong>Duração da partida</strong><small>Tempo total de jogo em minutos.</small></span>
+                                        <span class="match-number-control"><input type="number" id="duracao" class="config-input" value="7" min="1" max="60"><span class="match-number-suffix">min</span></span>
+                                    </label>
+                                    <label class="match-field" for="golsVitoria">
+                                        <span class="match-field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 4h8v4a4 4 0 0 1-8 0V4ZM8 6H5v2a4 4 0 0 0 4 4M16 6h3v2a4 4 0 0 1-4 4M12 12v5m-4 3h8m-7-3h6v3H9z"></path></svg></span>
+                                        <span class="match-field-copy"><strong>Gols para vitória</strong><small>Quantidade de gols necessários para vencer.</small></span>
+                                        <span class="match-number-control"><input type="number" id="golsVitoria" class="config-input" value="2" min="1" max="10"></span>
+                                    </label>
+                                </div>
+                                <div class="match-checkbox-list">
+                                    <label class="match-checkbox-row">
+                                        <input type="checkbox" id="primeiraPartida" class="config-checkbox">
+                                        <span class="match-checkbox-copy"><strong>Primeira partida vale 3 gols</strong><small>A primeira partida terá 3 gols de vantagem.</small></span>
+                                    </label>
+                                    <label class="match-checkbox-row">
+                                        <input type="checkbox" id="encerramentoAutomatico" class="config-checkbox" checked>
+                                        <span class="match-checkbox-copy"><strong>Encerramento automático</strong><small>A partida será encerrada automaticamente ao atingir o objetivo.</small></span>
+                                    </label>
+                                </div>
+                            </section>
+                            <section class="match-setup-card">
+                                <header class="match-card-heading">
+                                    <span class="match-card-icon match-card-icon-blue" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24"><path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 9v-1.5a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                    </span>
+                                    <span><h2>Equipes da partida</h2><p>Escolha as equipes que vão se enfrentar.</p></span>
+                                </header>
+                                <div class="match-teams">
+                                    <div class="match-team-card">
+                                        <span class="match-team-crest" aria-hidden="true"><svg viewBox="0 0 60 68"><path d="M30 3 53 11v20c0 15-9 25-23 34C16 56 7 46 7 31V11L30 3Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"></path><circle cx="30" cy="31" r="11" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="m30 23 5 4-2 7h-6l-2-7 5-4Zm-5 4-6-1m14 1 6-1m-14 8-4 5m12-5 4 5m-12-17-2-5m8 5 2-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg></span>
+                                        <span class="match-team-label">MANDANTE</span>
+                                        <select id="selectEquipeMandante" class="config-input" aria-label="Equipe mandante"></select>
+                                    </div>
+                                    <span class="match-team-versus" aria-hidden="true">VS</span>
+                                    <div class="match-team-card match-team-card-away">
+                                        <span class="match-team-crest" aria-hidden="true"><svg viewBox="0 0 60 68"><path d="M30 3 53 11v20c0 15-9 25-23 34C16 56 7 46 7 31V11L30 3Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"></path><path d="m30 17 4 13 12 7-12-2-4 16-4-16-12 2 12-7 4-13Z" fill="currentColor"></path></svg></span>
+                                        <span class="match-team-label">VISITANTE</span>
+                                        <select id="selectEquipeVisitante" class="config-input" aria-label="Equipe visitante"></select>
+                                    </div>
+                                </div>
+                                <hr class="match-team-divider">
+                                <div class="match-setup-actions">
+                                    <button class="btn-green match-start-button" onclick="iniciarPartida()"><span aria-hidden="true">▶</span> Começar partida</button>
+                                    <button class="btn-blue match-back-button" onclick="mostrarTela('dashboard')"><span aria-hidden="true">←</span> Voltar</button>
+                                </div>
+                            </section>
+                        </div>
                     </div>
                     <div class="cronometro-container">
                         <div class="estado-partida" id="estadoPartida"></div>
-                        <div class="cronometro-display" id="cronometro">07:00</div>
-                        <div class="cronometro-info">
-                            <div><strong id="placarTime1">Equipe</strong><span id="golsTime1">0</span></div>
-                            <div style="font-size:24px;font-weight:bold;">×</div>
-                            <div><strong id="placarTime2">Equipe</strong><span id="golsTime2">0</span></div>
+                        <div class="match-scoreboard">
+                            <div class="match-score-team">
+                                <span class="match-score-crest" aria-hidden="true"><svg viewBox="0 0 60 68"><path d="M30 3 53 11v20c0 15-9 25-23 34C16 56 7 46 7 31V11L30 3Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"></path><circle cx="30" cy="31" r="11" fill="none" stroke="currentColor" stroke-width="2"></circle></svg></span>
+                                <span class="match-score-team-copy"><strong id="placarTime1">Equipe</strong><small>Time da casa</small></span>
+                            </div>
+                            <div class="match-score-center">
+                                <div class="match-score-numbers"><span class="match-score-box"><span id="golsTime1">0</span></span><span aria-hidden="true">-</span><span class="match-score-box"><span id="golsTime2">0</span></span></div>
+                                <div class="match-score-clock"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l3 2M9 2h6M12 2v3"></path></svg><span class="cronometro-display" id="cronometro">07:00</span></div>
+                            </div>
+                            <div class="match-score-team match-score-team-away">
+                                <span class="match-score-team-copy"><strong id="placarTime2">Equipe</strong><small>Time visitante</small></span>
+                                <span class="match-score-crest" aria-hidden="true"><svg viewBox="0 0 60 68"><path d="M30 3 53 11v20c0 15-9 25-23 34C16 56 7 46 7 31V11L30 3Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"></path><path d="m30 17 4 13 12 7-12-2-4 16-4-16-12 2 12-7 4-13Z" fill="currentColor"></path></svg></span>
+                            </div>
                         </div>
                         <div class="cronometro-botoes">
                             <button class="btn-cronometro" onclick="iniciarCronometro()" id="btnIniciar">▶ Iniciar</button>
@@ -671,11 +850,11 @@
                             <button class="btn-cronometro" onclick="encerrarPartidaManual()" style="background: rgba(244,67,54,0.3); border-color: #f44336;">⏹ Encerrar</button>
                         </div>
                     </div>
-                    <div class="card" style="padding:20px; text-align:left;">
-                        <div class="section-header"><h3>Placar em tempo real</h3><div class="chip">⚽ Evento</div></div>
-                        <div id="placarEquipes"></div>
-                    </div>
-                    <div><button class="btn-blue" onclick="finalizarPartida()">Finalizar Partida e Rodar 🔄</button></div>
+                    <section class="match-live-area">
+                        <header class="match-live-header"><span class="match-live-indicator">AO VIVO</span><h2>Placar em tempo real</h2></header>
+                        <div id="placarEquipes" class="partida-teams-grid"></div>
+                    </section>
+                    <div class="match-finish-action"><button class="btn-blue" onclick="finalizarPartida()">Finalizar Partida e Rodar 🔄</button></div>
                 </div>
 
                 <div id="telaEstatisticas" class="tela page-shell">
@@ -684,24 +863,12 @@
                     </div>
                 </div>
 
-                <div id="telaRelatorios" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Relatórios</h2><p>Resumo executivo do dia em formato de ranking com gols, assistências e cartões.</p></div><div class="hero-badge">📜 Relatórios Diários</div></div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                        <button id="btnAbrirSelecaoRelatorio" class="btn-blue btn-xs" onclick="toggleSelecaoRelatorio()">📅 Selecionar dia</button>
-                        <button id="btnExportPDF" class="btn-blue btn-xs" onclick="exportarRelatorioPDF()">📄 Exportar PDF</button>
-                    </div>
-                    <div id="relatorioSelecao" style="margin-top:20px;"></div>
-                    <div id="relatorioListaDias" class="dashboard-grid" style="margin-top:20px;"></div>
-                    <div id="relatorioDetalhes" class="card" style="display:none; padding:24px; margin-top:20px;"></div>
-                </div>
-
-                <div id="telaHistorico" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Histórico</h2></div><div class="hero-badge">🕓 Histórico</div></div>
-                    <div id="listaCompeticiones" style="display:flex; flex-direction:column; gap:16px;"></div>
-                </div>
-
                 <div id="telaOpcoes" class="tela page-shell">
                     <div class="page-hero"><div><h2>Opções</h2><p>Ações de gerenciamento de jogadores</p></div></div>
+                    <div class="admin-controls">
+                        <button id="btnEntrarModoAdmin" class="btn-blue" type="button" onclick="entrarModoAdmin()">🔐 Entrar como administrador</button>
+                        <button id="btnSairModoAdmin" class="btn-red" type="button" onclick="sairModoAdmin()" style="display:none;">🚪 Sair do modo administrador</button>
+                    </div>
                     <div id="selecaoCadastro" class="opcoes-grid">
                         <button class="opcao-acao btn-blue" onclick="mostrarGerenciarJogadores()">👤 Gerenciar Jogadores</button>
                         <button class="opcao-acao btn-green" onclick="abrirModalCadastroJogador()">➕ Cadastrar Jogador</button>
@@ -712,6 +879,15 @@
             </section>
         </main>
     </div>
+
+    <nav class="bottom-nav" aria-label="Navegação principal">
+        <button class="bottom-nav-item active" type="button" data-view="dashboard" onclick="mostrarTela('dashboard')"><span class="bottom-nav-icon" aria-hidden="true">🏠</span><span class="bottom-nav-label">Início</span></button>
+        <button class="bottom-nav-item" type="button" data-view="jogadores" onclick="mostrarTela('jogadores')"><span class="bottom-nav-icon" aria-hidden="true">👤</span><span class="bottom-nav-label">Jogadores</span></button>
+        <button class="bottom-nav-item" type="button" data-view="equipes" onclick="mostrarTela('equipes')"><span class="bottom-nav-icon" aria-hidden="true">🛡</span><span class="bottom-nav-label">Equipes</span></button>
+        <button class="bottom-nav-item" type="button" data-view="partidas" onclick="mostrarTela('partidas')"><span class="bottom-nav-icon" aria-hidden="true">⚽</span><span class="bottom-nav-label">Partidas</span></button>
+        <button class="bottom-nav-item" type="button" data-view="estatisticas" onclick="mostrarTela('estatisticas')"><span class="bottom-nav-icon" aria-hidden="true">📊</span><span class="bottom-nav-label">Estatísticas</span></button>
+        <button class="bottom-nav-item" type="button" data-view="opcoes" onclick="mostrarTela('opcoes')"><span class="bottom-nav-icon" aria-hidden="true">⚙</span><span class="bottom-nav-label">Opções</span></button>
+    </nav>
 
     <main id="telaCompartilhada" class="public-rank-screen">
         <nav class="public-rank-tabs" aria-label="Selecionar ranking">
@@ -927,12 +1103,66 @@
             return id;
         }
 
+        function criarMiniaturaFoto(foto) {
+            return new Promise(resolve => {
+                if (typeof foto !== 'string' || !foto) return resolve('');
+                const imagem = new Image();
+                imagem.onload = () => {
+                    try {
+                        const lado = Math.min(imagem.naturalWidth, imagem.naturalHeight);
+                        const inicioX = (imagem.naturalWidth - lado) / 2;
+                        const inicioY = (imagem.naturalHeight - lado) / 2;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 96;
+                        canvas.height = 96;
+                        const contexto = canvas.getContext('2d');
+                        if (!contexto) return resolve('');
+                        contexto.imageSmoothingQuality = 'high';
+                        contexto.drawImage(imagem, inicioX, inicioY, lado, lado, 0, 0, 96, 96);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    } catch (erro) {
+                        resolve('');
+                    }
+                };
+                imagem.onerror = () => resolve('');
+                if (!foto.startsWith('data:')) imagem.crossOrigin = 'anonymous';
+                imagem.src = foto;
+            });
+        }
+
+        function tamanhoSnapshotKb(snapshot) {
+            const json = JSON.stringify(snapshot);
+            const bytes = typeof TextEncoder !== 'undefined'
+                ? new TextEncoder().encode(json).length
+                : unescape(encodeURIComponent(json)).length;
+            return bytes / 1024;
+        }
+
         async function gerarLinkCompartilhamento() {
             const id = gerarIdCampeonato();
+            const jogadoresSnapshot = {};
+            await Promise.all(Object.entries(jogadoresStats || {}).map(async ([nome, dadosJogador]) => {
+                const jogador = JSON.parse(JSON.stringify(dadosJogador || {}));
+                if (jogador.foto) {
+                    jogador.foto = await criarMiniaturaFoto(jogador.foto);
+                    if (!jogador.foto) delete jogador.foto;
+                }
+                jogadoresSnapshot[nome] = jogador;
+            }));
+
+            const tamanhosMiniaturas = Object.values(jogadoresSnapshot)
+                .map(jogador => jogador.foto)
+                .filter(foto => typeof foto === 'string' && foto.startsWith('data:image/jpeg;base64,'))
+                .map(foto => Math.floor((foto.split(',')[1] || '').length * 3 / 4));
+            if (tamanhosMiniaturas.length) {
+                const mediaKb = tamanhosMiniaturas.reduce((total, tamanho) => total + tamanho, 0) / tamanhosMiniaturas.length / 1024;
+                console.info(`Miniaturas JPEG 96x96: média ${mediaKb.toFixed(2)} KB (${tamanhosMiniaturas.length} fotos).`);
+            }
+
             const snapshot = {
                 donoUid: uidUsuario,
                 publico: true,
-                jogadoresStats: JSON.parse(JSON.stringify(jogadoresStats || {})),
+                jogadoresStats: jogadoresSnapshot,
                 estatisticasDia: JSON.parse(JSON.stringify(estatisticasDia || {})),
                 partidasDia: JSON.parse(JSON.stringify(partidasDia || [])),
                 dataAtual: dataAtual,
@@ -940,6 +1170,14 @@
             };
             try {
                 if (!uidUsuario) throw new Error('Autenticação ainda não concluída.');
+                let tamanhoKb = tamanhoSnapshotKb(snapshot);
+                if (tamanhoKb > 900) {
+                    Object.entries(snapshot.jogadoresStats).forEach(([nome, jogador]) => {
+                        if (Number(jogador.gols || 0) <= 0 && Number(jogador.assis || 0) <= 0) delete jogador.foto;
+                    });
+                    tamanhoKb = tamanhoSnapshotKb(snapshot);
+                    console.warn(`Snapshot público excedeu 900 KB após a redução de fotos sem gols/assistências. Tamanho final: ${tamanhoKb.toFixed(2)} KB.`);
+                }
                 await db.collection("campeonatos").doc(id).set(snapshot);
                 const link = `${window.location.origin}${window.location.pathname}#/c/${id}`;
                 const campoLink = document.getElementById('campoLinkCompartilhamento');
@@ -1032,9 +1270,20 @@
                         const posicao = document.createElement('span');
                         posicao.className = 'public-rank-position';
                         posicao.textContent = String(indice + 1);
-                        const avatar = document.createElement('span');
+                        const avatar = document.createElement(jogador.foto ? 'img' : 'span');
                         avatar.className = 'public-rank-avatar';
-                        avatar.textContent = nome.trim().charAt(0).toLocaleUpperCase('pt-BR');
+                        if (jogador.foto) {
+                            avatar.src = jogador.foto;
+                            avatar.alt = nome;
+                            avatar.onerror = () => {
+                                const fallback = document.createElement('span');
+                                fallback.className = 'public-rank-avatar';
+                                fallback.textContent = nome.trim().charAt(0).toLocaleUpperCase('pt-BR');
+                                avatar.replaceWith(fallback);
+                            };
+                        } else {
+                            avatar.textContent = nome.trim().charAt(0).toLocaleUpperCase('pt-BR');
+                        }
                         const nomePartes = nome.trim().split(/\s+/);
                         const jogadorNome = document.createElement('span');
                         jogadorNome.className = 'public-rank-player';
@@ -1296,6 +1545,7 @@
         // CONFIGURAÇÃO DOS PINS
         const PIN_EXCLUSAO_TOTAL = "02-29"; // PIN exclusivo para apagar todos os dados do sistema
         const MAX_JOGADORES_POR_EQUIPE = 3;
+        let modoAdministrador = false;
 
         let jogadoresStats = {};
         let baseEstatisticasPartida = {};
@@ -1307,7 +1557,6 @@
         let estatisticasDia = {};
         let partidasDia = [];
         let eventosDia = [];
-        let relatorioSelecionado = null;
         let ultimaPartida = null;
         let competicaoAtiva = null;
         let numeroPartidaAtual = 0;
@@ -1512,51 +1761,8 @@
             const relatorioAtual = montarRelatorioDia(dataId, dataFormatada, estatisticasDia || {}, partidasDia || [], eventosDia || []);
             relatorioAtual.status = 'em_andamento';
             relatoriosDiarios[dataId] = relatorioAtual;
-            relatorioSelecionado = relatorioAtual;
             try { salvarEstadoFirestore(); } catch(e){}
-            if (document.getElementById('telaRelatorios')?.classList.contains('ativa')) {
-                renderizarRelatorios();
-            }
             return relatorioAtual;
-        }
-
-        function gerarRankingPorChave(estatisticas = {}, chave) {
-            return Object.entries(estatisticas || {})
-                .map(([nome, stats]) => ({ nome, valor: Number(stats[chave] || 0), equipe: stats.equipe || 'Sem equipe' }))
-                .filter(item => item.valor > 0)
-                .sort((a, b) => b.valor - a.valor || a.nome.localeCompare(b.nome, 'pt-BR'));
-        }
-
-        function formatarPosicaoRanking(posicao) {
-            if (posicao === 1) return '🥇';
-            if (posicao === 2) return '🥈';
-            if (posicao === 3) return '🥉';
-            return `${posicao}º`;
-        }
-
-        function montarRankingHtml(ranking, unidade) {
-            if (!Array.isArray(ranking) || ranking.length === 0) {
-                return '<div class="empty-state">Nenhum jogador com registro nesta categoria.</div>';
-            }
-            let html = '<div class="ranking-list" style="display:grid; gap:10px;">';
-            let posicao = 0;
-            let ultimoValor = null;
-            let contagem = 0;
-            ranking.forEach(item => {
-                contagem += 1;
-                if (ultimoValor === null || item.valor !== ultimoValor) {
-                    posicao = contagem;
-                }
-                ultimoValor = item.valor;
-                const label = formatarPosicaoRanking(posicao);
-                html += `
-                    <div class="dashboard-card" style="display:flex; justify-content:space-between; align-items:center; padding:16px;">
-                        <div style="font-weight:700;">${escapeHtml(label)} ${escapeHtml(item.nome)}</div>
-                        <div style="font-weight:700; opacity:.9;">${item.valor} ${escapeHtml(unidade)}</div>
-                    </div>`;
-            });
-            html += '</div>';
-            return html;
         }
 
         function atualizarContadoresInterface(nome) {
@@ -1648,15 +1854,20 @@
                 (Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0 ? selecionadosPartidaAtual : selecionados)
             );
             
-            equipesAtivasPartida.forEach(equipe => {
+            equipesAtivasPartida.forEach((equipe, indiceEquipe) => {
                 const jogadoresEquipe = equipes[equipe].filter(nome => participantesPartida.has(nome));
                 if (jogadoresEquipe.length > 0) {
                     const nomeEquipeDisplay = obterNomeEquipePartida(equipe);
+                    const papelEquipe = indiceEquipe === 0 ? 'Time da casa' : 'Time visitante';
                     let tableHTML = `
-                    <div class="secao-equipe">
-                        <h3>${escapeHtml(nomeEquipeDisplay)}</h3>
-                        <table>
-                            <thead><tr><th>Foto</th><th>Nome</th><th>Gols ⚽</th><th>Assis. 👟</th><th>Amarelo 🟨</th><th>Vermelho 🟥</th></tr></thead>
+                    <section class="secao-equipe match-team-table">
+                        <header class="match-team-table-header">
+                            <div class="match-team-table-title"><h3>${escapeHtml(nomeEquipeDisplay)}</h3><small>${papelEquipe}</small></div>
+                        </header>
+                        <div class="match-table-scroll">
+                        <table class="match-roster-table">
+                            <colgroup><col class="match-col-photo"><col class="match-col-name"><col class="match-col-stat"><col class="match-col-stat"><col class="match-col-stat"><col class="match-col-stat"></colgroup>
+                            <thead><tr><th>Foto</th><th>Nome</th><th>⚽ Gols</th><th>👟 Assistências</th><th>🟨 Amarelo</th><th>🟥 Vermelho</th></tr></thead>
                             <tbody>
                     `;
                     jogadoresEquipe.forEach(nome => {
@@ -1673,37 +1884,37 @@
                         const botaoRemoverVermelho = `<button class="btn ${podeRegistrarAcoes ? 'btn-red' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="removerEstatisticaJogador('${nomeEscapado}', 'vermelho')"` : `disabled title="${motivoAcaoIndisponivel}"`}>-</button>`;
                         const botaoAdicionarVermelho = `<button class="btn ${podeRegistrarAcoes ? 'btn-green' : 'btn-desativado'} btn-xs" ${podeRegistrarAcoes ? `onclick="somar('${nomeEscapado}', 'vermelho')"` : `disabled title="${motivoAcaoIndisponivel}"`}>+</button>`;
                         tableHTML += `<tr>
-                            <td><img src="${p.foto || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;"></td>
-                            <td>${escapeHtml(nome)}</td>
-                            <td>
+                            <td><img class="match-roster-photo" src="${p.foto || 'https://via.placeholder.com/40'}" alt="${escapeHtml(nome)}"></td>
+                            <td class="match-name-cell"><strong class="match-player-name">${escapeHtml(nome)}</strong><small class="match-player-position">${escapeHtml(p.posicao || p.position || 'Jogador')}</small></td>
+                            <td><div class="match-stat-controls">
                                 ${botaoRemoverGol}
-                                <span id="${gerarIdJogador(nome, 'gols')}">${p.gols || 0}</span>
+                                <span class="match-stat-value" id="${gerarIdJogador(nome, 'gols')}">${p.gols || 0}</span>
                                 ${botaoAdicionarGol}
-                            </td>
-                            <td>
+                            </div></td>
+                            <td><div class="match-stat-controls">
                                 ${botaoRemoverAssis}
-                                <span id="${gerarIdJogador(nome, 'assis')}">${p.assis || 0}</span>
+                                <span class="match-stat-value" id="${gerarIdJogador(nome, 'assis')}">${p.assis || 0}</span>
                                 ${botaoAdicionarAssis}
-                            </td>
-                            <td>
+                            </div></td>
+                            <td><div class="match-stat-controls">
                                 ${botaoRemoverAmarelo}
-                                <span id="${gerarIdJogador(nome, 'amarelo')}">${p.amarelo || 0}</span>
+                                <span class="match-stat-value" id="${gerarIdJogador(nome, 'amarelo')}">${p.amarelo || 0}</span>
                                 ${botaoAdicionarAmarelo}
-                            </td>
-                            <td>
+                            </div></td>
+                            <td><div class="match-stat-controls">
                                 ${botaoRemoverVermelho}
-                                <span id="${gerarIdJogador(nome, 'vermelho')}">${p.vermelho || 0}</span>
+                                <span class="match-stat-value" id="${gerarIdJogador(nome, 'vermelho')}">${p.vermelho || 0}</span>
                                 ${botaoAdicionarVermelho}
-                            </td>
+                            </div></td>
                         </tr>`;
                     });
-                    tableHTML += `</tbody></table></div>`;
+                    tableHTML += `</tbody></table></div></section>`;
                     placar.innerHTML += tableHTML;
                 }
             });
         }
 
-        function removerEstatisticaJogador(nome, tipo, origemRelatorio = false) {
+        function removerEstatisticaJogador(nome, tipo) {
 
             const participantesPartida = new Set(
                 (Array.isArray(selecionadosPartidaAtual) && selecionadosPartidaAtual.length > 0 ? selecionadosPartidaAtual : selecionados)
@@ -1769,9 +1980,6 @@
             renderizarGrid();
             renderizarGerenciamento();
             atualizarRelatorioAtual();
-            if (origemRelatorio) {
-                exibirRelatorio();
-            }
             salvar();
         }
 
@@ -1802,54 +2010,143 @@
         }
 
         function atualizarResumoDashboard() {
-            const jogadores = Object.keys(estatisticasDia || {}).map(nome => ({
-                nome,
-                stats: normalizarJogador(nome, estatisticasDia[nome]),
-                perfil: normalizarJogador(nome, jogadoresStats[nome] || {})
-            }));
             const jogadoresPorEquipe = obterJogadoresPorEquipe();
             const equipesAtivas = Object.keys(jogadoresPorEquipe).filter(equipe => equipe !== 'Sem equipe' && jogadoresPorEquipe[equipe].length > 0).length;
-
-            const artilheiro = jogadores
-                .filter(j => Number(j.stats.gols || 0) > 0)
-                .sort((a, b) => (Number(b.stats.gols || 0) - Number(a.stats.gols || 0)) || a.nome.localeCompare(b.nome, 'pt-BR'))[0];
-            const assistente = jogadores
-                .filter(j => Number(j.stats.assis || 0) > 0)
-                .sort((a, b) => (Number(b.stats.assis || 0) - Number(a.stats.assis || 0)) || a.nome.localeCompare(b.nome, 'pt-BR'))[0];
             const partidasDoDia = partidasDia.filter(partida => partida.data === dataAtual);
-            const ultima = ultimaPartida || (partidasDia.length ? partidasDia[partidasDia.length - 1] : null);
-
             const elementos = {
-                statsJogadores: document.getElementById('statsJogadores'),
-                statsEquipes: document.getElementById('statsEquipes'),
-                statsPartidas: document.getElementById('statsPartidas'),
-                statsArtilheiro: document.getElementById('statsArtilheiro'),
-                statsArtilheiroDetalhes: document.getElementById('statsArtilheiroDetalhes'),
-                statsAssistente: document.getElementById('statsAssistente'),
-                statsAssistenteDetalhes: document.getElementById('statsAssistenteDetalhes'),
-                statsUltimaPartida: document.getElementById('statsUltimaPartida'),
-                statsUltimaPartidaHorario: document.getElementById('statsUltimaPartidaHorario'),
-                statsArtilheiroFoto: document.getElementById('statsArtilheiroFoto'),
-                statsAssistenteFoto: document.getElementById('statsAssistenteFoto'),
+                jogadores: document.getElementById('statsJogadores'),
+                equipes: document.getElementById('statsEquipes'),
+                partidas: document.getElementById('statsPartidas'),
+                estatisticas: document.getElementById('statsEstatisticas')
             };
+            const totalEstatisticas = Object.values(jogadoresStats || {}).reduce((total, dados) => {
+                const jogador = normalizarJogador('', dados);
+                return total + jogador.gols + jogador.assis + jogador.amarelo + jogador.vermelho;
+            }, 0);
 
-            if (elementos.statsJogadores) elementos.statsJogadores.textContent = Object.keys(jogadoresStats || {}).length;
-            if (elementos.statsEquipes) elementos.statsEquipes.textContent = equipesAtivas;
-            if (elementos.statsPartidas) elementos.statsPartidas.textContent = partidasDoDia.length;
+            if (elementos.jogadores) elementos.jogadores.textContent = Object.keys(jogadoresStats || {}).length;
+            if (elementos.equipes) elementos.equipes.textContent = equipesAtivas;
+            if (elementos.partidas) elementos.partidas.textContent = partidasDoDia.length;
+            if (elementos.estatisticas) elementos.estatisticas.textContent = totalEstatisticas;
+            renderizarDestaquesCompeticao();
+        }
 
-            if (elementos.statsArtilheiro) elementos.statsArtilheiro.textContent = artilheiro ? artilheiro.nome : 'Nenhum gol registrado.';
-            if (elementos.statsArtilheiroDetalhes) elementos.statsArtilheiroDetalhes.textContent = artilheiro ? `${Number(artilheiro.stats.gols || 0)} gols` : '';
-            if (elementos.statsArtilheiroFoto) elementos.statsArtilheiroFoto.src = artilheiro && artilheiro.perfil.foto ? artilheiro.perfil.foto : 'https://via.placeholder.com/72';
-            if (elementos.statsArtilheiroFoto) elementos.statsArtilheiroFoto.alt = artilheiro ? artilheiro.nome : 'Nenhum artilheiro';
+        function renderizarDestaqueJogador(containerId, jogador, campo, textoVazio, unidade) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.replaceChildren();
+            if (!jogador) {
+                const vazio = document.createElement('div');
+                vazio.className = 'dashboard-highlight-empty';
+                vazio.textContent = textoVazio;
+                container.appendChild(vazio);
+                return;
+            }
 
-            if (elementos.statsAssistente) elementos.statsAssistente.textContent = assistente ? assistente.nome : 'Nenhuma assistência registrada.';
-            if (elementos.statsAssistenteDetalhes) elementos.statsAssistenteDetalhes.textContent = assistente ? `${Number(assistente.stats.assis || 0)} assistências` : '';
-            if (elementos.statsAssistenteFoto) elementos.statsAssistenteFoto.src = assistente && assistente.perfil.foto ? assistente.perfil.foto : 'https://via.placeholder.com/72';
-            if (elementos.statsAssistenteFoto) elementos.statsAssistenteFoto.alt = assistente ? assistente.nome : 'Nenhum assistente';
+            const linha = document.createElement('div');
+            linha.className = 'dashboard-highlight-player';
+            const avatar = document.createElement(jogador.dados.foto ? 'img' : 'span');
+            avatar.className = 'dashboard-highlight-avatar';
+            if (jogador.dados.foto) {
+                avatar.src = jogador.dados.foto;
+                avatar.alt = jogador.nome;
+                avatar.onerror = () => {
+                    const inicial = document.createElement('span');
+                    inicial.className = 'dashboard-highlight-avatar';
+                    inicial.textContent = jogador.nome.trim().charAt(0).toLocaleUpperCase('pt-BR');
+                    avatar.replaceWith(inicial);
+                };
+            } else {
+                avatar.textContent = jogador.nome.trim().charAt(0).toLocaleUpperCase('pt-BR');
+            }
 
-            if (elementos.statsUltimaPartida) elementos.statsUltimaPartida.textContent = ultima ? `${escapeHtml(ultima.equipeA || 'Equipe A')} ${Number(ultima.golsA || 0)} × ${Number(ultima.golsB || 0)} ${escapeHtml(ultima.equipeB || 'Equipe B')}` : 'Nenhuma partida encerrada.';
-            if (elementos.statsUltimaPartidaHorario) elementos.statsUltimaPartidaHorario.textContent = ultima ? `${escapeHtml(ultima.horario || '')}` : '';
+            const informacoes = document.createElement('div');
+            informacoes.className = 'dashboard-highlight-player-info';
+            const nome = document.createElement('strong');
+            nome.textContent = jogador.nome;
+            const estatistica = document.createElement('small');
+            estatistica.textContent = `${jogador.dados[campo]} ${unidade}`;
+            informacoes.append(nome, estatistica);
+            linha.append(avatar, informacoes);
+            container.appendChild(linha);
+        }
 
+        function renderizarDestaquesCompeticao() {
+            const jogadores = Object.entries(jogadoresStats || {}).map(([nome, dados]) => ({
+                nome,
+                dados: normalizarJogador(nome, dados)
+            }));
+            const artilheiro = jogadores
+                .filter(jogador => jogador.dados.gols > 0)
+                .sort((a, b) => b.dados.gols - a.dados.gols || a.nome.localeCompare(b.nome, 'pt-BR'))[0];
+            const assistente = jogadores
+                .filter(jogador => jogador.dados.assis > 0)
+                .sort((a, b) => b.dados.assis - a.dados.assis || a.nome.localeCompare(b.nome, 'pt-BR'))[0];
+
+            renderizarDestaqueJogador('destaqueArtilheiro', artilheiro, 'gols', 'Nenhum gol registrado ainda.', 'gols');
+            renderizarDestaqueJogador('destaqueAssistencias', assistente, 'assis', 'Nenhuma assistência registrada.', 'assistências');
+
+            const container = document.getElementById('destaqueUltimoJogo');
+            if (!container) return;
+            container.replaceChildren();
+            const partidas = Array.isArray(partidasDia) ? partidasDia : [];
+            const partida = partidas[partidas.length - 1] || ultimaPartida;
+            if (!partida) {
+                const vazio = document.createElement('div');
+                vazio.className = 'dashboard-highlight-empty';
+                vazio.textContent = 'Nenhuma partida encerrada ainda.';
+                container.appendChild(vazio);
+                return;
+            }
+
+            const placar = document.createElement('div');
+            placar.className = 'dashboard-highlight-score';
+            const equipeA = document.createElement('span');
+            equipeA.className = 'dashboard-highlight-team';
+            equipeA.textContent = partida.nomeEquipeA || partida.equipeA || 'Equipe A';
+            const resultado = document.createElement('strong');
+            resultado.className = 'dashboard-highlight-result';
+            resultado.textContent = `${Number(partida.golsA || 0)} × ${Number(partida.golsB || 0)}`;
+            const equipeB = document.createElement('span');
+            equipeB.className = 'dashboard-highlight-team';
+            equipeB.textContent = partida.nomeEquipeB || partida.equipeB || 'Equipe B';
+            placar.append(equipeA, resultado, equipeB);
+
+            const data = typeof partida.data === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(partida.data)
+                ? partida.data.split('-').reverse().join('/')
+                : String(partida.data || '');
+            const horarioCompleto = String(partida.horario || '');
+            const horario = horarioCompleto.includes(',') ? horarioCompleto.split(',').pop().trim() : horarioCompleto;
+            const dataHora = document.createElement('div');
+            dataHora.className = 'dashboard-highlight-date';
+            dataHora.textContent = [data, horario].filter(Boolean).join(' · ');
+            container.append(placar, dataHora);
+        }
+
+        function entrarModoAdmin() {
+            modoAdministrador = true;
+            try { localStorage.setItem('futibAdmin', '1'); } catch (e) {}
+            atualizarVisibilidadeAdmin();
+        }
+
+        function sairModoAdmin() {
+            modoAdministrador = false;
+            try { localStorage.removeItem('futibAdmin'); } catch (e) {}
+            atualizarVisibilidadeAdmin();
+        }
+
+        function atualizarVisibilidadeAdmin() {
+            const destaques = document.getElementById('destaquesCompeticao');
+            const botaoEntrar = document.getElementById('btnEntrarModoAdmin');
+            const botaoSair = document.getElementById('btnSairModoAdmin');
+            if (destaques) destaques.classList.toggle('is-visible', modoAdministrador);
+            if (botaoEntrar) botaoEntrar.style.display = modoAdministrador ? 'none' : '';
+            if (botaoSair) botaoSair.style.display = modoAdministrador ? '' : 'none';
+            renderizarDestaquesCompeticao();
+        }
+
+        function atualizarVisibilidadeMenuInferior() {
+            document.body.classList.toggle('public-view', window.location.hash.includes('#/c/'));
         }
 
         function mostrarTela(nomeTela) {
@@ -1859,8 +2156,6 @@
                 equipes: 'telaEquipes',
                 partidas: 'telaPartidas',
                 estatisticas: 'telaEstatisticas',
-                relatorios: 'telaRelatorios',
-                historico: 'telaHistorico',
                 opcoes: 'telaOpcoes',
                 menu: 'telaDashboard'
             };
@@ -1871,8 +2166,6 @@
                 equipes: ['Equipes', 'Gerencie equipes, reservas e alterações instantâneas'],
                 partidas: ['Partidas', 'Controle limpo do placar, cronômetro e eventos ao vivo'],
                 estatisticas: ['Estatísticas', 'Ranking e performances atualizados automaticamente'],
-                relatorios: ['Relatórios', 'Visão consolidada das partidas e relatórios do dia'],
-                historico: ['Histórico', 'Partidas e competições finalizadas no sistema'],
                 opcoes: ['Opções', 'Ações de gerenciamento de jogadores'],
             };
 
@@ -1884,9 +2177,8 @@
                 telaAlvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
-            document.querySelectorAll('.nav-item').forEach(botao => {
-                const view = botao.getAttribute('data-view');
-                botao.classList.toggle('active', view === nomeTela);
+            document.querySelectorAll('.bottom-nav-item').forEach(botao => {
+                botao.classList.toggle('active', botao.getAttribute('data-view') === nomeTela);
             });
 
             const topo = titulos[nomeTela];
@@ -1904,9 +2196,7 @@
             const telaJogadores = document.getElementById('telaJogadores');
             const telaEquipes = document.getElementById('telaEquipes');
             const telaPartidas = document.getElementById('telaPartidas');
-            const telaRelatorios = document.getElementById('telaRelatorios');
             const telaEstatisticas = document.getElementById('telaEstatisticas');
-            const telaHistorico = document.getElementById('telaHistorico');
 
             if (telaJogadores && telaJogadores.classList.contains('ativa')) {
                 renderizarGrid();
@@ -1919,12 +2209,6 @@
             }
             if (telaEstatisticas && telaEstatisticas.classList.contains('ativa')) {
                 renderizarDashboardEstatisticas();
-            }
-            if (telaRelatorios && telaRelatorios.classList.contains('ativa')) {
-                renderizarRelatorios();
-            }
-            if (telaHistorico && telaHistorico.classList.contains('ativa')) {
-                renderizarHistorico();
             }
         }
 
@@ -3054,7 +3338,6 @@
             relatorioFinal.estatisticasIndividuais = JSON.parse(JSON.stringify(relatorioFinal.estatisticas || {}));
 
             relatoriosDiarios[dataId] = relatorioFinal;
-            relatorioSelecionado = relatorioFinal;
             try {
                 await salvarRelatorioFirestore(dataId, relatorioFinal);
             } catch (e) {
@@ -3072,7 +3355,6 @@
             selecionadosPartidaAtual = [];
             partidasDia = [];
             eventosDia = [];
-            relatorioSelecionado = null;
             numeroPartidaAtual = 0;
             ultimaPartida = null;
             golsRegistrados = [];
@@ -3088,7 +3370,6 @@
             await salvar();
             renderizarGrid();
             renderizarGerenciamento();
-            renderizarRelatorios();
             renderizarDashboardEstatisticas();
             alert(`✅ Relatório do dia salvo com sucesso.\nPDF atualizado.\nFirebase atualizado.\nHistórico atualizado.`);
         }
@@ -3096,267 +3377,6 @@
         function abrirEstatisticas() {
             mostrarTela('estatisticas');
             renderizarDashboardEstatisticas();
-        }
-
-        function abrirRelatorios() {
-            mostrarTela('relatorios');
-            renderizarRelatorios();
-        }
-
-        function exibirRelatorio() {
-            renderizarRelatorios();
-        }
-
-        function alternarDetalhesRelatorio(dataId) {
-            const id = String(dataId || '').replace(/[^a-zA-Z0-9_-]/g, '_');
-            const container = document.getElementById(`detalhes-relatorio-${id}`);
-            if (!container) return;
-            container.style.display = container.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function mostrarRelatorioDetalhes(dataId) {
-            const relatorio = relatoriosDiarios[dataId] || relatoriosDiarios[relatorioSelecionado?.id];
-            const detalhe = document.getElementById('relatorioDetalhes');
-            if (!detalhe) return;
-            if (!relatorio) {
-                detalhe.style.display = 'block';
-                detalhe.innerHTML = '<div class="empty-state">Nenhum relatório encontrado para esta data.</div>';
-                relatorioSelecionado = null;
-                renderizarRelatorios();
-                return;
-            }
-            relatorioSelecionado = relatorio;
-
-            const rankingGols = gerarRankingPorChave(relatorio.estatisticas, 'gols');
-            const rankingAssis = gerarRankingPorChave(relatorio.estatisticas, 'assis');
-            const rankingAmarelos = gerarRankingPorChave(relatorio.estatisticas, 'amarelo');
-            const rankingVermelhos = gerarRankingPorChave(relatorio.estatisticas, 'vermelho');
-
-            detalhe.innerHTML = `
-                <div style="margin-bottom:20px;">
-                    <h2 style="margin:0; font-size:28px; letter-spacing:0.02em;">RELATÓRIO DIÁRIO</h2>
-                    <div style="margin-top:12px; color:#64748b; font-size:14px; line-height:1.8;">
-                        Data: ${escapeHtml(relatorio.data || relatorio.dataIso || dataId)}<br>
-                        Partidas: ${relatorio.quantidadePartidas || 0}<br>
-                        Jogadores: ${relatorio.quantidadeJogadores || 0}<br>
-                        Equipes: ${relatorio.quantidadeEquipes || 0}
-                    </div>
-                </div>
-                <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:28px;">
-                    <div class="dashboard-card dashboard-card-green" style="padding:18px; text-align:center;">
-                        <div class="dashboard-card-title">⚽ GOLS</div>
-                        <div class="dashboard-card-total" style="font-size:36px;">${relatorio.totalGols || 0}</div>
-                    </div>
-                    <div class="dashboard-card dashboard-card-blue" style="padding:18px; text-align:center;">
-                        <div class="dashboard-card-title">🅰 ASSISTÊNCIAS</div>
-                        <div class="dashboard-card-total" style="font-size:36px;">${relatorio.totalAssistencias || 0}</div>
-                    </div>
-                    <div class="dashboard-card dashboard-card-yellow" style="padding:18px; text-align:center;">
-                        <div class="dashboard-card-title">🟨 CARTÕES AMARELOS</div>
-                        <div class="dashboard-card-total" style="font-size:36px;">${relatorio.totalAmarelos || 0}</div>
-                    </div>
-                    <div class="dashboard-card dashboard-card-red" style="padding:18px; text-align:center;">
-                        <div class="dashboard-card-title">🟥 CARTÕES VERMELHOS</div>
-                        <div class="dashboard-card-total" style="font-size:36px;">${relatorio.totalVermelhos || 0}</div>
-                    </div>
-                </div>
-                <div class="section-header"><h3>Ranking de Artilharia</h3></div>
-                ${montarRankingHtml(rankingGols, 'gols')}
-                <div class="section-header" style="margin-top:24px;"><h3>Ranking de Assistências</h3></div>
-                ${montarRankingHtml(rankingAssis, 'assistências')}
-                <div class="section-header" style="margin-top:24px;"><h3>Ranking de Cartões Amarelos</h3></div>
-                ${montarRankingHtml(rankingAmarelos, 'cartões')}
-                <div class="section-header" style="margin-top:24px;"><h3>Ranking de Cartões Vermelhos</h3></div>
-                ${montarRankingHtml(rankingVermelhos, 'cartões')}
-            `;
-            detalhe.style.display = 'block';
-        }
-
-        function toggleSelecaoRelatorio() {
-            const relatorios = Object.keys(relatoriosDiarios || {}).sort().reverse();
-            mostrarTela('relatorios');
-
-            if (relatorios.length === 0) {
-                const selecao = document.getElementById('relatorioSelecao');
-                if (selecao) {
-                    selecao.innerHTML = '<div class="empty-state">Nenhum relatório registrado ainda.</div>';
-                }
-                const detalhe = document.getElementById('relatorioDetalhes');
-                if (detalhe) {
-                    detalhe.style.display = 'block';
-                    detalhe.innerHTML = '<div class="empty-state">Nenhum relatório encontrado para esta data.</div>';
-                }
-                alert('Nenhum relatório encontrado para esta data.');
-                return;
-            }
-
-            const selectedId = relatorioSelecionado?.id || relatorios[0];
-            relatorioSelecionado = relatoriosDiarios[selectedId] || relatorioSelecionado;
-            renderizarRelatorios();
-
-            const select = document.getElementById('selectRelatorioDia');
-            if (select) {
-                select.focus();
-            }
-            const lista = document.getElementById('relatorioListaDias');
-            if (lista) {
-                lista.style.display = '';
-            }
-            const selecao = document.getElementById('relatorioSelecao');
-            if (selecao) {
-                selecao.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-        window.toggleSelecaoRelatorio = toggleSelecaoRelatorio;
-
-        function selecionarRelatorioDia(dataId) {
-            if (!dataId) return;
-            if (!relatoriosDiarios[dataId]) {
-                relatorioSelecionado = null;
-                const detalhe = document.getElementById('relatorioDetalhes');
-                if (detalhe) {
-                    detalhe.style.display = 'block';
-                    detalhe.innerHTML = '<div class="empty-state">Nenhum relatório encontrado para esta data.</div>';
-                }
-                renderizarRelatorios();
-                return;
-            }
-            relatorioSelecionado = relatoriosDiarios[dataId];
-            renderizarRelatorios();
-        }
-
-        function renderizarRelatorios() {
-            const selecao = document.getElementById('relatorioSelecao');
-            const lista = document.getElementById('relatorioListaDias');
-            if (!lista || !selecao) return;
-            const datas = Object.keys(relatoriosDiarios || {}).sort().reverse();
-            if (datas.length === 0) {
-                selecao.innerHTML = '<div class="empty-state">Nenhum relatório registrado ainda.</div>';
-                lista.innerHTML = '';
-                const detalhe = document.getElementById('relatorioDetalhes');
-                if (detalhe) {
-                    detalhe.style.display = 'none';
-                    detalhe.innerHTML = '';
-                }
-                return;
-            }
-
-            const selectedId = relatorioSelecionado?.id || datas[0];
-            relatorioSelecionado = relatoriosDiarios[selectedId] || relatorioSelecionado;
-
-            selecao.innerHTML = `
-                <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;">
-                    <select id="selectRelatorioDia" class="config-input" onchange="selecionarRelatorioDia(this.value)" style="min-width:240px; padding:12px 14px; border-radius:14px; background:#fff; border:1px solid #cbd5e1; color:#0f172a;">
-                        <option value="">▼ Selecione um dia</option>
-                        ${datas.map(data => `<option value="${escapeParaAtributoJs(data)}" ${data === selectedId ? 'selected' : ''}>${escapeHtml(relatoriosDiarios[data]?.data || data)}</option>`).join('')}
-                    </select>
-                    <div style="color:#475569; font-size:14px;">Total de relatórios: ${datas.length}</div>
-                </div>`;
-
-            lista.innerHTML = datas.map(data => {
-                const relatorio = relatoriosDiarios[data];
-                const selecionado = selectedId === data;
-                const destaque = selecionado ? 'background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.3);' : '';
-                return `
-                    <div class="dashboard-card" style="cursor:pointer; ${destaque}" onclick="mostrarRelatorioDetalhes('${escapeParaAtributoJs(data)}')">
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-                            <div>
-                                <div style="font-weight:800; font-size:16px;">📅 ${escapeHtml(relatorio.data || data)}</div>
-                                <div style="color:#64748b; font-size:13px; margin-top:6px;">${relatorio.totalGols || 0} gols • ${relatorio.totalAssistencias || 0} assistências</div>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <div style="font-size:13px; color:#0f172a; font-weight:700;">▶ Ver relatório</div>
-                            </div>
-                        </div>
-                    </div>`;
-            }).join('');
-
-            mostrarRelatorioDetalhes(selectedId);
-        }
-
-        async function exportarRelatorioPDF(dataId) {
-            const id = dataId || relatorioSelecionado?.id;
-            const relatorio = relatoriosDiarios[id];
-            if (!relatorio) {
-                alert('Selecione um relatório para exportar.');
-                return;
-            }
-            const PdfConstructor = window.jspdf?.jsPDF || window.jsPDF || window.jspdf;
-            if (!PdfConstructor) {
-                alert('Biblioteca de PDF não está disponível.');
-                return;
-            }
-            const doc = new PdfConstructor({ unit: 'pt', format: 'a4' });
-            const margem = 40;
-            let y = margem;
-            const largura = doc.internal.pageSize.getWidth() - margem * 2;
-
-            const rankingGols = gerarRankingPorChave(relatorio.estatisticas, 'gols');
-            const rankingAssis = gerarRankingPorChave(relatorio.estatisticas, 'assis');
-            const rankingAmarelos = gerarRankingPorChave(relatorio.estatisticas, 'amarelo');
-            const rankingVermelhos = gerarRankingPorChave(relatorio.estatisticas, 'vermelho');
-
-            const addSection = (title, lines) => {
-                if (y > doc.internal.pageSize.getHeight() - 100) {
-                    doc.addPage();
-                    y = margem;
-                }
-                doc.setFontSize(13);
-                doc.setFont('helvetica', 'bold');
-                doc.text(title, margem, y);
-                y += 18;
-                doc.setFontSize(11);
-                doc.setFont('helvetica', 'normal');
-                const wrapped = doc.splitTextToSize(lines.join('\n'), largura);
-                doc.text(wrapped, margem, y);
-                y += wrapped.length * 14 + 10;
-            };
-
-            doc.setFontSize(18);
-            doc.setFont('helvetica', 'bold');
-            doc.text('FUTIB - Relatório Diário', margem, y);
-            y += 24;
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`Data: ${relatorio.data || relatorio.dataIso || id}`, margem, y);
-            y += 18;
-            doc.text(`Partidas: ${relatorio.quantidadePartidas || 0}`, margem, y);
-            y += 16;
-            doc.text(`Jogadores: ${relatorio.quantidadeJogadores || 0}`, margem, y);
-            y += 16;
-            doc.text(`Equipes: ${relatorio.quantidadeEquipes || 0}`, margem, y);
-            y += 24;
-
-            addSection('Totais', [
-                `Gols: ${relatorio.totalGols || 0}`,
-                `Assistências: ${relatorio.totalAssistencias || 0}`,
-                `Cartões Amarelos: ${relatorio.totalAmarelos || 0}`,
-                `Cartões Vermelhos: ${relatorio.totalVermelhos || 0}`,
-                `Jogadores: ${relatorio.quantidadeJogadores || 0}`,
-                `Partidas: ${relatorio.quantidadePartidas || 0}`
-            ]);
-
-            const posicaoTexto = (index) => `TOP ${index + 1}`;
-            const rankingParaTexto = (ranking, unidade) => ranking.length === 0
-                ? ['Nenhum jogador com registro nesta categoria.']
-                : ranking.map((item, index) => `${posicaoTexto(index)} ${item.nome}\n${item.valor} ${unidade}`);
-
-            addSection('Ranking de Gols', rankingParaTexto(rankingGols, 'gols'));
-            addSection('Ranking de Assistências', rankingParaTexto(rankingAssis, 'assistências'));
-            addSection('Ranking de Cartões Amarelos', rankingParaTexto(rankingAmarelos, 'cartões'));
-            addSection('Ranking de Cartões Vermelhos', rankingParaTexto(rankingVermelhos, 'cartões'));
-
-            doc.save(`relatorio-${relatorio.id || relatorio.dataIso || id}.pdf`);
-        }
-
-        function destaquesRelatorioTexto(relatorio) {
-            const data = relatorio.estatisticas || {};
-            const artilheiro = Object.entries(data).sort(([, a], [, b]) => (b.gols || 0) - (a.gols || 0))[0];
-            const garcom = Object.entries(data).sort(([, a], [, b]) => (b.assis || 0) - (a.assis || 0))[0];
-            const maisAmarelos = Object.entries(data).sort(([, a], [, b]) => (b.amarelo || 0) - (a.amarelo || 0))[0];
-            const maisVermelhos = Object.entries(data).sort(([, a], [, b]) => (b.vermelho || 0) - (a.vermelho || 0))[0];
-            const participacao = Object.entries(data).sort(([, a], [, b]) => ((b.gols || 0) + (b.assis || 0)) - ((a.gols || 0) + (a.assis || 0)))[0];
-            return [`🥇 Artilheiro: ${artilheiro ? `${artilheiro[0]} (${artilheiro[1].gols || 0} gols)` : 'Nenhum'}`, `🥇 Garçom: ${garcom ? `${garcom[0]} (${garcom[1].assis || 0} assistências)` : 'Nenhum'}`, `🟨 Mais Cartões Amarelos: ${maisAmarelos ? `${maisAmarelos[0]} (${maisAmarelos[1].amarelo || 0})` : 'Nenhum'}`, `🟥 Mais Cartões Vermelhos: ${maisVermelhos ? `${maisVermelhos[0]} (${maisVermelhos[1].vermelho || 0})` : 'Nenhum'}`, `🔥 Participação em gols: ${participacao ? `${participacao[0]} (${(participacao[1].gols || 0) + (participacao[1].assis || 0)} participações)` : 'Nenhum'}`].join('\n');
         }
 
         function gerarDestaquesRelatorio(estatisticas = {}) {
@@ -3723,8 +3743,6 @@
             dataAtual = new Date().toISOString().split('T')[0];
 
             salvar();
-            renderizarRelatorios();
-            renderizarHistorico();
             renderizarDashboardEstatisticas();
 
             alert('Novo dia iniciado. Estatísticas diárias reiniciadas.');
@@ -3977,109 +3995,6 @@
             salvar();
         }
 
-        function abrirHistorico() {
-            renderizarHistorico();
-            mostrarTela('historico');
-        }
-
-        function renderizarHistorico() {
-            const container = document.getElementById('listaCompeticiones');
-            if (!container) return;
-            container.innerHTML = '';
-            
-            if (historicoCompeticions.length === 0) {
-                container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Nenhuma competição concluída ainda.</p>';
-                return;
-            }
-            
-            historicoCompeticions.forEach((comp, index) => {
-                const div = document.createElement('div');
-                div.style.cssText = 'background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);';
-                const nomeCompeticao = comp.nome || `Competição #${historicoCompeticions.length - index}`;
-                const dataInicio = comp.dataInicio ? new Date(comp.dataInicio).toLocaleDateString('pt-BR') : '—';
-                const dataFinal = comp.dataFinal || '—';
-                let html = `<h3 style="margin: 0 0 10px 0; color: #2196F3;">${escapeHtml(nomeCompeticao)}</h3>`;
-                html += `<p style="margin: 5px 0; color: #666;"><strong>Período:</strong> ${escapeHtml(dataInicio)} até ${escapeHtml(dataFinal)}</p>`;
-                html += `<p style="margin: 5px 0; color: #666;"><strong>Dias:</strong> ${Object.keys(comp.relatorios || {}).length} • <strong>Partidas:</strong> ${comp.quantidadePartidas || 0} • <strong>Jogadores:</strong> ${comp.quantidadeJogadores || 0}</p>`;
-                html += `<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;"><button class="btn-blue btn-xs" onclick="exibirCompeticaoHistorico(${index})">🏆 Ver Estatísticas</button></div>`;
-                div.innerHTML = html;
-                container.appendChild(div);
-            });
-        }
-
-        function exibirCompeticaoHistorico(indice) {
-            const competicao = historicoCompeticions[indice];
-            const container = document.getElementById('listaCompeticiones');
-            if (!container || !competicao) return;
-            container.innerHTML = '';
-            
-            const btnVoltar = document.createElement('button');
-            btnVoltar.className = 'btn-blue';
-            btnVoltar.textContent = '← Voltar ao Histórico';
-            btnVoltar.onclick = renderizarHistorico;
-            
-            const titulo = document.createElement('h2');
-            titulo.textContent = competicao.nome || `Competição #${historicoCompeticions.length - indice}`;
-            
-            const info = document.createElement('div');
-            info.style.cssText = 'background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;';
-            info.innerHTML = `
-                <p><strong>Data de início:</strong> ${competicao.dataInicio ? new Date(competicao.dataInicio).toLocaleDateString('pt-BR') : '—'}</p>
-                <p><strong>Data de término:</strong> ${competicao.dataFinal || '—'}</p>
-                <p><strong>Dias:</strong> ${Object.keys(competicao.relatorios || {}).length} • <strong>Partidas:</strong> ${competicao.quantidadePartidas || 0} • <strong>Jogadores:</strong> ${competicao.quantidadeJogadores || 0} • <strong>Equipes:</strong> ${competicao.quantidadeEquipes || 0}</p>
-            `;
-            
-            container.appendChild(btnVoltar);
-            container.appendChild(titulo);
-            container.appendChild(info);
-
-            const rankings = competicao.rankings || {};
-            const cards = [];
-            if (Array.isArray(rankings.artilharia) && rankings.artilharia.length) {
-                cards.push(`<div class="relatorio-dia"><h3>⚽ Artilharia Final</h3><ul>${rankings.artilharia.map(item => `<li>${escapeHtml(item.nome)} — ${item.gols || 0} gols</li>`).join('')}</ul></div>`);
-            }
-            if (Array.isArray(rankings.assistencias) && rankings.assistencias.length) {
-                cards.push(`<div class="relatorio-dia"><h3>🅰 Assistências</h3><ul>${rankings.assistencias.map(item => `<li>${escapeHtml(item.nome)} — ${item.assis || 0} assistências</li>`).join('')}</ul></div>`);
-            }
-            if (Array.isArray(rankings.amarelos) && rankings.amarelos.length) {
-                cards.push(`<div class="relatorio-dia"><h3>🟨 Amarelos</h3><ul>${rankings.amarelos.map(item => `<li>${escapeHtml(item.nome)} — ${item.amarelo || 0} cartões</li>`).join('')}</ul></div>`);
-            }
-            if (Array.isArray(rankings.vermelhos) && rankings.vermelhos.length) {
-                cards.push(`<div class="relatorio-dia"><h3>🟥 Vermelhos</h3><ul>${rankings.vermelhos.map(item => `<li>${escapeHtml(item.nome)} — ${item.vermelho || 0} cartões</li>`).join('')}</ul></div>`);
-            }
-            container.insertAdjacentHTML('beforeend', cards.join(''));
-            
-            Object.keys(competicao.relatorios || {}).sort().forEach(data => {
-                const relatorio = competicao.relatorios[data];
-                const div = document.createElement('div');
-                div.className = 'relatorio-dia';
-                
-                let html = `<h3>Relatório de ${escapeHtml(relatorio?.data || data)}</h3>`;
-                if (Array.isArray(relatorio?.estrategias) && relatorio.estrategias.length) {
-                    html += '<h4>🎯 Estratégias do Dia:</h4>';
-                    relatorio.estrategias.forEach(estrategia => {
-                        html += `<div class="estrategia-item">${escapeHtml(estrategia)}</div>`;
-                    });
-                }
-                
-                html += '<h4>📈 Resumo por Equipe:</h4><div class="stats-resumo">';
-                Object.keys(relatorio?.resumoEquipes || {}).forEach(equipe => {
-                    const stats = relatorio.resumoEquipes[equipe];
-                    html += `<div class="stat-box">
-                        <strong>${escapeHtml(equipe)}</strong><br>
-                        Gols: ${stats.gols || 0}<br>
-                        Assis: ${stats.assis || 0}<br>
-                        Amarelos: ${stats.amarelos || 0}<br>
-                        Vermelhos: ${stats.vermelhos || 0}
-                    </div>`;
-                });
-                html += '</div>';
-                
-                div.innerHTML = html;
-                container.appendChild(div);
-            });
-        }
-
         async function finalizarCompeticao() {
 
             if (Object.keys(relatoriosDiarios).length === 0) {
@@ -4151,7 +4066,6 @@
             dataAtual = new Date().toISOString().split('T')[0];
             competicaoAtiva = { id: new Date().toISOString(), nome: 'Competição Atual', dataInicio: dataAtual, dataTermino: null, status: 'ativa' };
             await salvar();
-            renderizarHistorico();
             alert('Competição finalizada com sucesso! O histórico foi salvo e uma nova competição vazia foi iniciada.');
         }
 
@@ -4178,15 +4092,9 @@
         });
         window.addEventListener('firestoreRelatoriosUpdated', (e) => {
             relatoriosDiarios = e.detail || {};
-            if (document.getElementById('telaRelatorios')?.classList.contains('ativa')) {
-                renderizarRelatorios();
-            }
         });
         window.addEventListener('firestoreHistoricoUpdated', (e) => {
             historicoCompeticions = e.detail || [];
-            if (document.getElementById('telaHistorico')?.classList.contains('ativa')) {
-                renderizarHistorico();
-            }
         });
         window.addEventListener('firestoreInitialDataLoaded', () => {
             renderizarGerenciamento();
@@ -4198,7 +4106,12 @@
             atualizarResumoDashboard();
         });
 
+        window.addEventListener('hashchange', atualizarVisibilidadeMenuInferior);
+
         document.addEventListener('DOMContentLoaded', () => {
+            atualizarVisibilidadeMenuInferior();
+            try { modoAdministrador = localStorage.getItem('futibAdmin') === '1'; } catch (e) {}
+            atualizarVisibilidadeAdmin();
             const rotaCompartilhada = window.location.hash.match(/^#\/c\/([A-Za-z0-9]+)$/);
             const painelApp = document.querySelector('.app-shell');
             if (painelApp) painelApp.style.pointerEvents = 'none';
@@ -4212,16 +4125,6 @@
 
             // Apply saved theme.
             try { aplicarTemaSalvo(); } catch(e){}
-
-            // Bind nav/menu items (data-view) to mostrarTela
-            document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
-                try {
-                    if (!btn.onclick) btn.addEventListener('click', (ev) => {
-                        const view = btn.getAttribute('data-view');
-                        if (view) mostrarTela(view);
-                    });
-                } catch(e){}
-            });
 
             // Bind any element with data-action to its global function if exists
             document.querySelectorAll('[data-action]').forEach(el => {
@@ -4302,4 +4205,3 @@
     </script>
 </body>
 </html>
-    
