@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Organizador de Futebol ⚽</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
         .tela { display: none; } .tela.ativa { display: block; } .tela.ativa.page-shell { display: flex; }
@@ -340,10 +343,7 @@
         .brand-logo { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 20px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; box-shadow: var(--shadow); }
         .brand-name { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; }
         .brand-subtitle { font-size: 12px; color: var(--muted); }
-        .nav-links { display: flex; flex: 1; flex-direction: row; flex-wrap: wrap; gap: 6px; }
-        .nav-settings { display: flex; align-items: center; padding-left: 16px; margin-left: auto; border-left: 1px solid var(--border); }
-        .nav-settings .nav-item { border: 1px solid var(--border); background: var(--surface); }
-        .nav-settings .nav-item:hover { border-color: var(--accent); background: rgba(59, 130, 246, 0.10); }
+        .nav-links { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; }
         .nav-item {
             border: none; background: transparent; color: var(--text); padding: 10px 14px; border-radius: 14px; text-align: left; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; cursor: pointer; white-space: nowrap;
         }
@@ -370,20 +370,8 @@
         .page-hero { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(34,197,85,0.12)); border: 1px solid var(--border); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); }
         .page-hero h2 { margin: 0 0 6px 0; font-size: 24px; }
         .page-hero p { margin: 0; color: var(--muted); }
-        .opcoes-painel { width: 100%; max-width: 1100px; align-self: center; padding: 26px; border: 1px solid var(--border); border-radius: 24px; background: var(--surface); box-shadow: var(--shadow); }
-        .opcoes-intro { display: flex; align-items: center; gap: 16px; padding: 4px 2px 22px; border-bottom: 1px solid var(--border); }
-        .opcoes-intro-icon { display: grid; place-items: center; flex: 0 0 54px; width: 54px; height: 54px; border-radius: 16px; background: rgba(59,130,246,0.13); font-size: 25px; }
-        .opcoes-intro h3 { margin: 0 0 6px; font-size: 18px; }
-        .opcoes-intro p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
-        .opcoes-section-label { margin: 22px 0 12px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-        .opcoes-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 0; }
-        .opcoes-grid .opcao-acao { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 12px; min-height: 156px; margin: 0; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-alt); color: var(--text); font-size: 15px; font-weight: 700; text-align: left; white-space: normal; transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease; }
-        .opcoes-grid .opcao-acao:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow); }
-        .opcao-acao .opcao-icone { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(59,130,246,.14); font-size: 21px; }
-        .opcao-acao .opcao-titulo { display: block; }
-        .opcao-acao .opcao-descricao { display: block; color: var(--muted); font-size: 12px; font-weight: 400; line-height: 1.5; }
-        @media (max-width: 900px) { .opcoes-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .opcoes-painel { padding: 20px; } }
-        @media (max-width: 560px) { .opcoes-grid { grid-template-columns: 1fr; } .opcoes-painel { padding: 16px; border-radius: 18px; } .opcoes-grid .opcao-acao { min-height: 130px; } }
+        .opcoes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+        .opcoes-grid .opcao-acao { display: flex; align-items: center; justify-content: flex-start; min-height: 76px; margin: 0; padding: 16px 18px; border-radius: 12px; font-size: 15px; font-weight: 700; text-align: left; }
         .hero-badge { padding: 10px 12px; border-radius: 999px; background: var(--surface); color: var(--accent); font-weight: 700; }
         .jogadores-toolbar { display: none; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 16px; }
@@ -461,9 +449,71 @@
         @media (max-width: 900px) {
             .topnav { padding: 12px 16px; gap: 12px; }
             .nav-item { flex: 1; min-width: 100px; justify-content: center; }
-            .nav-settings { border-left: 0; border-top: 1px solid var(--border); padding-left: 0; padding-top: 8px; margin-left: 0; width: 100%; }
-            .nav-settings .nav-item { flex: 0 0 auto; min-width: 120px; }
             .content-panel { padding: 16px; }
+        }
+        .public-rank-screen { display: none; min-height: 100vh; box-sizing: border-box; padding: 38px 24px; color: #fff; background: linear-gradient(125deg, #0b1a2e 0%, #102542 58%, #13294b 100%); font-family: Arial, sans-serif; position: relative; overflow: hidden; }
+        .public-rank-screen::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.13; background: repeating-linear-gradient(135deg, transparent 0 34px, rgba(255,255,255,0.12) 35px, transparent 36px 72px); }
+        .public-rank-header, .public-rank-tabs, .public-rank-layout { position: relative; z-index: 1; }
+        .public-rank-header { max-width: 1040px; margin: 0 auto 28px; }
+        .public-rank-tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; max-width: 1040px; margin: 0 auto 26px; }
+        .public-rank-tab { flex: 0 0 auto; margin: 0; padding: 10px 16px; border: 2px solid transparent; border-radius: 999px; color: #1a1a1a; font-size: 12px; font-weight: 900; text-transform: uppercase; opacity: 0.72; transition: opacity 160ms ease, box-shadow 160ms ease, border-color 160ms ease; }
+        .public-rank-tab[data-ranking="gols"] { background: #b08d2a; }
+        .public-rank-tab[data-ranking="assis"] { background: #7a8593; }
+        .public-rank-tab[data-ranking="vermelho"] { color: #fff; background: #e53935; }
+        .public-rank-tab[data-ranking="amarelo"] { background: #ffd33d; }
+        .public-rank-tab[aria-pressed="true"] { opacity: 1; border-color: rgba(255,255,255,0.9); box-shadow: 0 0 14px rgba(255,255,255,0.28); }
+        .public-rank-organizer { color: #fff; font-size: 18px; font-weight: 900; letter-spacing: 0; text-transform: uppercase; }
+        .public-rank-date { margin-top: 6px; color: rgba(255,255,255,0.68); font-size: 14px; }
+        .public-rank-layout { display: none; width: 100%; max-width: 1040px; margin: 0 auto; }
+        .public-rank-layout.visible { display: block; }
+        .public-rank-section-ranking { display: flex; gap: 24px; align-items: stretch; }
+        .public-rank-rail { flex: 0 0 120px; align-self: stretch; height: 100%; display: flex; flex-direction: row; align-items: flex-end; justify-content: center; }
+        .public-rank-rail-title { height: 100%; display: flex; flex-direction: row; align-items: flex-end; justify-content: center; gap: 2px; color: #fff; font-family: Impact, 'Arial Black', sans-serif; font-size: 56px; font-weight: 900; line-height: 1; text-transform: uppercase; white-space: nowrap; }
+        .public-rank-rail-title span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: inherit; font-weight: 900; line-height: 1; text-transform: uppercase; }
+        .public-rank-rail-title span:last-child { color: #4aa3ff; }
+        .public-rank-content { width: 100%; min-width: 0; }
+        .public-rank-section { margin: 0 0 34px; }
+        .public-rank-section h2 { margin: 0 0 14px; color: #fff; font-family: 'Bebas Neue', Impact, sans-serif; font-size: 30px; font-weight: 400; letter-spacing: 0; }
+        .public-rank-list { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+        .public-rank-row { display: grid; grid-template-columns: 22px minmax(0, 1fr); align-items: center; gap: 8px; min-height: 72px; }
+        .public-rank-star { flex: 0 0 22px; color: #e0b04a; font-size: 19px; text-align: center; }
+        .public-rank-row:nth-child(2) .public-rank-star { color: #d8dde3; }
+        .public-rank-row:nth-child(3) .public-rank-star { color: #b07a4a; }
+        .public-rank-bar { box-sizing: border-box; display: flex; align-items: center; gap: 14px; width: var(--rank-width); min-width: 45%; min-height: 72px; padding: 10px 18px; border-radius: 4px; background: linear-gradient(135deg, #5a616b, #464c55); }
+        .public-rank-row:nth-child(1) .public-rank-bar { background: linear-gradient(135deg, #e6c14a, #b08d2a); }
+        .public-rank-row:nth-child(2) .public-rank-bar { background: linear-gradient(135deg, #f0f2f5, #c5ccd4); }
+        .public-rank-row:nth-child(3) .public-rank-bar { background: linear-gradient(135deg, #8a5a2b, #6b4420); }
+        .public-rank-position, .public-rank-value { flex: 0 0 auto; font-family: 'Bebas Neue', Impact, sans-serif; font-size: 38px; line-height: 1; color: #d0d5dc; text-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .public-rank-position { min-width: 34px; }
+        .public-rank-avatar { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: rgba(11,26,46,0.48); font-size: 17px; font-weight: 800; }
+        .public-rank-player { min-width: 0; flex: 1; display: flex; flex-direction: column; color: #d0d5dc; line-height: 1.05; }
+        .public-rank-firstname { font-size: 12px; opacity: 0.85; text-transform: uppercase; }
+        .public-rank-surname { font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
+        .public-rank-value { min-width: 32px; text-align: right; color: #d0d5dc; }
+        .public-rank-row:nth-child(-n+2) .public-rank-position, .public-rank-row:nth-child(-n+2) .public-rank-player, .public-rank-row:nth-child(-n+2) .public-rank-value { color: #1a1a1a; text-shadow: none; }
+        .public-rank-row:nth-child(3) .public-rank-position, .public-rank-row:nth-child(3) .public-rank-player, .public-rank-row:nth-child(3) .public-rank-value { color: #fff; }
+        .public-rank-empty { max-width: 560px; margin: 12vh auto; padding: 36px 24px; border: 1px solid rgba(142,203,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.07); text-align: center; font-family: 'Bebas Neue', Impact, sans-serif; font-size: 30px; }
+        .public-rank-section[data-ranking-section] { display: none; }
+        .public-rank-layout[data-ranking="gols"] #secaoArtilhariaCompartilhada,
+        .public-rank-layout[data-ranking="assis"] #secaoAssistenciasCompartilhada,
+        .public-rank-layout[data-ranking="vermelho"] #secaoCartaoVermelhoCompartilhada,
+        .public-rank-layout[data-ranking="amarelo"] #secaoCartaoAmareloCompartilhada { display: block; }
+        @media (max-width: 480px) {
+            .public-rank-screen { padding: 24px 14px; }
+            .public-rank-header { margin-bottom: 20px; }
+            .public-rank-tabs { gap: 8px; margin-bottom: 20px; }
+            .public-rank-tab { flex: 1 1 calc(50% - 8px); max-width: 220px; padding: 9px 8px; }
+            .public-rank-layout.visible { display: block; }
+            .public-rank-section-ranking { gap: 12px; }
+            .public-rank-rail { flex-basis: 80px; }
+            .public-rank-rail-title { font-size: 36px; }
+            .public-rank-row { width: 100%; }
+            .public-rank-bar { width: var(--rank-width); min-width: 45%; gap: 9px; padding: 9px 10px; }
+            .public-rank-position, .public-rank-value { font-size: 32px; }
+            .public-rank-avatar { width: 38px; height: 38px; flex-basis: 38px; }
+            .public-rank-surname { font-size: 15px; }
+            .public-card-columns { gap: 10px; }
+            .public-card-column { padding: 12px 9px; }
         }
         @media (max-width: 640px) {
             .topbar { flex-direction: column; align-items: flex-start; }
@@ -515,8 +565,6 @@
                 <button class="nav-item" data-view="estatisticas" onclick="mostrarTela('estatisticas')">📊 Estatísticas</button>
                 <button class="nav-item" data-view="relatorios" onclick="mostrarTela('relatorios')">📜 Relatórios</button>
                 <button class="nav-item" data-view="historico" onclick="mostrarTela('historico')">🕓 Histórico</button>
-            </div>
-            <div class="nav-settings">
                 <button class="nav-item" data-view="opcoes" onclick="mostrarTela('opcoes')">⚙ Opções</button>
             </div>
         </header>
@@ -653,39 +701,61 @@
                 </div>
 
                 <div id="telaOpcoes" class="tela page-shell">
-                    <div class="page-hero"><div><h2>Opções</h2><p>Central de ferramentas e gerenciamento do FUTIB</p></div><div class="hero-badge">⚙️ Configurações</div></div>
-                    <section class="opcoes-painel" aria-label="Painel de opções">
-                        <div class="opcoes-intro">
-                            <div class="opcoes-intro-icon" aria-hidden="true">⚙️</div>
-                            <div><h3>Central de gerenciamento</h3><p>Escolha uma ação abaixo. Cada ferramenta está organizada em seu próprio cartão para facilitar o acesso.</p></div>
-                        </div>
-                        <div class="opcoes-section-label">Ferramentas de jogadores</div>
-                        <div id="selecaoCadastro" class="opcoes-grid">
-                            <button class="opcao-acao btn-blue" onclick="mostrarGerenciarJogadores()"><span class="opcao-icone">👤</span><span class="opcao-titulo">Gerenciar Jogadores</span><span class="opcao-descricao">Visualize e gerencie os jogadores cadastrados.</span></button>
-                            <button class="opcao-acao btn-green" onclick="abrirModalCadastroJogador()"><span class="opcao-icone">➕</span><span class="opcao-titulo">Cadastrar Jogador</span><span class="opcao-descricao">Adicione um novo jogador ao seu elenco.</span></button>
-                            <button id="btnMostrarJogadores" class="opcao-acao btn-orange" onclick="alternarVisibilidadeJogadores()"><span class="opcao-icone">👥</span><span class="opcao-titulo">Mostrar Jogadores</span><span class="opcao-descricao">Alterne a exibição da lista de jogadores.</span></button>
-                        </div>
-                    </section>
+                    <div class="page-hero"><div><h2>Opções</h2><p>Ações de gerenciamento de jogadores</p></div></div>
+                    <div id="selecaoCadastro" class="opcoes-grid">
+                        <button class="opcao-acao btn-blue" onclick="mostrarGerenciarJogadores()">👤 Gerenciar Jogadores</button>
+                        <button class="opcao-acao btn-green" onclick="abrirModalCadastroJogador()">➕ Cadastrar Jogador</button>
+                        <button id="btnMostrarJogadores" class="opcao-acao btn-orange" onclick="alternarVisibilidadeJogadores()">👥 Mostrar Jogadores</button>
+                    </div>
                 </div>
 
             </section>
         </main>
     </div>
 
-    <main id="telaCompartilhada" style="display:none; max-width:900px; margin:40px auto; padding:24px; background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.1);">
-        <h1 style="margin-top:0;">Resultados compartilhados</h1>
-        <p id="statusCompartilhado">Carregando resultados...</p>
-        <section id="resumoCompartilhado" style="display:none;">
-            <h2 id="dataCompartilhada"></h2>
-            <h3>Jogadores</h3>
-            <div style="overflow-x:auto;">
-                <table style="margin-top:8px;">
-                    <thead><tr><th>Jogador</th><th>Gols</th><th>Assistências</th><th>Partidas</th></tr></thead>
-                    <tbody id="jogadoresCompartilhados"></tbody>
-                </table>
+    <main id="telaCompartilhada" class="public-rank-screen">
+        <nav class="public-rank-tabs" aria-label="Selecionar ranking">
+            <button type="button" class="public-rank-tab" data-ranking="gols" aria-pressed="true" onclick="selecionarRankingPublico('gols')">Artilharia</button>
+            <button type="button" class="public-rank-tab" data-ranking="assis" aria-pressed="false" onclick="selecionarRankingPublico('assis')">Assistência</button>
+            <button type="button" class="public-rank-tab" data-ranking="vermelho" aria-pressed="false" onclick="selecionarRankingPublico('vermelho')">Cartão vermelho</button>
+            <button type="button" class="public-rank-tab" data-ranking="amarelo" aria-pressed="false" onclick="selecionarRankingPublico('amarelo')">Cartão amarelo</button>
+        </nav>
+        <header class="public-rank-header">
+            <div id="nomeCampeonatoCompartilhado" class="public-rank-organizer">IBLAGOA</div>
+            <div id="dataCompartilhada" class="public-rank-date"></div>
+            <p id="statusCompartilhado">Carregando resultados...</p>
+        </header>
+        <section id="resumoCompartilhado" class="public-rank-layout" data-ranking="gols">
+            <div class="public-rank-content">
+                <section id="secaoArtilhariaCompartilhada" class="public-rank-section" data-ranking-section="gols">
+                    <h2>Artilharia</h2>
+                    <div class="public-rank-section-ranking">
+                        <aside class="public-rank-rail" aria-hidden="true"><div class="public-rank-rail-title"><span>RANK</span><span class="public-rank-category">ARTILHARIA</span></div></aside>
+                        <div id="listaGolsCompartilhados" class="public-rank-list"></div>
+                    </div>
+                </section>
+                <section id="secaoAssistenciasCompartilhada" class="public-rank-section" data-ranking-section="assis">
+                    <h2>Assistências</h2>
+                    <div class="public-rank-section-ranking">
+                        <aside class="public-rank-rail" aria-hidden="true"><div class="public-rank-rail-title"><span>RANK</span><span class="public-rank-category">ASSISTÊNCIA</span></div></aside>
+                        <div id="listaAssistenciasCompartilhadas" class="public-rank-list"></div>
+                    </div>
+                </section>
+                <section id="secaoCartaoVermelhoCompartilhada" class="public-rank-section" data-ranking-section="vermelho">
+                    <h2>Cartão vermelho</h2>
+                    <div class="public-rank-section-ranking">
+                        <aside class="public-rank-rail" aria-hidden="true"><div class="public-rank-rail-title"><span>RANK</span><span class="public-rank-category">CARTÃO VERMELHO</span></div></aside>
+                        <div id="listaVermelhosCompartilhados" class="public-rank-list"></div>
+                    </div>
+                </section>
+                <section id="secaoCartaoAmareloCompartilhada" class="public-rank-section" data-ranking-section="amarelo">
+                    <h2>Cartão amarelo</h2>
+                    <div class="public-rank-section-ranking">
+                        <aside class="public-rank-rail" aria-hidden="true"><div class="public-rank-rail-title"><span>RANK</span><span class="public-rank-category">CARTÃO AMARELO</span></div></aside>
+                        <div id="listaAmarelosCompartilhados" class="public-rank-list"></div>
+                    </div>
+                </section>
             </div>
-            <h3>Estatísticas de hoje</h3>
-            <pre id="estatisticasCompartilhadas" style="white-space:pre-wrap; overflow-wrap:anywhere; background:#f5f5f5; padding:12px; border-radius:6px;"></pre>
         </section>
     </main>
 
@@ -896,6 +966,24 @@
             });
         }
 
+        function selecionarRankingPublico(ranking) {
+            const categorias = {
+                gols: 'ARTILHARIA',
+                assis: 'ASSISTÊNCIA',
+                vermelho: 'CARTÃO VERMELHO',
+                amarelo: 'CARTÃO AMARELO'
+            };
+            const resumo = document.getElementById('resumoCompartilhado');
+            if (!resumo || !categorias[ranking]) return;
+            resumo.dataset.ranking = ranking;
+            document.querySelectorAll('#telaCompartilhada .public-rank-tab').forEach(botao => {
+                botao.setAttribute('aria-pressed', String(botao.dataset.ranking === ranking));
+            });
+            document.querySelectorAll('#telaCompartilhada .public-rank-category').forEach(titulo => {
+                titulo.textContent = categorias[ranking];
+            });
+        }
+
         async function carregarCampeonatoPublico(id) {
             const painel = document.querySelector('.app-shell');
             const tela = document.getElementById('telaCompartilhada');
@@ -913,25 +1001,69 @@
 
                 const dados = documento.data() || {};
                 const jogadores = dados.jogadoresStats && typeof dados.jogadoresStats === 'object' ? dados.jogadoresStats : {};
-                const corpoTabela = document.getElementById('jogadoresCompartilhados');
                 const resumo = document.getElementById('resumoCompartilhado');
-                document.getElementById('dataCompartilhada').textContent = dados.dataAtual ? `Resultados de ${dados.dataAtual}` : 'Resultados do dia';
-                corpoTabela.replaceChildren();
+                const tituloCampeonato = document.getElementById('nomeCampeonatoCompartilhado');
+                const dataCampeonato = document.getElementById('dataCompartilhada');
+                tituloCampeonato.textContent = dados.nomeCampeonato || dados.campeonato || dados.organizador || 'IBLAGOA';
+                dataCampeonato.textContent = dados.dataAtual ? `Campeonato de ${dados.dataAtual}` : 'Campeonato';
 
-                Object.entries(jogadores).sort((a, b) => Number((b[1] || {}).gols || 0) - Number((a[1] || {}).gols || 0)).forEach(([nome, dadosJogador]) => {
-                    const jogador = normalizarJogador(nome, dadosJogador);
-                    const linha = document.createElement('tr');
-                    [nome, jogador.gols, jogador.assis, jogador.partidas].forEach(valor => {
-                        const celula = document.createElement('td');
-                        celula.textContent = String(valor);
-                        linha.appendChild(celula);
+                const rankings = Object.entries(jogadores).map(([nome, valor]) => ({ nome, jogador: normalizarJogador(nome, valor) }));
+                const renderizarRanking = (idLista, campo) => {
+                    const lista = document.getElementById(idLista);
+                    const classificados = rankings.filter(item => item.jogador[campo] > 0).sort((a, b) => b.jogador[campo] - a.jogador[campo] || a.nome.localeCompare(b.nome, 'pt-BR'));
+                    lista.replaceChildren();
+                    if (!classificados.length) {
+                        const vazio = document.createElement('div');
+                        vazio.className = 'public-rank-empty';
+                        vazio.textContent = 'Nenhum jogador registrado nesta categoria.';
+                        lista.appendChild(vazio);
+                        return 0;
+                    }
+                    const maiorValor = classificados.length ? classificados[0].jogador[campo] : 0;
+                    classificados.forEach(({ nome, jogador }, indice) => {
+                        const linha = document.createElement('div');
+                        linha.className = 'public-rank-row';
+                        const estrela = document.createElement('span');
+                        estrela.className = 'public-rank-star';
+                        estrela.textContent = indice < 3 ? '★' : '';
+                        const barra = document.createElement('div');
+                        barra.className = 'public-rank-bar';
+                        barra.style.setProperty('--rank-width', `${45 + jogador[campo] / maiorValor * 55}%`);
+                        const posicao = document.createElement('span');
+                        posicao.className = 'public-rank-position';
+                        posicao.textContent = String(indice + 1);
+                        const avatar = document.createElement('span');
+                        avatar.className = 'public-rank-avatar';
+                        avatar.textContent = nome.trim().charAt(0).toLocaleUpperCase('pt-BR');
+                        const nomePartes = nome.trim().split(/\s+/);
+                        const jogadorNome = document.createElement('span');
+                        jogadorNome.className = 'public-rank-player';
+                        if (nomePartes.length > 1) {
+                            const primeiroNome = document.createElement('span');
+                            primeiroNome.className = 'public-rank-firstname';
+                            primeiroNome.textContent = nomePartes[0];
+                            jogadorNome.appendChild(primeiroNome);
+                        }
+                        const sobrenome = document.createElement('span');
+                        sobrenome.className = 'public-rank-surname';
+                        sobrenome.textContent = nomePartes.length > 1 ? nomePartes.slice(1).join(' ') : nome;
+                        jogadorNome.appendChild(sobrenome);
+                        const valor = document.createElement('span');
+                        valor.className = 'public-rank-value';
+                        valor.textContent = String(jogador[campo]);
+                        barra.append(posicao, avatar, jogadorNome, valor);
+                        linha.append(estrela, barra);
+                        lista.appendChild(linha);
                     });
-                    corpoTabela.appendChild(linha);
-                });
-
-                document.getElementById('estatisticasCompartilhadas').textContent = JSON.stringify(dados.estatisticasDia || {}, null, 2);
+                    return classificados.length;
+                };
+                renderizarRanking('listaGolsCompartilhados', 'gols');
+                renderizarRanking('listaAssistenciasCompartilhadas', 'assis');
+                renderizarRanking('listaVermelhosCompartilhados', 'vermelho');
+                renderizarRanking('listaAmarelosCompartilhados', 'amarelo');
+                selecionarRankingPublico('gols');
                 status.textContent = '';
-                resumo.style.display = 'block';
+                resumo.classList.add('visible');
             } catch (erro) {
                 status.textContent = 'Não foi possível carregar os resultados compartilhados.';
                 console.warn('Erro ao carregar campeonato público:', erro);
@@ -4170,3 +4302,4 @@
     </script>
 </body>
 </html>
+    
