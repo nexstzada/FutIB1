@@ -47,4 +47,4 @@ Este projeto está sob a licença [MIT](LICENSE).
 
 ---
 
-Feito por [Anthony Gabriel](https://github.com/nexstzada).
+Feito por [Nexst](https://github.com/nexstzada).
